@@ -1,0 +1,1174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="GradeModerationMarks_Delete" xml:space="preserve">
+    <value>DELETE GradeModerationMarks WHERE ModerationId = @ModerationId</value>
+  </data>
+  <data name="GradeModerationMarks_Insert" xml:space="preserve">
+    <value>INSERT INTO [GradeModerationMarks]
+           ([ModerationId]
+           ,[UserId]
+           ,[GradeObjectId]
+           ,[MarksBefore]
+           ,[MarksAfter]
+           ,[MaxMarks]
+           ,[AdjustedMarksBefore]
+           ,[AdjustedMaxMarks]
+           ,[CalculatedMarksBefore]
+           ,[CalculatedMaxMarks])
+     VALUES
+           (@ModerationId
+           ,@UserId
+           ,@GradeObjectId
+           ,@MarksBefore
+           ,@MarksAfter
+           ,@MaxMarks
+           ,@AdjustedMarksBefore
+           ,@AdjustedMaxMarks
+           ,@CalculatedMarksBefore
+           ,@CalculatedMaxMarks)</value>
+  </data>
+  <data name="GradeModerations_Delete" xml:space="preserve">
+    <value>UPDATE GradeModerations SET IsDeleted = 1, DeletedBy = @DeletedBy, DeletedTime=@DeletedTime, LastUpdatedBy = @LastUpdatedBy, LastUpdatedTime = @LastUpdatedTime WHERE ModerationId = @ModerationId</value>
+  </data>
+  <data name="GradeModeration_GetByCourse" xml:space="preserve">
+    <value>SELECT 
+	   gm.[ModerationId]
+      ,gm.[CourseId]
+      ,gm.[GradeObjectId]
+      ,gm.[ModerationTypeId]
+      ,gm.[MarkRange1]
+      ,gm.[MarkRange2]
+      ,gm.[AdjustMarks]
+      ,gm.[LastUpdatedBy]
+      ,gm.[LastUpdatedTime]
+      ,gm.[IsDeleted]
+      ,gm.[DeletedBy]
+      ,gm.[DeletedTime]
+	  ,gmt.[Name] ModerationTypeName
+	  ,us.DisplayName AS ModeratedBy
+FROM 
+  [GradeModerations] gm
+  INNER JOIN dbo.GradeModerationTypes gmt ON gmt.ModerationTypeId = gm.ModerationTypeId
+  INNER JOIN dbo.Users us ON us.Id = gm.LastUpdatedBy WHERE gm.CourseId = @CourseId AND gm.IsDeleted = 0</value>
+  </data>
+  <data name="GradeModeration_Insert" xml:space="preserve">
+    <value>INSERT INTO [GradeModerations]
+           (
+           [CourseId]
+           ,[GradeObjectId]
+           ,[ModerationTypeId]
+           ,[MarkRange1]
+           ,[MarkRange2]
+           ,[AdjustMarks]
+           ,[LastUpdatedBy]
+           ,[LastUpdatedTime]
+           ,[IsDeleted]
+           ,[DeletedBy]
+           ,[DeletedTime])
+  OUTPUT Inserted.ModerationId    VALUES
+           (@CourseId
+           ,@GradeObjectId
+           ,@ModerationTypeId
+           ,@MarkRange1
+           ,@MarkRange2
+           ,@AdjustMarks
+           ,@LastUpdatedBy
+           ,@LastUpdatedTime
+           ,@IsDeleted
+           ,@DeletedBy
+           ,@DeletedTime)</value>
+  </data>
+  <data name="GradeObjectCategory_Delete" xml:space="preserve">
+    <value>DELETE dbo.GradeObjectCategory WHERE Id IN ( SELECT CategoryId FROM GradeObject WHERE CourseId = @CourseId )</value>
+  </data>
+  <data name="GradeObjectCategory_GetByCourseId" xml:space="preserve">
+    <value>SELECT [Id]
+      ,[Name]
+      ,[ShortName]
+      ,[CanExceedMax]
+      ,[ExcludeFromFinalGrade]
+      ,[StartDate]
+      ,[EndDate]
+      ,[Weight]
+      ,[MaxPoints]
+      ,[AutoPoints]
+      ,[WeightDistributionType]
+      ,[NumberOfHighestToDrop]
+      ,[NumberOfLowestToDrop]
+  FROM [GradeObjectCategory] WHERE Id IN (SELECT CategoryId FROM dbo.GradeObject WHERE CourseId = @CourseId)</value>
+  </data>
+  <data name="GradeObjectCategory_Insert" xml:space="preserve">
+    <value>INSERT INTO [GradeObjectCategory]
+           ([Id]
+           ,[Name]
+           ,[ShortName]
+           ,[CanExceedMax]
+           ,[ExcludeFromFinalGrade]
+           ,[StartDate]
+           ,[EndDate]
+           ,[Weight]
+           ,[MaxPoints]
+           ,[AutoPoints]
+           ,[WeightDistributionType]
+           ,[NumberOfHighestToDrop]
+           ,[NumberOfLowestToDrop]
+           ,[DisplayOrder])
+     VALUES
+           (@Id
+           ,@Name
+           ,@ShortName
+           ,@CanExceedMax
+           ,@ExcludeFromFinalGrade
+           ,@StartDate
+           ,@EndDate
+           ,@Weight
+           ,@MaxPoints
+           ,@AutoPoints
+           ,@WeightDistributionType
+           ,@NumberOfHighestToDrop
+           ,@NumberOfLowestToDrop
+           ,@DisplayOrder)</value>
+  </data>
+  <data name="GradeObject_Delete" xml:space="preserve">
+    <value>DELETE GradeObject WHERE CourseId = @CourseId</value>
+  </data>
+  <data name="GradeObject_GetByCourseId" xml:space="preserve">
+    <value>SELECT [Id]
+      ,[Name]
+      ,[ShortName]
+      ,[GradeType]
+      ,[CategoryId]
+      ,[DescriptionHtml]
+      ,[DescriptionText]
+      ,[Weight]
+      ,[ActivityId]
+      ,[MaxPoints]
+      ,[CanExceedMaxPoints]
+      ,[IsBonus]
+      ,[ExcludeFromFinalGradeCalculation]
+      ,[GradeSchemeId]
+      ,[GradeSchemeUrl]
+      ,[CourseId]
+  FROM [GradeObject] WHERE CourseId = @CourseId</value>
+  </data>
+  <data name="GradeObject_GetListData" xml:space="preserve">
+    <value>SELECT 
+	c.UserId,
+	a.DisplayName,
+	d.[Name],
+	d.Id,
+	(CASE WHEN LOWER(d.GradeType) = 'text' THEN -1 ELSE e.[Weight]  END) [Weight],
+	d.MaxPoints
+FROM 
+	dbo.Users a
+	INNER JOIN dbo.UserGradeObject b ON a.Id = b.UserId AND b.OrgUnitId = 6804
+	INNER JOIN dbo.UserEnrollments c ON a.Id = c.UserId AND c.CourseId = 6804
+	INNER JOIN dbo.GradeObject d ON d.Id = b.GradeObjectId
+	INNER JOIN dbo.GradeObjectCategory e ON e.Id = d.CategoryId</value>
+  </data>
+  <data name="GradeObject_Insert" xml:space="preserve">
+    <value>INSERT INTO [GradeObject]
+           ([Id]
+           ,[Name]
+           ,[ShortName]
+           ,[GradeType]
+           ,[CategoryId]
+           ,[DescriptionHtml]
+           ,[DescriptionText]
+           ,[Weight]
+           ,[ActivityId]
+           ,[MaxPoints]
+           ,[CanExceedMaxPoints]
+           ,[IsBonus]
+           ,[ExcludeFromFinalGradeCalculation]
+           ,[GradeSchemeId]
+           ,[GradeSchemeUrl]
+           ,[CourseId]
+           ,[DisplayOrder])
+     VALUES
+           (@Id
+           ,@Name
+           ,@ShortName
+           ,@GradeType
+           ,@CategoryId
+           ,@DescriptionHtml
+           ,@DescriptionText
+           ,@Weight
+           ,@ActivityId
+           ,@MaxPoints
+           ,@CanExceedMaxPoints
+           ,@IsBonus
+           ,@ExcludeFromFinalGradeCalculation
+           ,@GradeSchemeId
+           ,@GradeSchemeUrl
+           ,@CourseId
+           ,@DisplayOrder)</value>
+  </data>
+  <data name="Grade_GetByCourseId" xml:space="preserve">
+    <value>
+      SELECT GOB.Id, GOB.CategoryId AS CategoryId, GOB.Name, GradeType, GOB.Weight, GOB.MaxPoints, GOC.MaxPoints as CategoryMaxPoints, GOC.DisplayOrder as DisplayOrder
+      FROM GradeObject AS GOB
+      LEFT JOIN GradeObjectCategory AS GOC ON gob.CategoryId = GOC.Id 
+      WHERE GOB.CourseId = @CourseId
+      ORDER BY GOC.DisplayOrder
+    </value>
+  </data>
+  <data name="UserGradeObject_Delete" xml:space="preserve">
+    <value>DELETE UserGradeObject WHERE OrgUnitId = @CourseId AND UserId in @userIds</value>
+  </data>
+  <data name="UserGradeObject_GetByGradeObjectId" xml:space="preserve">
+    <value>IF @GradeObjectId &lt; 0
+                               BEGIN
+                               IF EXISTS (SELECT 1 FROM dbo.UserGradeObject AS UGO WHERE UGO.OrgUnitId = @CourseId AND UGO.GradeObjectTypeId = 8) 
+                               BEGIN
+                               SELECT TOP 1 @GradeObjectId = UGO.GradeObjectId FROM dbo.UserGradeObject AS UGO WHERE UGO.OrgUnitId = @CourseId AND UGO.GradeObjectTypeId = 8
+                               END
+                               ELSE
+                               BEGIN
+                               SELECT TOP 1 @GradeObjectId = UGO.GradeObjectId FROM dbo.UserGradeObject AS UGO WHERE UGO.OrgUnitId = @CourseId AND UGO.GradeObjectTypeId = 7
+                               END
+                               END
+
+                               SELECT 
+                               UGO.PointsNumerator,
+                               UGO.PointsDenominator,
+                               UGO.UserId,
+                               UGO.DisplayedGrade
+                               FROM UserGradeObject AS UGO WHERE UGO.GradeObjectId = @GradeObjectId AND  UGO.OrgUnitId = @CourseId</value>
+  </data>
+  <data name="UserGradeObject_GetDisplayUser" xml:space="preserve">
+    <value>SELECT DISTINCT
+	 a.DisplayName
+	,a.Id
+FROM Users a
+INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.CourseId = @CourseId
+INNER JOIN UserGradeObject c ON a.Id = c.UserId AND c.OrgUnitId = @CourseId
+INNER JOIN GradeObject d ON d.Id = c.GradeObjectId AND d.CourseId = @CourseId
+  </value>
+  </data>
+  <data name="UserGradeObject_GetRoundedFinal" xml:space="preserve">
+    <value>SELECT c.UserId,
+       a.DisplayName,
+       c.PointsNumerator,
+       c.DisplayedGrade,
+       c.GradeObjectId,
+       c.PointsDenominator,
+       c.OrgUnitCode,
+       c.OrgDefinedId,
+       c.WeightedDenominator,
+       c.WeightedNumerator
+FROM Users a
+    INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.CourseId = @CourseId
+    INNER JOIN UserGradeObject c ON a.Id = c.UserId AND c.OrgUnitId = @CourseId AND c.GradeObjectTypeId IN (7, 8)
+    INNER JOIN GradeObject d ON d.Id = c.GradeObjectId AND d.CourseId = @CourseId;
+</value>
+  </data>
+  <data name="UserGradeObject_GetUserGradeObjectByCourseId" xml:space="preserve">
+    <value>SELECT 
+	 a.DisplayName
+	,c.PointsNumerator
+	,c.PointsDenominator
+  ,c.WeightedDenominator
+  ,c.WeightedNumerator
+	,c.DisplayedGrade
+	,c.GradeObjectTypeId
+	,c.GradeObjectName
+	,c.GradeObjectId
+  ,d.CategoryId
+  ,c.UserId
+  ,c.GradeObjectTypeName
+  ,d.CourseId
+  ,e.MaxPoints As GradeObjectCategoryMaxPoints
+  ,c.CommentsForUser
+FROM Users a
+INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.CourseId = @CourseId
+INNER JOIN UserGradeObject c ON a.Id = c.UserId AND c.OrgUnitId = @CourseId
+INNER JOIN GradeObject d ON d.Id = c.GradeObjectId AND d.CourseId = @CourseId 
+LEFT JOIN GradeObjectCategory e ON e.Id = d.CategoryId
+</value>
+  </data>
+  <data name="UserGradeObject_Insert" xml:space="preserve">
+    <value>INSERT INTO [UserGradeObject]
+           ([GradeObjectId]
+           ,[GradeObjectName]
+           ,[GradeObjectTypeId]
+           ,[GradeObjectTypeName]
+           ,[PointsNumerator]
+           ,[PointsDenominator]
+           ,[WeightedDenominator]
+           ,[WeightedNumerator]
+           ,[LastModifiedDate]
+           ,[GradeObjectStartDate]
+           ,[GradeObjectEndDate]
+           ,[CommentsForUser]
+           ,[GraderUserId]
+           ,[PrivateGradeComments]
+           ,[UserId]
+           ,[OrgUnitId]
+           ,[OrgUnitCode]
+           ,[DisplayedGrade]
+           ,[OrgDefinedId])
+     VALUES
+           (@GradeObjectId
+           ,@GradeObjectName
+           ,@GradeObjectTypeId
+           ,@GradeObjectTypeName
+           ,@PointsNumerator
+           ,@PointsDenominator
+           ,@WeightedDenominator
+           ,@WeightedNumerator
+           ,@LastModifiedDate
+           ,@GradeObjectStartDate
+           ,@GradeObjectEndDate
+           ,@CommentsForUser
+           ,@GraderUserId
+           ,@PrivateGradeComments
+           ,@UserId
+           ,@OrgUnitId
+           ,@OrgUnitCode
+           ,@DisplayedGrade
+           ,@OrgDefinedId)</value>
+  </data>
+  <data name="GradeModerations_GetById" xml:space="preserve">
+    <value>SELECT [ModerationId]
+      ,[CourseId]
+      ,[GradeObjectId]
+      ,[ModerationTypeId]
+      ,[MarkRange1]
+      ,[MarkRange2]
+      ,[AdjustMarks]
+      ,[LastUpdatedBy]
+      ,[LastUpdatedTime]
+      ,[IsDeleted]
+      ,[DeletedBy]
+      ,[DeletedTime]
+  FROM [GradeModerations] WHERE ModerationId = @ModerationId AND IsDeleted = 0</value>
+  </data>
+  <data name="GradeModeration_GetHistoryById" xml:space="preserve">
+    <value>SELECT 
+	   gm.[ModerationId]
+      ,gm.[CourseId]
+      ,gm.[GradeObjectId]
+      ,gm.[ModerationTypeId]
+      ,gm.[MarkRange1]
+      ,gm.[MarkRange2]
+      ,gm.[AdjustMarks]
+      ,gm.[LastUpdatedBy]
+      ,gm.[LastUpdatedTime]
+      ,gm.[IsDeleted]
+      ,gm.[DeletedBy]
+      ,gm.[DeletedTime]
+	  ,gmt.[Name] ModerationTypeName
+	  ,us.DisplayName AS ModeratedBy
+FROM 
+  [GradeModerations] gm
+  INNER JOIN dbo.GradeModerationTypes gmt ON gmt.ModerationTypeId = gm.ModerationTypeId
+  INNER JOIN dbo.Users us ON us.Id = gm.LastUpdatedBy WHERE gm.CourseId = @CourseId AND gm.ModerationId = @ModerationId AND gm.IsDeleted = 0</value>
+  </data>
+  <data name="GradeModerationMarks_GetByModerationId" xml:space="preserve">
+    <value>SELECT [ModerationMarkId]
+      ,[ModerationId]
+      ,[UserId]
+      ,[GradeObjectId]
+      ,[MarksBefore]
+      ,[MarksAfter]
+      ,[MaxMarks]
+      ,[AdjustedMarksBefore]
+      ,[AdjustedMaxMarks]
+      ,[CalculatedMarksBefore]
+      ,[CalculatedMaxMarks]
+  FROM [GradeModerationMarks] WITH(NOLOCK) WHERE ModerationId = @ModerationId</value>
+  </data>
+  <data name="UserGradeObject_GetByCourseAndSection" xml:space="preserve">
+    <value>SELECT c.UserId,
+       a.DisplayName,
+       c.PointsNumerator,
+       c.DisplayedGrade,
+       c.GradeObjectId,
+       c.PointsDenominator,
+       c.OrgUnitCode,
+       c.OrgDefinedId,
+       c.WeightedDenominator,
+       c.WeightedNumerator,
+       c.Id,
+       c.GradeObjectTypeId
+    FROM Users a
+    INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.CourseId = @CourseId
+    INNER JOIN UserGradeObject c ON a.Id = c.UserId AND c.OrgUnitId = @CourseId AND c.GradeObjectTypeId IN (7, 8) AND LOWER(c.DisplayedGrade) 
+	  </value>
+  </data>
+  <data name="UserGradeObject_GetStudentForIGrades" xml:space="preserve">
+    <value>SELECT c.UserId,
+       a.DisplayName,
+       c.PointsNumerator,
+       c.DisplayedGrade,
+       c.GradeObjectId,
+       c.PointsDenominator,
+       c.OrgUnitCode,
+       c.OrgDefinedId,
+       c.WeightedDenominator,
+       c.WeightedNumerator,
+       c.GradeObjectTypeId
+FROM Users a
+    INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.CourseId = @CourseId
+    INNER JOIN UserGradeObject c ON a.Id = c.UserId AND c.OrgUnitId = @CourseId AND c.GradeObjectTypeId IN (7, 8)
+	WHERE NOT EXISTS (
+		 SELECT gsg.StudentId
+                           FROM GradeSubmissions gs
+                               INNER JOIN GradeSubmissionGrades gsg
+                                   ON gsg.CourseId = gs.CourseId
+                                      AND gsg.CourseOfferingCode = gs.CourseOfferingCode
+                                      AND gsg.GradeSubmissionId = gs.GradeSubmissionId
+							   INNER JOIN IGrades ig ON ig.CourseOfferingCode = gs.CourseOfferingCode AND ig.CourseId = gs.CourseId AND ig.SectionId = @SectionId AND ig.UserId = gsg.StudentId
+                               INNER JOIN GradeResetStatus grs
+                                   ON grs.GradeSubmissionId = gs.GradeSubmissionId
+                                      AND grs.CourseId = gs.CourseId
+                                      AND grs.RESET_STATUS = 'N'
+                           WHERE gs.CourseId = @CourseId
+                                 AND gs.CourseOfferingCode = @CourseOfferingCode
+                                 AND gsg.StudentId = b.UserId
+	)</value>
+  </data>
+  <data name="UserGradeObject_GetGradeInfo" xml:space="preserve">
+    <value>SELECT 
+	 ( SELECT u.DisplayName FROM Users u WHERE u.Id = ug.GraderUserId ) AS DisplayName,
+	ug.LastModifiedDate,
+  ug.UserId
+FROM 
+	Users us
+    INNER JOIN UserEnrollments ue ON ue.UserId = us.Id AND ue.CourseId = @CourseId
+    INNER JOIN UserGradeObject ug ON ug.UserId = us.Id AND LOWER(ug.DisplayedGrade) = 'i' AND ug.GradeObjectTypeId IN (7,8) AND ug.OrgUnitId = @CourseId</value>
+  </data>
+  <data name="UserGradeObject_UpdateDisplayedGrade" xml:space="preserve">
+    <value>UPDATE UserGradeObject SET DisplayedGrade = @DisplayedGrade, LastModifiedDate = @LastModifiedDate, GraderUserId = @GraderUserId WHERE UserId = @UserId AND GradeObjectId = @GradeObjectId</value>
+  </data>
+  <data name="UserGradeObject_GetFirstItem" xml:space="preserve">
+    <value>SELECT TOP 1 [Id]
+      ,[GradeObjectId]
+      ,[GradeObjectName]
+      ,[GradeObjectTypeId]
+      ,[GradeObjectTypeName]
+      ,[PointsNumerator]
+      ,[PointsDenominator]
+      ,[WeightedDenominator]
+      ,[WeightedNumerator]
+      ,[LastModifiedDate]
+      ,[GradeObjectStartDate]
+      ,[GradeObjectEndDate]
+      ,[CommentsForUser]
+      ,[GraderUserId]
+      ,[PrivateGradeComments]
+      ,[UserId]
+      ,[OrgUnitId]
+      ,[OrgUnitCode]
+      ,[DisplayedGrade]
+      ,[OrgDefinedId]
+  FROM [UserGradeObject] WHERE OrgUnitId = @CourseId</value>
+  </data>
+  <data name="GradeResetStatus_Insert" xml:space="preserve">
+    <value>INSERT INTO GradeResetStatus
+(
+    GradeSubmissionId,
+    CourseId,
+    CourseOfferingCode,
+    ACAD_CAREER,
+    STRM,
+    CLASS_NBR,
+    RESET_STATUS,
+    SUBMISSION_DATE
+)
+VALUES
+(   @GradeSubmissionId,
+    @CourseId,
+    @CourseOfferingCode,
+    @ACAD_CAREER,
+    @STRM,
+    @CLASS_NBR,
+    @RESET_STATUS,
+    @SUBMISSION_DATE
+)</value>
+  </data>
+  <data name="GradeSubmissionGrades_Insert" xml:space="preserve">
+    <value>INSERT INTO GradeSubmissionGrades
+(
+    GradeSubmissionId,
+    StudentId,
+    GradeObjectId,
+    StudentOrgDefinedId,
+    OriginalFinalMarks,
+    FinalMarks,
+    FinalGrade,
+    CourseId,
+    CourseOfferingCode
+)
+VALUES
+(   @GradeSubmissionId,
+    @StudentId,
+    @GradeObjectId,
+    @StudentOrgDefinedId,
+    @OriginalFinalMarks,
+    @FinalMarks,
+    @FinalGrade,
+    @CourseId,
+    @CourseOfferingCode
+)</value>
+  </data>
+  <data name="GradeSubmissions_Insert" xml:space="preserve">
+    <value>UPDATE GradeSubmissions SET IsLatest = '0' Where CourseOfferingCode = @CourseOfferingCode
+
+INSERT INTO GradeSubmissions
+(
+    CourseId,
+    CourseOfferingCode,
+    SubmissionTime,
+    SubmittedBy,
+    IsLatest,
+    AcknowledgeGradeRelease
+) OUTPUT INSERTED.GradeSubmissionId  
+VALUES
+(   @CourseId, 
+    @CourseOfferingCode,        
+    @SubmissionTime, 
+    @SubmittedBy,        
+	  @IsLatest,
+    @AcknowledgeGradeRelease
+)</value>
+  </data>
+  <data name="UserGradeObject_GetDataForSubmitGrade" xml:space="preserve">
+    <value>WITH cte
+AS (SELECT DISTINCT
+           c.UserId,
+           c.PointsNumerator,
+           c.DisplayedGrade,
+           c.GradeObjectId,
+           c.PointsDenominator,
+           c.OrgUnitCode,
+           c.OrgDefinedId,
+           c.WeightedDenominator,
+           c.WeightedNumerator,
+           c.GradeObjectTypeId,
+           COUNT(c.UserId) AS CountUser
+    FROM Users a
+        INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.CourseId = @CourseId
+        INNER JOIN UserGradeObject c ON a.Id = c.UserId AND c.OrgUnitId = @CourseId AND c.GradeObjectTypeId IN ( 7, 8 )
+    GROUP BY c.UserId,
+             c.PointsNumerator,
+             c.DisplayedGrade,
+             c.GradeObjectId,
+             c.PointsDenominator,
+             c.OrgUnitCode,
+             c.OrgDefinedId,
+             c.WeightedDenominator,
+             c.WeightedNumerator,
+             c.GradeObjectTypeId)
+SELECT UserId,
+       PointsNumerator,
+       DisplayedGrade,
+       GradeObjectId,
+       PointsDenominator,
+       OrgUnitCode,
+       OrgDefinedId,
+       WeightedDenominator,
+       WeightedNumerator,
+       GradeObjectTypeId
+FROM cte
+WHERE cte.CountUser = 1
+UNION
+SELECT UserId,
+       PointsNumerator,
+       DisplayedGrade,
+       GradeObjectId,
+       PointsDenominator,
+       OrgUnitCode,
+       OrgDefinedId,
+       WeightedDenominator,
+       WeightedNumerator,
+       GradeObjectTypeId
+FROM cte
+WHERE cte.CountUser &gt; 1
+      AND cte.GradeObjectTypeId = 7;</value>
+  </data>
+  <data name="GradeSubmissionGrades_CheckExist" xml:space="preserve">
+    <value>SELECT 1
+FROM Users a
+    INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.CourseId = @CourseId
+    INNER JOIN UserGradeObject c ON a.Id = c.UserId AND c.OrgUnitId = @CourseId AND c.GradeObjectTypeId IN (7, 8)
+	INNER JOIN GradeSubmissionGrades gg ON gg.GradeObjectId = c.GradeObjectId AND gg.CourseId = @CourseId AND gg.StudentId = c.UserId
+	INNER JOIN GradeSubmissions gs ON gs.GradeSubmissionId = gg.GradeSubmissionId
+	INNER JOIN GradeResetStatus gr ON gr.GradeSubmissionId = gs.Id AND gr.RESET_STATUS='N'</value>
+  </data>
+  <data name="GradeRelease_GetByOrgUnitId" xml:space="preserve">
+    <value>SELECT GR.GradeReleaseId,
+       GR.IsLatest,
+	   GRS.GradeReleaseSettingId,
+       GRS.GradeObjectId,
+       GRS.SortOrder,
+       GRS.IsReleased,
+       GRS.StartDate,
+       GRS.IsPointsDisplayed,
+       GRS.IsSymbolDisplayed,
+       GRS.IsWeightDisplayed,
+       GRS.IsAverageDisplayed,
+       GRS.IsMinMaxDisplayed,
+	   GR.LastUpdatedBy,
+	   U.DisplayName AS LastUpdatedUser,
+	   GR.LastUpdatedTime
+	    FROM GradeReleases GR
+INNER JOIN GradeReleaseSettings AS GRS ON GRS.GradeReleaseId = GR.GradeReleaseId
+INNER JOIN Users AS U ON U.Id = GR.LastUpdatedBy
+WHERE GR.OrgUnitId = @orgUnitId</value>
+  </data>
+  <data name="GradeReleaseSetting_Update" xml:space="preserve">
+    <value>UPDATE dbo.GradeReleaseSettings SET
+    GradeReleaseId = @GradeReleaseId,
+    GradeObjectId = @GradeObjectId,
+    OrgUnitId = @OrgUnitId,
+    SortOrder = @SortOrder,
+    IsReleased = @IsReleased,
+    StartDate =  @StartDate,
+    IsPointsDisplayed = @IsPointsDisplayed,
+    IsSymbolDisplayed = @IsSymbolDisplayed,
+    IsWeightDisplayed = @IsWeightDisplayed,
+    IsAverageDisplayed = @IsAverageDisplayed,
+    IsMinMaxDisplayed = @IsMinMaxDisplayed
+WHERE GradeReleaseSettingId = @GradeReleaseSettingId</value>
+  </data>
+  <data name="GradeReleaseSetting_Insert" xml:space="preserve">
+    <value>INSERT INTO GradeReleaseSettings
+(
+    GradeReleaseId,
+    GradeObjectId,
+    OrgUnitId,
+    SortOrder,
+    IsReleased,
+    StartDate,
+    IsPointsDisplayed,
+    IsSymbolDisplayed,
+    IsWeightDisplayed,
+    IsAverageDisplayed,
+    IsMinMaxDisplayed
+)
+VALUES
+(
+   @GradeReleaseId,
+   @GradeObjectId,
+   @OrgUnitId,
+   @SortOrder,
+   @IsReleased,
+   @StartDate,
+   @IsPointsDisplayed,
+   @IsSymbolDisplayed,
+   @IsWeightDisplayed,
+   @IsAverageDisplayed,
+   @IsMinMaxDisplayed
+    )</value>
+  </data>
+  <data name="GradeRelease_Insert" xml:space="preserve">
+    <value>IF EXISTS(SELECT 1 FROM GradeReleases AS GR WHERE GR.OrgUnitId = @OrgUnitId)
+ BEGIN
+
+ UPDATE dbo.GradeReleases SET
+ LastUpdatedBy = @LastUpdatedBy,
+ LastUpdatedTime = @LastUpdatedTime
+ OUTPUT Inserted.GradeReleaseId
+ WHERE OrgUnitId = @OrgUnitId
+
+ END
+ ELSE
+ BEGIN 
+
+INSERT INTO GradeReleases
+(
+    OrgUnitId,
+    LastUpdatedBy,
+    LastUpdatedTime,
+    IsLatest
+) OUTPUT Inserted.GradeReleaseId
+VALUES
+(   
+    @OrgUnitId,    
+    @LastUpdatedBy,      
+    @LastUpdatedTime, 
+    @IsLatest    
+    )
+
+	END</value>
+  </data>
+  <data name="IGrade_Insert" xml:space="preserve">
+    <value>INSERT INTO [IGrades]
+           ([CourseOfferingCode]
+           ,[CourseId]
+           ,[SectionId]
+           ,[UserId]
+           ,[LastUpdatedBy]
+           ,[LastUpdatedTime])
+     VALUES
+           (@CourseOfferingCode
+           ,@CourseId
+           ,@SectionId
+           ,@UserId
+           ,@LastUpdatedBy
+           ,@LastUpdatedTime)</value>
+  </data>
+  <data name="IGrades_Delete" xml:space="preserve">
+    <value> DELETE ig
+    FROM IGrades ig  WHERE ig.CourseOfferingCode = @CourseOfferingCode AND ig.SectionId = @SectionId AND ig.CourseId = @CourseId
+    AND NOT EXISTS
+    (
+        SELECT gsg.StudentId
+        FROM GradeSubmissions gs
+            INNER JOIN GradeSubmissionGrades gsg
+                ON gsg.CourseId = gs.CourseId
+                   AND gsg.CourseOfferingCode = gs.CourseOfferingCode
+                   AND gsg.GradeSubmissionId = gs.GradeSubmissionId
+            INNER JOIN GradeResetStatus grs
+                ON grs.GradeSubmissionId = gs.GradeSubmissionId
+                   AND grs.CourseId = gs.CourseId
+                   AND grs.RESET_STATUS = 'N'
+        WHERE gs.CourseId = @CourseId
+              AND gs.CourseOfferingCode = @CourseOfferingCode
+              AND gsg.StudentId = ig.UserId
+    );</value>
+  </data>
+  <data name="IGrades_GetByCourseAndSectionWithOutSubmit" xml:space="preserve">
+    <value>SELECT
+	   [IGradeId]
+      ,[CourseOfferingCode]
+      ,[CourseId]
+      ,[SectionId]
+      ,[UserId]
+      ,[LastUpdatedBy]
+      ,[LastUpdatedTime]
+FROM IGrades ig
+WHERE ig.CourseId = @CourseId
+      AND ig.SectionId = @SectionId
+      AND NOT EXISTS
+          (
+              SELECT gsg.StudentId
+              FROM GradeSubmissionGrades gsg
+			        INNER JOIN GradeSubmissions gs ON gs.Id = gsg.GradeSubmissionId
+			        INNER JOIN GradeResetStatus grs ON grs.GradeSubmissionId = gs.Id AND grs.RESET_STATUS = 'N'
+              WHERE gsg.CourseId = @CourseId AND gs.SectionId = @SectionId AND gsg.StudentId = ig.UserId
+          );</value>
+  </data>
+  <data name="Grade_Submissions_GetByCourseId" xml:space="preserve">
+    <value>SELECT gs.[GradeSubmissionId]
+      ,gs.[CourseId]
+      ,gs.[CourseOfferingCode]
+      ,gs.[SubmissionTime]
+      ,( SELECT DisplayName FROM dbo.Users WHERE id = gs.SubmittedBy ) SubmittedByName
+      ,gs.[IsLatest]
+	    ,Grs.RESET_STATUS
+      ,gs.AcknowledgeGradeRelease
+FROM [GradeSubmissions] gs INNER JOIN GradeResetStatus grs ON Grs.GradeSubmissionId = gs.GradeSubmissionId WHERE gs.CourseId = @CourseId</value>
+  </data>
+  <data name="Grade_Submissions_GetByCourseIds" xml:space="preserve">
+    <value>SELECT gs.[GradeSubmissionId]
+      ,gs.[CourseId]
+      ,gs.[CourseOfferingCode]
+      ,gs.[SubmissionTime]
+      ,( SELECT DisplayName FROM dbo.Users WHERE id = gs.SubmittedBy ) SubmittedByName
+      ,gs.[IsLatest]
+	    ,Grs.RESET_STATUS
+      ,gs.AcknowledgeGradeRelease
+      FROM [GradeSubmissions] gs INNER JOIN GradeResetStatus grs ON Grs.GradeSubmissionId = gs.GradeSubmissionId 
+      WHERE gs.CourseId IN @CourseIds</value>
+  </data>
+  <data name="GradeSubmissionGrades_GetListStudentByCourseOfferingCode" xml:space="preserve">
+    <value>SELECT DISTINCT gsg.StudentId FROM 
+GradeSubmissions gs
+INNER JOIN GradeSubmissionGrades gsg ON gsg.CourseId = gs.CourseId AND gsg.CourseOfferingCode = gs.CourseOfferingCode AND gsg.GradeSubmissionId = gs.GradeSubmissionId
+INNER JOIN GradeResetStatus grs ON grs.GradeSubmissionId = gs.GradeSubmissionId AND grs.CourseId = gs.CourseId AND grs.RESET_STATUS = 'N' WHERE gs.CourseId = @CourseId AND gs.CourseOfferingCode = @CourseOfferingCode</value>
+  </data>
+  <data name="IGrades_GetListAllByCourse" xml:space="preserve">
+    <value>SELECT DISTINCT
+	ue.UserId,
+	ig.IGradeId,
+	se.SectionId,
+	se.[Name],
+	ig.LastUpdatedTime,
+	( SELECT u.DisplayName FROM Users u WHERE u.id = ig.LastUpdatedBy ) AS DisplayName
+FROM 
+	Users us
+    INNER JOIN UserEnrollments ue ON ue.UserId = us.Id AND ue.CourseId = @CourseId
+	INNER JOIN IGrades ig ON ig.UserId = us.Id AND ig.CourseId = ue.CourseId AND ig.SectionId = se.SectionId
+WHERE
+	 NOT EXISTS
+     (
+         SELECT gsg.StudentId
+         FROM GradeSubmissions gs
+             INNER JOIN GradeSubmissionGrades gsg
+                 ON gsg.CourseId = gs.CourseId
+                    AND gsg.CourseOfferingCode = gs.CourseOfferingCode
+                    AND gsg.GradeSubmissionId = gs.GradeSubmissionId
+             INNER JOIN GradeResetStatus grs
+                 ON grs.GradeSubmissionId = gs.GradeSubmissionId
+                    AND grs.CourseId = gs.CourseId
+                    AND grs.RESET_STATUS = 'N'
+         WHERE gs.CourseId = 6973
+               AND gs.CourseOfferingCode = ig.CourseOfferingCode
+               AND gsg.StudentId = ig.UserId
+     );</value>
+  </data>
+  <data name="GradeResetStatus_Update" xml:space="preserve">
+    <value>UPDATE dbo.GradeResetStatus SET
+    GradeSubmissionId = @GradeSubmissionId,
+    CourseId = @CourseId,
+    CourseOfferingCode = @CourseOfferingCode,
+    ACAD_CAREER = @ACAD_CAREER,
+    STRM = @STRM,
+    CLASS_NBR = @CLASS_NBR,
+    RESET_STATUS = @RESET_STATUS,
+    SUBMISSION_DATE = @SUBMISSION_DATE
+WHERE GradeSubmissionId = @GradeSubmissionId</value>
+  </data>
+  <data name="GradeDistribution_GetDistributionByCourseCodes" xml:space="preserve">
+    <value>SELECT
+    c.Id as CourseId,
+    COUNT(*) OVER() as TotalCount,
+	C.Name,
+    GS.CourseOfferingCode,
+    (SELECT TOP 1 Status from GPTReviewHistory where CourseId = C.ID ORDER BY ReviewedOn DESC) as ReviewStatus,
+	(SELECT TOP 1 ReviewedBy from GPTReviewHistory where CourseId = C.ID ORDER BY ReviewedOn DESC) as ReviewedBy,
+	(SELECT TOP 1 FlagReason from GPTReviewHistory where CourseId = C.ID ORDER BY ReviewedOn DESC) as FlagReason,
+    A.GradeSubmissionId,
+	B.TotalStudents,
+	GS.AcknowledgeGradeRelease,
+	GRS.ACAD_CAREER,
+	GRS.STRM,
+	(
+		STUFF((SELECT ', ' + u.DisplayName
+			   FROM UserEnrollments ue2, Users u
+			   WHERE ue2.CourseId = ue1.CourseId and
+				 ue2.RoleId IN (
+					SELECT TOP 1 Id from Roles
+					WHERE Name like 'Instructor'
+				 )  and
+				ue2.UserId = u.Id 
+			  FOR XML PATH('')), 1, 2, '') 
+	) as Instructors,
+	(
+		STUFF((SELECT ', ' + CAST(u.Id as varchar)
+			   FROM UserEnrollments ue2, Users u
+			   WHERE ue2.CourseId = ue1.CourseId and
+				 ue2.RoleId IN (
+					SELECT TOP 1 Id from Roles
+					WHERE Name like 'Instructor'
+				 )  and
+				ue2.UserId = u.Id 
+			  FOR XML PATH('')), 1, 2, '') 
+	) as InstructorIds,
+	COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'A' THEN Students
+            END
+        ),
+        0
+    ) 'A',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'A-' THEN Students
+            END
+        ),
+        0
+    ) 'AMinus',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'A+' THEN Students
+            END
+        ),
+        0
+    ) 'APlus',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'B' THEN Students
+            END
+        ),
+        0
+    ) 'B',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'B-' THEN Students
+            END
+        ),
+        0
+    ) 'BMinus',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'B+' THEN Students
+            END
+        ),
+        0
+    ) 'BPlus',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'C' THEN Students
+            END
+        ),
+        0
+    ) 'C',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'C-' THEN Students
+            END
+        ),
+        0
+    ) 'CMinus',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'C+' THEN Students
+            END
+        ),
+        0
+    ) 'CPlus',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'D' THEN Students
+            END
+        ),
+        0
+    ) 'D',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'D+' THEN Students
+            END
+        ),
+        0
+    ) 'DPlus',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'F' THEN Students
+            END
+        ),
+        0
+    ) 'F',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'I' THEN Students
+            END
+        ),
+        0
+    ) 'I',
+	COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'PR' THEN Students
+            END
+        ),
+        0
+    ) 'PR',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'Fail' THEN Students
+            END
+        ),
+        0
+    ) 'Fail',
+    COALESCE(
+        MAX(
+            CASE
+                WHEN FinalGrade = 'Pass' THEN Students
+            END
+        ),
+        0
+    ) 'Pass'
+FROM
+    (
+        SELECT
+            COUNT(StudentId) AS Students,
+            CourseId,
+            FinalGrade,
+            CourseOfferingCode,
+            GradeSubmissionId
+        FROM
+            GradeSubmissionGrades
+        WHERE
+            GradeSubmissionId IN (
+                SELECT
+                    GradeSubmissionId
+                FROM
+                    GradeResetStatus
+                WHERE
+                    RESET_STATUS = 'N'
+                    AND CourseOfferingCode IN @CourseCodes
+            )
+        GROUP BY
+            CourseId,
+            FinalGrade,
+            CourseOfferingCode,
+            GradeSubmissionId
+    ) A,
+	(
+		SELECT       
+			COUNT(GradeSubmissionId) as TotalStudents,
+			GradeSubmissionId
+		FROM
+			GradeSubmissionGrades
+		WHERE
+			GradeSubmissionId IN (
+				SELECT
+					GradeSubmissionId
+				FROM
+					GradeResetStatus
+				WHERE
+					RESET_STATUS = 'N'
+					AND CourseOfferingCode IN @CourseCodes
+			)
+		GROUP BY GradeSubmissionId
+	) B,
+	Courses C,
+	UserEnrollments ue1,
+	GradeSubmissions GS,
+	GradeResetStatus GRS
+WHERE A.GradeSubmissionId = B.GradeSubmissionId AND
+	A.CourseId = C.Id AND
+	ue1.CourseId = C.Id AND
+	GS.GradeSubmissionId = A.GradeSubmissionId AND
+	GRS.GradeSubmissionId = GS.GradeSubmissionId AND
+	GS.IsLatest = 1 AND
+    (C.Name like '%' + @SearchCondition + '%' OR C.Code like '%' + @SearchCondition + '%')
+GROUP BY
+    C.Id,
+	C.Name,
+    GS.CourseOfferingCode,
+    A.GradeSubmissionId,
+	B.TotalStudents,
+	ue1.CourseId,
+	GS.AcknowledgeGradeRelease,
+	GRS.ACAD_CAREER,
+	GRS.STRM
+ORDER BY C.Name
+OFFSET @PageSize * (@PageNumber - 1) ROWS FETCH NEXT @PageSize ROWS ONLY;</value>
+  </data>
+</root>

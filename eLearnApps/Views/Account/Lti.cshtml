@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewBag.Title = "eLearnApps - LTI";
+    Layout = "~/Views/Shared/_LayoutClean.cshtml";
+}
+<style>
+    .demo-section p {
+        line-height: 50px;
+        margin: 0 0 30px;
+    }
+
+        .demo-section p .k-button {
+            margin: 0 10px 0 0;
+        }
+
+    .k-primary {
+        min-width: 150px;
+    }
+</style>
+<form method="post" action="@Url.Action("LTI", "Account")" id="form">
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+
+            <div class="card">
+                <div class="card-header">
+                    <strong>Horizontal</strong> Form
+                </div>
+                <div class="card-body">
+                    <div class="form-group row">
+                        <label class="col-md-3 col-form-label" for="context_id">Course Id</label>
+                        <div class="col-md-9">
+                            <input class="k-textbox" id="context_id" name="context_id" placeholder="Enter course id.." value="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3 col-form-label" for="user_id">User Id</label>
+                        <div class="col-md-9">
+                            <input class="k-textbox" id="txtUserId" name="txtUserId" placeholder="Enter user id.." value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button id="btnFfts" type="submit" data-content="ffts">FFTS</button>
+                    <button id="btnIcs" type="submit" data-content="InClassSensing">ICS</button>
+                    <button id="btnClassPhoto" type="submit" data-content="cmt">Class Photos</button>
+                    <button id="btnJournal" type="submit" data-content="Journal">Journal</button>
+                    <button id="btnPet" type="submit" data-content="Pet">PET</button>
+                    <button id="btnRPT" type="button" data-content="rpt">RPT</button>
+                    <button id="btnEE" type="submit" data-content="ee">EE</button>
+                    <button id="btnGPT" type="submit" data-content="gpt">GPT</button>
+                </div>
+            </div>
+        </div>
+        <div id="example">
+            <input type="hidden" id="ReturnUrl" name="ReturnUrl" />
+            <input type="hidden" id="user_id" name="user_id" />
+            <input type="hidden" id="custom_customtool" name="custom_customtool" />
+            <input type="hidden" id="oauth_signature" name="oauth_signature" />
+            <input type="hidden" id="oauth_timestamp" name="oauth_timestamp" />
+        </div>
+    </div>
+
+</form>
+<script>
+
+    $(document).ready(function () {
+        var prefix = "test_";
+        $("#btnFfts").kendoButton();
+        $("#btnIcs").kendoButton();
+        $("#btnClassPhoto").kendoButton();
+        $("#btnJournal").kendoButton();
+        $("#btnPet").kendoButton();
+        $("#btnRPT").kendoButton();
+        $("#btnEE").kendoButton();
+        $("#btnGPT").kendoButton();
+
+        $("#btnFfts").click(function(e) {
+            e.preventDefault();
+            var current = $("#txtUserId").val();
+            $("#user_id").val(prefix + current);
+            $("#custom_customtool").val($(this).data("content"));
+            $('#form')[0].submit();
+        });
+        $("#btnIcs").click(function(e) {
+            e.preventDefault();
+            var current = $("#txtUserId").val();
+            $("#user_id").val(prefix + current);
+            $("#custom_customtool").val($(this).data("content"));
+            $('#form')[0].submit();
+        });
+        $("#btnClassPhoto").click(function(e) {
+            e.preventDefault();
+            var current = $("#txtUserId").val();
+            $("#user_id").val(prefix + current);
+            $("#custom_customtool").val($(this).data("content"));
+            $('#form')[0].submit();
+        });
+        $("#btnJournal").click(function (e) {
+            e.preventDefault();
+            var current = $("#txtUserId").val();
+            $("#user_id").val(prefix + current);
+            $("#custom_customtool").val($(this).data("content"));
+            $('#form')[0].submit();
+        });
+        $("#btnPet").click(function(e) {
+            e.preventDefault();
+            var current = $("#txtUserId").val();
+            $("#user_id").val(prefix + current);
+            $("#custom_customtool").val($(this).data("content"));
+            $('#form')[0].submit();
+        });
+
+        $("#btnRPT").click(function(e) {
+            var current = $("#txtUserId").val();
+            $("#user_id").val(prefix + current);
+            $("#custom_customtool").val($(this).data("content"));
+            $('#form')[0].submit();
+        });
+
+        $("#btnEE").click(function(e) {
+            e.preventDefault();
+            var current = $("#txtUserId").val();
+            $("#user_id").val(prefix + current);
+            $("#custom_customtool").val($(this).data("content"));
+            $('#form')[0].submit();
+        });
+
+        $("#btnGPT").click(function(e) {
+            e.preventDefault();
+            var current = $("#txtUserId").val();
+            $("#user_id").val(prefix + current);
+            $("#custom_customtool").val($(this).data("content"));
+            $('#form').attr('action', "@Url.Action("LtiGpt", "Account")").submit();
+        });
+    });
+</script>
+

@@ -1,0 +1,209 @@
+﻿body
+{}
+.tblLionWidget
+{
+max-width:100% !important;
+margin-left:10px !important;
+min-width:93% !important;
+}
+
+.liontd
+{
+padding-top:5px !important;
+padding-bottom: 10px !important;
+border-bottom:1px solid #ccccff;
+
+}
+
+.morpostTD
+{
+background-color:#FE9A2E!important;
+color:white !important;
+ text-align:center !important;
+ font-weight:bold;
+ color:white !important;
+ padding:10px 0 10px 0 !important;
+ height:35px !important;
+}
+
+.creatorName
+{
+padding-left:5px;
+color:black;
+}
+
+.qTitle a
+{
+margin-top:5px;
+margin-bottom:5px;
+padding-top:5px;
+padding-bottom:15px;
+}
+
+.qTitle
+{
+
+padding-top:5px;
+margin-bottom:5px;
+padding-bottom:5px;
+width:100%;  
+float:left; 
+}
+.mCreatorInfo {
+font-size: 0.8em;
+min-height: 20px;
+margin-left:0 !important;
+padding-left:0 !important;
+}
+
+.creatorTagcss
+{
+margin-left:0 !important;
+padding-left:0 !important;
+width:100%;   
+}
+
+.nopadding {
+padding-left: 0 !important;
+padding-right: 0 !important;
+}
+
+.ltextalignright {
+text-align: right !important;
+
+}
+span[class$="-bg"] {
+color:White;
+margin-right:5px;
+padding:2px 5px 2px 8px !important;
+border-radius:3px;
+font-size:.7em;
+
+} 
+.SOA-bg {
+background-color: #9e0040;
+}
+
+.LKCSB-bg {
+background-color: #005c96;
+}
+
+.SOL-bg {
+background-color: #330066;
+}
+
+.SOSS-bg {
+background-color: #006633;
+}
+
+.SIS-bg {
+background-color: #c69200;
+}
+
+.SOE-bg {
+background-color: #006685;
+color:White;
+}
+
+.OTHERS-bg {
+background-color: #999;
+}
+
+
+.SOA-font-color {
+color: #9e0040;
+}
+
+.LKCSB-font-color {
+color: #005c96;
+}
+
+.SOL-font-color {
+color: #330066;
+}
+
+.SOSS-font-color {
+color: #006633;
+}
+
+.SIS-font-color {
+color: #c69200;
+}
+
+.SOE-font-color {
+color: #006685;
+}
+
+.OTHERS-font-color {
+color: #006685;
+}
+
+.instructor-bg, .admin-bg {
+background-color: #102b72;
+text-shadow: none;
+
+}
+
+.student-bg {
+background-color: #3a87ad;
+}
+
+.admin-bg, .instructor-bg, .student-bg {
+font-size: .7em;
+color:White;
+}
+.label {
+
+border-radius: 3px !important;
+}
+
+.datefield
+{
+color:#6E6E6E;
+font-size:.8em;
+padding-top:5px;
+float:right;
+}
+
+.voteRow {
+padding-top: 5px;
+height:20px !important;
+}
+
+.voteRow span {
+text-align: right;
+min-width: 43px;
+}
+.tagspan
+{
+
+	display:block !important;
+}
+
+.voteRow .smallIcon {
+background-size: 28px 120%;
+vertical-align: middle !important;
+padding-top: 5px;
+text-align:left;
+padding-right:10px;
+padding-left:30px;
+width:30%;
+
+}
+.vote-icon {
+background: #fff url('images/vote-orange.png') no-repeat top left;
+}
+.view-icon {
+background: #fff url('images/view-red.png') no-repeat top left;
+}
+.answer-icon {
+background: #fff url('images/answer-green.png') no-repeat top left;
+}
+
+.morepost
+{
+ text-align:center !important;
+ font-weight:bold;
+ color:white !important;
+ padding:10px 0 10px 0 !important;
+}

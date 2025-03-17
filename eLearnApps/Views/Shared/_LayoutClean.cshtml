@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <base href="./">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="Find Free Time Slots">
+    <meta name="keyword" content="SMU">
+    <link rel="shortcut icon" href="@Url.Content("~/Content/appsicon/favicon.ico")" type="image/x-icon" />
+    <title>@ViewBag.Title</title>
+    <!-- Icons-->
+    <script src="~/Scripts/CoreUI/vendors/jquery/js/jquery.min.js"></script>
+    <link href="~/Scripts/CoreUI/vendors/@Html.Raw("@coreui")/icons/css/coreui-icons.min.css" rel="stylesheet">
+    <link href="~/Scripts/CoreUI/vendors/flag-icon-css/css/flag-icon.min.css" rel="stylesheet">
+    <link href="~/Scripts/CoreUI/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/Scripts/CoreUI/vendors/simple-line-icons/css/simple-line-icons.css" rel="stylesheet">
+    <!-- Main styles for this application-->
+    <link href="~/Scripts/CoreUI/css/style.css" rel="stylesheet">
+    <link href="~/Scripts/CoreUI/vendors/pace-progress/css/pace.min.css" rel="stylesheet">
+    <link href="@Url.Content("~/Content/kendo/kendo.common-material.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/kendo/kendo.material.min.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/kendo/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo/kendo.all.min.js")"></script>
+    <!-- Custom Style-->
+    <link href="@Url.Content("~/Content/customStyle.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-timezone-with-data.js")"></script>
+    <script src="@Url.Content("~/Scripts/Common.js")"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js"></script>
+
+
+    <script>
+        var CourseId;
+        var detect = jstz.determine();
+        var TimeZone = detect.name();
+    </script>
+
+</head>
+<body class="app flex-row align-items-center">
+    <div class="app-body">
+        <main class="main">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+    <script src="~/Scripts/CoreUI/vendors/popper.js/js/popper.min.js"></script>
+    <script src="~/Scripts/CoreUI/vendors/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/CoreUI/vendors/@Html.Raw("@coreui")/coreui/js/coreui.min.js"></script>
+</body>
+</html>
