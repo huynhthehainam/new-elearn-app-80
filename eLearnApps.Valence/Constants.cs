@@ -21,7 +21,7 @@ namespace eLearnApps.Valence
         public string BaseHost => $"{Https}://{LsmHost}";
         public string ValenceApiAppId => _configuration.GetValue<string>("ValenceApi:AppId") ?? "";
         public string ValenceApiAppKey => _configuration.GetValue<string>("ValenceApi:AppKey") ?? "";
-        public string LsmHost => _configuration.GetValue<string>("LsmHost") ?? "";
+        public string LsmHost => _configuration.GetValue<string>("ValenceApi:LsmHost") ?? "";
         public string ValenceApiUserId => _configuration.GetValue<string>("ValenceApi:UserId") ?? "";
         public string ValenceApiUserKey => _configuration.GetValue<string>("ValenceApi:UserKey") ?? "";
 

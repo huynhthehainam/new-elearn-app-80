@@ -15,8 +15,8 @@ namespace eLearnApps.Valence
 
     public class ValenceApi
     {
-        private readonly string lp_version;
-        private readonly string le_version;
+        private readonly string lpVersion;
+        private readonly string leVersion;
         private readonly ID2LUserContext _mValenceUserContext;
         private readonly IConfiguration _configuration;
         private readonly Constants _constants;
@@ -34,8 +34,8 @@ namespace eLearnApps.Valence
             var ignoreCase = true;
             var productLP = productVersions.Where(s => string.Compare(s.ProductCode, "lp", ignoreCase) == 0).FirstOrDefault();
             var productLE = productVersions.Where(s => string.Compare(s.ProductCode, "le", ignoreCase) == 0).FirstOrDefault();
-            lp_version = productLP?.LatestVersion ?? _constants.LpVersion;
-            le_version = productLE?.LatestVersion ?? _constants.VALENCE_LE_VERSION;
+            lpVersion = productLP?.LatestVersion ?? _constants.LpVersion;
+            leVersion = productLE?.LatestVersion ?? _constants.VALENCE_LE_VERSION;
         }
 
         public T Execute<T>(string route) where T : new()
@@ -45,7 +45,7 @@ namespace eLearnApps.Valence
                 var client = new RestClient(_constants.BaseHost);
                 var authenticator = new ValenceAuthenticator(_mValenceUserContext);
                 var request = new RestRequest(route);
-                //authenticator.Authenticate(client, request);
+                authenticator.Authenticate(client, request);
                 var response = client.Execute<T>(request);
 
                 // return null when there is no data
@@ -72,9 +72,9 @@ namespace eLearnApps.Valence
             {
                 var client = new RestClient(_constants.BaseHost);
                 var authenticator = new ValenceAuthenticator(_mValenceUserContext);
-                var request = new RestRequest(route, Method.Put) { RequestFormat = DataFormat.Json };
+                var request = new RestRequest(route, Method.PUT) { RequestFormat = DataFormat.Json };
                 request.AddBody(param);
-                //authenticator.Authenticate(client, request);
+                authenticator.Authenticate(client, request);
                 var response = client.Execute(request);
                 return response.StatusCode;
             }
@@ -84,15 +84,15 @@ namespace eLearnApps.Valence
             }
         }
 
-        public RestResponse? Post<T>(string route, T param)
+        public IRestResponse? Post<T>(string route, T param)
         {
             try
             {
                 var client = new RestClient(_constants.BaseHost);
                 var authenticator = new ValenceAuthenticator(_mValenceUserContext);
-                var request = new RestRequest(route, Method.Post) { RequestFormat = DataFormat.Json };
+                var request = new RestRequest(route, Method.POST) { RequestFormat = DataFormat.Json };
                 request.AddBody(param);
-                //authenticator.Authenticate(client, request);
+                authenticator.Authenticate(client, request);
                 var response = client.Execute(request);
                 return response;
             }
@@ -111,7 +111,7 @@ namespace eLearnApps.Valence
 
         public List<QuestionData> getQuizQustions(int orgUnitId, int quizId)
         {
-            var route = $"/d2l/api/le/{le_version}/{orgUnitId}/quizzes/{quizId}/questions/";
+            var route = $"/d2l/api/le/{leVersion}/{orgUnitId}/quizzes/{quizId}/questions/";
             //List<QuestionData> result = new List<QuestionData>();
             //bool keeplooping = true;
             //do
@@ -645,7 +645,7 @@ namespace eLearnApps.Valence
 
         public List<GradeValue> GetStudentGrade(int orgUnitId, int userId)
         {
-            var route = $"/d2l/api/le/{le_version}/{orgUnitId}/grades/values/{userId}/";
+            var route = $"/d2l/api/le/{leVersion}/{orgUnitId}/grades/values/{userId}/";
             var grades = Execute<List<GradeValue>>(route);
             return grades;
         }
@@ -653,28 +653,28 @@ namespace eLearnApps.Valence
         public GradeValue GetStudentFinalCalculatedGrade(int orgUnitId, int userId)
         {
 
-            var route = $"/d2l/api/le/{le_version}/{orgUnitId}/grades/final/values/{userId}?gradeType=calculated";
+            var route = $"/d2l/api/le/{leVersion}/{orgUnitId}/grades/final/values/{userId}?gradeType=calculated";
             var finalCalculated = Execute<GradeValue>(route);
             return finalCalculated;
         }
 
         public GradeValue GetStudentFinalAdjustedGrade(int orgUnitId, int userId)
         {
-            var route = $"/d2l/api/le/{le_version}/{orgUnitId}/grades/final/values/{userId}?gradeType=adjusted";
+            var route = $"/d2l/api/le/{leVersion}/{orgUnitId}/grades/final/values/{userId}?gradeType=adjusted";
             var finalAdjusted = Execute<GradeValue>(route);
             return finalAdjusted;
         }
 
         public GradeStatisticsInfo GetGradeObjectStatistic(int orgUnitId, int gradeObjectId)
         {
-            var route = $"/d2l/api/le/{le_version}/{orgUnitId}/grades/{gradeObjectId}/statistics";
+            var route = $"/d2l/api/le/{leVersion}/{orgUnitId}/grades/{gradeObjectId}/statistics";
             var gradeObjectStatistic = Execute<GradeStatisticsInfo>(route);
             return gradeObjectStatistic;
         }
 
         public void GetClassFinalGrades(int orgUnitId)
         {
-            var apiUrl = $"/d2l/api/le/{le_version}/{orgUnitId}/grades/final/values/";
+            var apiUrl = $"/d2l/api/le/{leVersion}/{orgUnitId}/grades/final/values/";
             var bookmark = string.Empty;
             var keepreading = true;
             var route = string.Empty;
@@ -700,7 +700,7 @@ namespace eLearnApps.Valence
 
         public List<ClasslistUser> GetClasslistUsers(int orgUnitId)
         {
-            var route = $"/d2l/api/le/{le_version}/{orgUnitId}/classlist/";
+            var route = $"/d2l/api/le/{leVersion}/{orgUnitId}/classlist/";
             var classlistusers = Execute<List<ClasslistUser>>(route);
             return classlistusers;
         }
