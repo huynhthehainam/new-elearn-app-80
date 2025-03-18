@@ -1,24 +1,41 @@
 ﻿using eLearnApps.Business.Interface;
 using eLearnApps.Core;
+using eLearnApps.Entity.LmsTools;
 using eLearnApps.Entity.Logging;
+using eLearnApps.Entity.Logging.Dto;
 using log4net;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Text.Json;
+using eLearnApps.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace eLearnApps.Controllers
 {
     public class AccountController : Controller
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static List<char> sAllowed = new List<char>("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.{}:\\\"");
 
         private int _courseId;
         private string? _toolName;
         private readonly IAppSettingService _appSettingService;
         private readonly IConfiguration _configuration;
-        public AccountController(IAppSettingService appSettingService, IConfiguration configuration)
+        private readonly IUserService _userService;
+        private readonly IValenceService _valenceService;
+        private readonly IRoleService _roleService;
+        private readonly WebHelper _webHelper;
+        public AccountController(IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor)
         {
             _appSettingService = appSettingService;
             _configuration = configuration;
+            _userService = userService;
+            _valenceService = valenceService;
+            _roleService = roleService;
+            _webHelper = new WebHelper(httpContextAccessor);
         }
         [AllowAnonymous]
         public IActionResult LtiView()
@@ -112,7 +129,7 @@ namespace eLearnApps.Controllers
                         OrgUnitId = courseId,
                         UserId = userId,
                         PageUrl = Request.Path,
-                        QueryString = JsonConvert.SerializeObject(Request.QueryString),
+                        QueryString = JsonSerializer.Serialize(Request.QueryString),
                         ReferrerUrl = Request.Headers["Referer"].ToString(),
                         SessionId = HttpContext.Session.Id
                     });
@@ -122,6 +139,26 @@ namespace eLearnApps.Controllers
 
             log.Debug($"no access found for user: {userId} - {courseId}");
             return RedirectToAction("AccessDenied", "Error");
+        }
+        private async Task SignIn(User user)
+        {
+            var roles = _roleService.GetRoleByUserId(user.Id);
+            var roleName = string.Join(",", roles.Select(x => x.Name));
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.DisplayName),
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(Core.Constants.CourseIdClaim, _courseId.ToString()),
+        new Claim(Core.Constants.ToolNameClaim, _toolName),
+        new Claim(Core.Constants.RoleClaim, roleName),
+    };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal,
+                new AuthenticationProperties { IsPersistent = false });
         }
         private int ExtractUserId(string userIdString)
         {
@@ -176,11 +213,19 @@ namespace eLearnApps.Controllers
                 }
             };
 
-            var debugMessage = JsonConvert.SerializeObject(logItem);
+            var debugMessage = JsonSerializer.Serialize(logItem);
             debugMessage = FilterWhitelist(debugMessage);
 
             // Log4Net
             log.Debug(debugMessage);
+        }
+        private string FilterWhitelist(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return string.Empty;
+
+            string result = string.Concat(fileName.Where(c => sAllowed.Contains(c)));
+            return result;
         }
     }
 }
