@@ -10,13 +10,13 @@ using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
-using eLearnApps.Entity.LmsTools; // For HttpContext access if needed
+using eLearnApps.Entity.LmsTools;
+using eLearnApps.Core.Domain.Users; // For HttpContext access if needed
 
 namespace eLearnApps.Data
 {
     public class DataContext : DbContext, IDbContext
     {
-        public DbSet<AppSetting> AppSettings => Set<AppSetting>();
         // You can inject options via DI.
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -32,20 +32,20 @@ namespace eLearnApps.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Automatically apply configurations from the assembly.
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            var assembly = Assembly.GetExecutingAssembly();
+            var types = assembly.GetTypes();
+            var mappingTypes = assembly.GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract) // Ensure it's a concrete class
+                                                        //.Where(t => typeof(IEntityTypeConfiguration<>).IsAssignableFrom(t)) // Must implement IEntityTypeConfiguration<T>
+                 .Where(t => t.GetInterfaces().Any(i =>
+            i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)))
+                .Where(t => t.Namespace != null && t.Namespace.EndsWith(".Mapping")).ToList(); // Namespace must end with "Mapping"
 
-            // If you still want to use reflection to filter specific base types, for example:
-            /*
-            var typesToRegister = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => !string.IsNullOrEmpty(t.Namespace))
-                .Where(t => t.BaseType != null && t.BaseType.IsGenericType &&
-                            t.BaseType.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
-            foreach (var type in typesToRegister)
+            foreach (var type in mappingTypes)
             {
-                dynamic configurationInstance = Activator.CreateInstance(type);
-                modelBuilder.ApplyConfiguration(configurationInstance);
+                var configurationInstance = Activator.CreateInstance(type);
+                modelBuilder.ApplyConfiguration((dynamic)configurationInstance);
             }
-            */
 
             base.OnModelCreating(modelBuilder);
         }
@@ -58,8 +58,8 @@ namespace eLearnApps.Data
             // Retrieve app settings (assumed to be registered with DI) via a static helper or service locator.
             // Here we use a simplified static access pattern (e.g. ELearnAppContext.Current) as in your original code.
             //var setting = ELearnAppContext.Current.Resolve<IAppSettings>();
-            var setting = _configuration.Get<IAppSettings>();
-            if (setting is not null && setting.EnableAuditLog)
+            var enableAuditLog = _configuration.GetValue<bool>("EnableAuditLog");
+            if (enableAuditLog)
             {
                 OnBeforeSaveChanges();
             }
@@ -74,7 +74,12 @@ namespace eLearnApps.Data
 
             // Resolve HttpContext (adapt this as needed—EF Core doesn't provide HttpContextBase).
             var httpContext = _httpContextAccessor.HttpContext;
-            var userInfo = httpContext.GetLoggedInUserInfo();
+            LoggedInUserInfo userInfo = new LoggedInUserInfo();
+            if (httpContext is not null)
+            {
+                userInfo = httpContext.GetLoggedInUserInfo();
+            }
+
 
             foreach (var entry in ChangeTracker.Entries())
             {

@@ -1,0 +1,1225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CategoryGroup_GetGroupIdByCourseWithUser" xml:space="preserve">
+    <value>SELECT DISTINCT cg.[Id]
+FROM CategoryGroups cg 
+	INNER JOIN UserGroups ug ON cg.Id = ug.CategoryGroupId
+	INNER JOIN UserEnrollments ue ON ue.UserId = ug.UserId AND ue.CourseId = {0} AND ue.UserId = {1}</value>
+  </data>
+  <data name="CategoryGroup_GetIdByCondition" xml:space="preserve">
+    <value>SELECT 
+	cg.Id 
+FROM 
+	CategoryGroups cg 
+	INNER JOIN CourseCategories cc ON cg.CourseCategoryId = cc.Id AND cc.CourseId = {0} 
+	INNER JOIN UserEnrollments ue ON ue.CourseId = cc.CourseId AND ue.UserId = {1} AND ue.RoleId = {2}</value>
+  </data>
+  <data name="CategoryGroup_GetListByCourse" xml:space="preserve">
+    <value>SELECT cg.[Id]
+      ,cg.[Name]
+      ,cg.[CourseCategoryId] 
+	  ,ug.[UserId]
+FROM CategoryGroups cg 
+	INNER JOIN UserGroups ug ON cg.Id = ug.CategoryGroupId
+	INNER JOIN UserEnrollments ue ON ue.UserId = ug.UserId AND ue.CourseId = {0}</value>
+  </data>
+  <data name="CategoryGroup_GetListByCourseWithRole" xml:space="preserve">
+    <value>SELECT DISTINCT cg.[Id]
+      ,cg.[Name]
+      ,cg.[CourseCategoryId]
+      ,'' AS SectionName
+	  ,ug.[UserId]
+FROM CategoryGroups cg 
+  INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {0}
+	INNER JOIN UserGroups ug ON cg.Id = ug.CategoryGroupId
+	INNER JOIN UserEnrollments ue ON ue.UserId = ug.UserId AND ue.CourseId = {0} AND ue.RoleId IN ({1})</value>
+  </data>
+  <data name="CategoryGroup_GetListByGroupIds" xml:space="preserve">
+    <value>SELECT cg.Id AS [Value], cg.[Name] AS [Text]  FROM CategoryGroups cg  WHERE cg.Id IN ({1})</value>
+  </data>
+  <data name="CategoryGroup_GetMyEvaluationResponseGroup" xml:space="preserve">
+    <value>	SELECT DISTINCT
+       us.Id AS UserId,
+       cg.Id AS [Value],
+       cg.[Name] AS [Text],
+       etg.EvaluationPairingId
+FROM Users us
+    INNER JOIN UserEnrollments ue ON us.Id = ue.UserId
+    INNER JOIN UserGroups ug ON ug.UserId = us.Id
+    INNER JOIN CategoryGroups cg ON cg.Id = ug.CategoryGroupId
+    INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {0}
+    INNER JOIN EvaluationTargets etg ON etg.OrgUnitId = cg.Id
+           AND etg.EvaluationPairingId IN
+               (
+                   SELECT EvaluationPairingId FROM EvaluationPairingSessions WHERE EvaluationSessionId = {1}
+               )
+ORDER BY  cg.Id ;</value>
+  </data>
+  <data name="EvaluationResponse_GetByEvaluationAndSession" xml:space="preserve">
+    <value>SELECT [EvaluationResponseId]
+      ,[EvaluationId]
+      ,[EvaluationSessionId]
+      ,[EvaluationQuestionId]
+      ,[TargetUserId]
+      ,[TargetOrgUnitId]
+      ,[Marks]
+      ,[Comments]
+      ,[EvaluatorUserId]
+      ,[IsEvaluatorInstructor]
+      ,[LastUpdatedTime]
+      ,[IsDeleted]
+FROM [EvaluationResponses] 
+WHERE IsDeleted = 0 AND EvaluationSessionId = {0} AND EvaluatorUserId = {1}</value>
+    <comment>Get response of selected evaluator (logged user) on selected evaluation session</comment>
+  </data>
+  <data name="EvaluationResponse_GetByEvaluationIdWithTargetUnit" xml:space="preserve">
+    <value>SELECT DISTINCT
+	a.EvaluationResponseId,
+	a.EvaluationId,
+	a.EvaluationSessionId,
+	a.EvaluationQuestionId,
+	a.TargetUserId,
+	a.TargetOrgUnitId,
+	a.Marks,
+	a.Comments,
+	a.EvaluatorUserId,
+	a.IsEvaluatorInstructor,
+	a.LastUpdatedTime,
+	a.IsDeleted,
+	b.[Name] GroupName,
+	'' AS SectionName
+FROM 
+EvaluationResponses a  
+INNER JOIN CategoryGroups b ON b.Id = a.TargetOrgUnitId AND a.IsDeleted = 0 AND a.EvaluationId = {1}
+INNER JOIN CourseCategories c ON c.Id = b.CourseCategoryId
+INNER JOIN UserEnrollments d ON d.CourseId = c.CourseId AND d.CourseId={0}</value>
+  </data>
+  <data name="EvaluationResponse_GetByEvaluationIdWithTargetUser" xml:space="preserve">
+    <value>SELECT DISTINCT
+	a.EvaluationResponseId,
+	a.EvaluationId,
+	a.EvaluationSessionId,
+	a.EvaluationQuestionId,
+	a.TargetUserId,
+	a.TargetOrgUnitId,
+	a.Marks,
+	a.Comments,
+	a.EvaluatorUserId,
+	a.IsEvaluatorInstructor,
+	a.LastUpdatedTime,
+	a.IsDeleted,
+	b.DisplayName,
+	e.[Name] GroupName,
+	'' AS SectionName
+FROM 
+EvaluationResponses a
+INNER JOIN Users b ON a.TargetUserId = b.Id AND a.IsDeleted = 0
+INNER JOIN UserEnrollments c ON c.UserId = b.Id AND c.CourseId={0}
+INNER JOIN CourseCategories d ON d.CourseId = c.CourseId
+INNER JOIN CategoryGroups e ON e.CourseCategoryId = d.Id
+INNER JOIN UserGroups f ON e.Id = f.CategoryGroupId AND f.UserId = c.UserId AND a.EvaluationId = {1}</value>
+  </data>
+  <data name="EvaluationSessionParring_DeleteByEvaluationParringId" xml:space="preserve">
+    <value>DELETE EvaluationPairingSessions WHERE EvaluationPairingId = {0}</value>
+  </data>
+  <data name="EvaluationSessionParring_Insert" xml:space="preserve">
+    <value>INSERT INTO EvaluationPairingSessions (EvaluationPairingId,EvaluationSessionId ) VALUES ({0},{1})</value>
+  </data>
+  <data name="EvaluationSession_GetListByEvaluationId" xml:space="preserve">
+    <value>SELECT DISTINCT a.[EvaluationSessionId]
+      ,a.[EntryStartTime]
+      ,a.[EntryCloseTime]
+      ,a.[Weight]
+      ,a.[LastUpdatedBy]
+      ,a.[LastUpdatedTime]
+      ,a.[IsDeleted]
+      ,a.[Label]
+      ,a.[EvaluationId]
+  FROM [EvaluationSessions] a INNER JOIN EvaluationPairingSessions b ON b.EvaluationSessionId = a.EvaluationSessionId AND a.IsDeleted = 0
+  INNER JOIN EvaluationPairings c ON c.EvaluationPairingId = b.EvaluationPairingId AND c.EvaluationId =  {0}
+  ORDER BY a.EntryStartTime DESC</value>
+  </data>
+  <data name="EvaluationSession_GetMyEvaluationById" xml:space="preserve">
+    <value>SELECT DISTINCT
+       us.Id AS UserId,
+       us.DisplayName,
+       us.EmailAddress,
+       us.OrgDefinedId,
+       cg.[Name] as GroupName, 
+       '' as SectionName,
+       ep.EvaluationPairingId
+FROM EvaluationPairingSessions eps 
+	INNER JOIN EvaluationPairings ep on eps.EvaluationPairingId = ep.EvaluationPairingId
+	INNER JOIN Evaluators evo ON ep.EvaluationPairingId = evo.EvaluationPairingId
+	INNER JOIN EvaluationTargets evt ON ep.EvaluationPairingId = evt.EvaluationPairingId
+	INNER JOIN Users us on evt.UserId = us.Id
+	LEFT OUTER JOIN UserGroups ug on us.Id = ug.UserId
+	LEFT OUTER JOIN CategoryGroups cg on ug.CategoryGroupId = cg.Id
+  WHERE  eps.EvaluationSessionId = {0} AND evo.UserId = {1}  </value>
+    <comment>Get Target User on selected Session - selected Evaluator (logged user)</comment>
+  </data>
+  <data name="EvaluationSession_GetMyEvaluationByIdWithInstructorRole" xml:space="preserve">
+    <value>SELECT DISTINCT
+       us.Id AS UserId,
+       us.DisplayName,
+       us.EmailAddress,
+       us.OrgDefinedId,
+       cg.[Name] as GroupName, 
+       '' as SectionName,
+       ep.EvaluationPairingId
+FROM EvaluationPairingSessions eps 
+	INNER JOIN EvaluationPairings ep on eps.EvaluationPairingId = ep.EvaluationPairingId
+	INNER JOIN Evaluators evo ON ep.EvaluationPairingId = evo.EvaluationPairingId
+	INNER JOIN EvaluationTargets evt ON ep.EvaluationPairingId = evt.EvaluationPairingId
+	INNER JOIN Users us on evt.UserId = us.Id
+	LEFT OUTER JOIN UserGroups ug on us.Id = ug.UserId
+	LEFT OUTER JOIN CategoryGroups cg on ug.CategoryGroupId = cg.Id
+WHERE  eps.EvaluationSessionId = {0} AND evo.UserId = {1} 
+
+UNION
+
+SELECT DISTINCT
+       us.Id AS UserId,
+       us.DisplayName,
+       us.EmailAddress,
+       us.OrgDefinedId,
+       cg.[Name] as GroupName, 
+       '' as SectionName,
+       ep.EvaluationPairingId
+FROM EvaluationPairingSessions eps 
+	INNER JOIN EvaluationPairings ep on eps.EvaluationPairingId = ep.EvaluationPairingId
+	INNER JOIN EvaluationTargets evt ON ep.EvaluationPairingId = evt.EvaluationPairingId
+	INNER JOIN Users us on evt.UserId = us.Id
+	INNER JOIN Evaluations e ON e.EvaluationId = ep.EvaluationId
+	INNER JOIN UserEnrollments ue ON ue.CourseId = e.CourseId AND ue.RoleId = {3} AND ue.UserId = {1} AND e.IsInstructorEvaluator = 1
+	LEFT OUTER JOIN UserGroups ug on us.Id = ug.UserId
+	LEFT OUTER JOIN CategoryGroups cg on ug.CategoryGroupId = cg.Id
+WHERE  eps.EvaluationSessionId = {0} 
+</value>
+    <comment>Get Target User on selected Session - selected Evaluator (logged user as instructor)</comment>
+  </data>
+  <data name="EvaluationSession_GetMyEvaluationSession" xml:space="preserve">
+    <value>SELECT DISTINCT
+	   es.[EvaluationSessionId]
+      ,es.[EntryStartTime]
+      ,es.[EntryCloseTime]
+      ,es.[Weight]
+      ,es.[LastUpdatedBy]
+      ,es.[LastUpdatedTime]
+      ,es.[IsDeleted]
+      ,es.[Label]
+	  ,e.EvaluationId
+	  ,e.[Name]
+FROM 
+	EvaluationSessions es 
+	INNER JOIN EvaluationPairingSessions eps ON eps.EvaluationSessionId = es.EvaluationSessionId
+	INNER JOIN EvaluationPairings ep ON ep.EvaluationId = es.EvaluationId
+	INNER JOIN Evaluations e ON e.EvaluationId = ep.EvaluationId
+WHERE 
+	e.CourseId = {0}</value>
+  </data>
+  <data name="EvaluationSession_GetMyEvaluationSessionByUser" xml:space="preserve">
+    <value>SELECT DISTINCT
+	   es.[EvaluationSessionId]
+      ,es.[EntryStartTime]
+      ,es.[EntryCloseTime]
+      ,es.[Weight]
+      ,es.[LastUpdatedBy]
+      ,es.[LastUpdatedTime]
+      ,es.[IsDeleted]
+      ,es.[Label]
+	  ,e.EvaluationId
+	  ,e.[Name]
+    ,ep.EvaluationPairingId
+FROM 
+	EvaluationSessions es 
+	INNER JOIN EvaluationPairingSessions eps ON eps.EvaluationSessionId = es.EvaluationSessionId
+	INNER JOIN EvaluationPairings ep ON ep.EvaluationPairingId = eps.EvaluationPairingId AND ep.IsDeleted =  0
+	INNER JOIN Evaluations e ON e.EvaluationId = ep.EvaluationId
+	INNER JOIN Evaluators et ON et.EvaluationPairingId = ep.EvaluationPairingId AND et.EvaluationPairingId = eps.EvaluationPairingId AND et.UserId = {1}
+WHERE es.IsDeleted = 0 AND
+	e.CourseId = {0}</value>
+  </data>
+  <data name="EvaluationSession_GetMyEvaluationSessionByUserWithRole" xml:space="preserve">
+    <value>SELECT DISTINCT
+	   es.[EvaluationSessionId]
+      ,es.[EntryStartTime]
+      ,es.[EntryCloseTime]
+      ,es.[Weight]
+      ,es.[LastUpdatedBy]
+      ,es.[LastUpdatedTime]
+      ,es.[IsDeleted]
+      ,es.[Label]
+	  ,e.EvaluationId
+	  ,e.[Name]
+    ,ep.EvaluationPairingId
+FROM 
+	EvaluationSessions es 
+	INNER JOIN EvaluationPairingSessions eps ON eps.EvaluationSessionId = es.EvaluationSessionId
+	INNER JOIN EvaluationPairings ep ON ep.EvaluationPairingId = eps.EvaluationPairingId AND ep.IsDeleted = 0
+	INNER JOIN Evaluations e ON e.EvaluationId = ep.EvaluationId
+	INNER JOIN Evaluators et ON et.EvaluationPairingId = ep.EvaluationPairingId AND et.EvaluationPairingId = eps.EvaluationPairingId AND et.UserId = {1}
+WHERE es.IsDeleted = 0 AND
+	e.CourseId = {0}
+
+	UNION
+
+SELECT DISTINCT
+	   es.[EvaluationSessionId]
+      ,es.[EntryStartTime]
+      ,es.[EntryCloseTime]
+      ,es.[Weight]
+      ,es.[LastUpdatedBy]
+      ,es.[LastUpdatedTime]
+      ,es.[IsDeleted]
+      ,es.[Label]
+	  ,e.EvaluationId
+	  ,e.[Name]
+    ,ep.EvaluationPairingId
+FROM 
+	EvaluationSessions es 
+	INNER JOIN EvaluationPairingSessions eps ON eps.EvaluationSessionId = es.EvaluationSessionId
+	INNER JOIN EvaluationPairings ep ON ep.EvaluationPairingId = eps.EvaluationPairingId AND ep.IsDeleted = 0
+	INNER JOIN Evaluations e ON e.EvaluationId = ep.EvaluationId AND e.IsInstructorEvaluator = 1
+	INNER JOIN UserEnrollments ue ON ue.CourseId = e.CourseId AND ue.RoleId = {2}
+WHERE es.IsDeleted = 0 AND
+	e.CourseId = {0}</value>
+  </data>
+  <data name="EvaluationSession_GetUserGroupSection" xml:space="preserve">
+    <value>SELECT DISTINCT
+       us.Id as UserId,
+       us.DisplayName,
+       us.EmailAddress,
+       us.OrgDefinedId,
+	   cg.[Name] AS GroupName,
+	   cg.Id AS GroupId,
+	   '' AS SectionName
+FROM Users us     
+	INNER JOIN UserEnrollments ue ON us.Id = ue.UserId
+    INNER JOIN UserGroups ug ON ug.UserId = us.Id
+    INNER JOIN CategoryGroups cg ON cg.Id = ug.CategoryGroupId
+	INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {0}
+	INNER JOIN EvaluationTargets etg ON etg.OrgUnitId = cg.Id AND etg.EvaluationPairingId IN (SELECT EvaluationPairingId FROM EvaluationPairingSessions WHERE EvaluationSessionId = {1}) ORDER BY GroupId </value>
+  </data>
+  <data name="EvaluationSession_GetUserGroupSectionByUserId" xml:space="preserve">
+    <value>SELECT DISTINCT
+       us.Id AS UserId,
+       us.DisplayName,
+       us.EmailAddress,
+       us.OrgDefinedId,
+       cg.[Name] AS GroupName,
+       cg.Id AS GroupId,
+       '' AS SectionName,
+       etg.EvaluationPairingId
+FROM Users us
+    INNER JOIN UserEnrollments ue ON us.Id = ue.UserId
+    INNER JOIN UserGroups ug ON ug.UserId = us.Id
+    INNER JOIN CategoryGroups cg ON cg.Id = ug.CategoryGroupId
+    INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {0}
+    INNER JOIN EvaluationTargets etg ON etg.OrgUnitId = cg.Id
+           AND etg.EvaluationPairingId IN
+               (
+                   SELECT eps.EvaluationPairingId
+                   FROM EvaluationPairingSessions eps
+                       INNER JOIN Evaluators et
+                           ON et.EvaluationPairingId = eps.EvaluationPairingId
+                              AND et.UserId = {2}
+                   WHERE eps.EvaluationSessionId = {1}
+               )
+ORDER BY GroupId;</value>
+  </data>
+  <data name="EvaluationSession_GetUserGroupSectionByUserIdWithRole" xml:space="preserve">
+    <value>SELECT DISTINCT
+       us.Id AS UserId,
+       us.DisplayName,
+       us.EmailAddress,
+       us.OrgDefinedId,
+       cg.[Name] AS GroupName,
+       cg.Id AS GroupId,
+       '' AS SectionName,
+       etg.EvaluationPairingId
+FROM Users us
+    INNER JOIN UserEnrollments ue ON us.Id = ue.UserId
+    INNER JOIN UserGroups ug ON ug.UserId = us.Id
+    INNER JOIN CategoryGroups cg ON cg.Id = ug.CategoryGroupId
+    INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {0}
+    INNER JOIN EvaluationTargets etg ON etg.OrgUnitId = cg.Id
+           AND etg.EvaluationPairingId IN
+               (
+                   SELECT 
+						eps.EvaluationPairingId
+                   FROM 
+						EvaluationPairingSessions eps
+						INNER JOIN Evaluators et ON et.EvaluationPairingId = eps.EvaluationPairingId AND et.UserId = {2}
+                   WHERE 
+						eps.EvaluationSessionId = {1}
+
+				   UNION
+
+				   SELECT 
+						eps.EvaluationPairingId
+                   FROM 
+						EvaluationPairingSessions eps
+						INNER JOIN EvaluationPairings ep ON ep.EvaluationPairingId = eps.EvaluationPairingId
+						INNER JOIN Evaluations e ON e.EvaluationId = ep.EvaluationId
+						INNER JOIN UserEnrollments ue ON ue.CourseId = e.CourseId AND ue.UserId = {2} AND ue.RoleId = {3} AND e.IsInstructorEvaluator = 1
+                   WHERE 
+						eps.EvaluationSessionId = {1}
+               )
+ORDER BY GroupId;</value>
+  </data>
+  <data name="EvaluationTarget_GetListByEvaluationId" xml:space="preserve">
+    <value>SELECT e.[EvaluationTargetId]
+      ,e.[UserId]
+      ,e.[OrgUnitId]
+      ,e.[IsOrgUnit]
+      ,e.[IsDeleted]
+      ,e.[LastUpdatedBy]
+      ,e.[LastUpdatedTime]
+      ,e.[EvaluationPairingId]
+  FROM [EvaluationTargets] e INNER JOIN EvaluationPairings ep ON ep.EvaluationPairingId = e.EvaluationPairingId AND e.IsDeleted = 0 AND ep.EvaluationId = {0}</value>
+  </data>
+  <data name="EvaluationTarget_GetListByEvaluationIdWithOrgUnit" xml:space="preserve">
+    <value>SELECT e.[EvaluatorId]
+      ,e.[UserId]
+      ,e.[OrgUnitId]
+      ,e.[IsOrgUnit]
+      ,e.[IsDeleted]
+      ,e.[LastUpdatedBy]
+      ,e.[LastUpdatedTime]
+      ,e.[EvaluationPairingId]
+  FROM [EvaluationTargets] e INNER JOIN EvaluationPairings ep ON ep.EvaluationPairingId = e.EvaluationPairingId AND e.IsDeleted = 0 AND e.IsOrgUnit = 1 AND e.OrgUnitId = {1} AND ep.EvaluationId = {0}</value>
+  </data>
+  <data name="EvaluationTarget_GetListByEvaluationIdWithUserId" xml:space="preserve">
+    <value>SELECT e.[EvaluatorId]
+      ,e.[UserId]
+      ,e.[OrgUnitId]
+      ,e.[IsOrgUnit]
+      ,e.[IsDeleted]
+      ,e.[LastUpdatedBy]
+      ,e.[LastUpdatedTime]
+      ,e.[EvaluationPairingId]
+  FROM [EvaluationTargets] e INNER JOIN EvaluationPairings ep ON ep.EvaluationPairingId = e.EvaluationPairingId AND e.IsDeleted = 0 AND e.IsOrgUnit = 1 AND e.UserId = {1} AND ep.EvaluationId = {0}</value>
+  </data>
+  <data name="EvaluationTarget_GetOrgUnitByEvaluationId" xml:space="preserve">
+    <value>SELECT tg.OrgUnitId FROM EvaluationTargets tg INNER JOIN EvaluationPairings pair ON pair.EvaluationPairingId = tg.EvaluationPairingId AND tg.IsOrgUnit = 1 AND tg.IsDeleted = 0 AND pair.EvaluationId = {0} AND pair.IsDeleted = 0</value>
+  </data>
+  <data name="EvaluationTarget_GetUserDataByEvaluationIdAndRoleId" xml:space="preserve">
+    <value>SELECT 
+	tg.UserId, tg.OrgUnitId, us.OrgDefinedId, us.DisplayName AS [Name] 
+FROM 
+	EvaluationTargets tg 
+	INNER JOIN EvaluationPairings pair ON tg.EvaluationPairingId = pair.EvaluationPairingId AND tg.IsDeleted = 0 AND tg.IsOrgUnit = 0 AND pair.EvaluationId = {0} 
+	INNER JOIN Users us ON us.Id = tg.UserId 
+	INNER JOIN UserEnrollments ue ON ue.UserId = us.Id AND ue.RoleId IN ({1})</value>
+  </data>
+  <data name="Evaluation_GetEvaluationByCourse" xml:space="preserve">
+    <value>SELECT e.EvaluationId, e.EvaluationTypeId, e.[Name], e.CourseId , e.[Description] FROM Evaluations e WHERE e.IsDeleted = 0 AND e.CourseId = {3} AND e.[Name] LIKE N'%{2}%' ORDER BY e.LastUpdatedTime DESC OFFSET {0} * ({1} - 1) ROWS FETCH NEXT {0} ROWS ONLY;</value>
+  </data>
+  <data name="Evaluation_GetInstructor" xml:space="preserve">
+    <value>SELECT 	
+	b.UserId, d.Id AS OrgUnitId , a.OrgDefinedId, a.DisplayName AS [Name] 
+FROM 
+	Users a
+	INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.RoleId IN ({0}) AND b.CourseId = {1}
+	INNER JOIN CourseCategories c ON c.CourseId = b.CourseId
+	INNER JOIN CategoryGroups d ON c.Id = d.CourseCategoryId
+	INNER JOIN UserGroups e ON e.CategoryGroupId = d.Id AND e.UserId = b.UserId</value>
+  </data>
+  <data name="Evaluation_GetResult" xml:space="preserve">
+    <value>DECLARE @UserId INT
+SET @UserId = {0}
+DECLARE @CourseId INT
+SET @CourseId = {1}
+SELECT E.EvaluationId,
+       E.CourseId,
+       E.Name,
+       E.Description,
+       E.EvaluationTypeId,
+       E.AllowSelfEvaluate,
+       E.IsInstructorEvaluator,
+       E.InstructorWeight,
+       E.AllowEvaluation,
+       E.QuestionScoreCalculation,
+       E.SessionScoreCalculation,
+       E.LastUpdatedBy,
+       E.LastUpdatedTime,
+       E.CreatedTime,
+       E.IsDeleted,
+       E.GradeObjectId,
+       E.AllowDisplayGroupByQuestion,
+       E.GradeObjectName FROM Evaluations AS E
+INNER JOIN EvaluationPairings AS EP ON EP.EvaluationId = E.EvaluationId
+INNER JOIN EvaluationTargets AS ET ON	ET.EvaluationPairingId = EP.EvaluationPairingId
+WHERE E.CourseId = @CourseId AND ET.UserId = @UserId AND ET.IsOrgUnit = 0 AND EP.IsDeleted = 0 AND ET.IsDeleted = 0
+UNION
+SELECT E.EvaluationId,
+       E.CourseId,
+       E.Name,
+       E.Description,
+       E.EvaluationTypeId,
+       E.AllowSelfEvaluate,
+       E.IsInstructorEvaluator,
+       E.InstructorWeight,
+       E.AllowEvaluation,
+       E.QuestionScoreCalculation,
+       E.SessionScoreCalculation,
+       E.LastUpdatedBy,
+       E.LastUpdatedTime,
+       E.CreatedTime,
+       E.IsDeleted,
+       E.GradeObjectId,
+       E.AllowDisplayGroupByQuestion,
+       E.GradeObjectName FROM Evaluations AS E
+INNER JOIN EvaluationPairings AS EP ON EP.EvaluationId = E.EvaluationId
+INNER JOIN EvaluationTargets AS ET ON	ET.EvaluationPairingId = EP.EvaluationPairingId
+INNER JOIN CategoryGroups AS CG ON ET.OrgUnitId = CG.Id AND ET.IsOrgUnit = 1
+INNER JOIN UserGroups AS UG ON UG.CategoryGroupId = CG.Id
+WHERE E.CourseId = @CourseId AND UG.UserId = @UserId AND EP.IsDeleted = 0 AND ET.IsDeleted = 0</value>
+  </data>
+  <data name="Evaluation_GetResultDetail" xml:space="preserve">
+    <value>DECLARE @UserId INT
+SET @UserId = {0}
+DECLARE @EvaluationId INT
+SET @EvaluationId = {1}
+DECLARE @EvaluationType INT
+SET @EvaluationType = {2}
+
+IF @EvaluationType = 0   
+-- User
+     SELECT EP.EvaluationId,
+	   E.QuestionScoreCalculation,
+       ES.EvaluationSessionId,
+	   ET.UserId,
+	   EQ.EvaluationQuestionId,
+       ES.Label,
+       ES.EntryStartTime AS [Start],
+       ES.EntryCloseTime AS [End],
+       EQ.Name,
+       EQ.Question,
+       ER.Marks AS Result,
+	    CASE 
+            WHEN ES.EntryCloseTime &lt; GETUTCDATE()
+               THEN 0 -- Close
+            WHEN ES.EntryStartTime &lt;= GETUTCDATE() AND GETUTCDATE() &lt;= ES.EntryCloseTime
+				THEN 1 -- Inprogress
+			WHEN ES.EntryStartTime &gt; GETUTCDATE()
+				THEN 2 -- Furture
+       END AS Status,
+	   EQ.Weight,
+	   EQ.EntryTypeId,
+	   EQ.MaxMarks,
+       ES.EntryCloseTime AS AvailableDate,
+	   ER.IsEvaluatorInstructor
+
+FROM EvaluationPairings AS EP INNER JOIN EvaluationTargets AS ET ON	ET.EvaluationPairingId = EP.EvaluationPairingId AND ET.IsOrgUnit = 0 AND ET.UserId = @UserId
+INNER JOIN Evaluations AS E ON E.EvaluationId = EP.EvaluationId AND E.IsDeleted = 0
+INNER JOIN EvaluationPairingSessions AS EPS ON EPS.EvaluationPairingId = EP.EvaluationPairingId 
+INNER JOIN EvaluationSessions AS ES ON ES.EvaluationSessionId = EPS.EvaluationSessionId
+
+    CROSS JOIN
+    (
+        SELECT EQ.EvaluationQuestionId,
+			   EQ.Name,
+			   EQ.Question,
+			   EQ.Weight,
+			   EQ.EntryTypeId,
+			   EQ.MaxMarks
+        FROM EvaluationQuestions AS EQ
+        WHERE EQ.EvaluationId = @EvaluationId
+    ) AS EQ
+    INNER JOIN EvaluationReleaseSettings AS ERS
+        ON ERS.EvaluationId = EP.EvaluationId
+           AND ERS.EvaluationQuestionId = EQ.EvaluationQuestionId
+           AND ERS.EvaluationSessionId = ES.EvaluationSessionId
+		   AND ERS.IsReleased = 1 /*Only shows when set "Show in release settings"*/
+
+    LEFT JOIN EvaluationResponses AS ER
+        ON ER.EvaluationId = EP.EvaluationId
+           AND ER.EvaluationQuestionId = ERS.EvaluationQuestionId
+           AND ER.EvaluationSessionId = ERS.EvaluationSessionId
+           AND ER.TargetUserId = @UserId
+WHERE EP.EvaluationId = @EvaluationId
+
+ELSE
+--User in group   
+      SELECT EP.EvaluationId,
+	  E.QuestionScoreCalculation,
+       ES.EvaluationSessionId,
+	   ET.UserId,
+	   EQ.EvaluationQuestionId,
+       ES.Label,
+       ES.EntryStartTime AS [Start],
+       ES.EntryCloseTime AS [End],
+       EQ.Name,
+       EQ.Question,
+       ER.Marks AS Result,
+	    CASE 
+            WHEN ES.EntryCloseTime &lt; GETUTCDATE()
+               THEN 0 -- Close
+            WHEN ES.EntryStartTime &lt;= GETUTCDATE() AND GETUTCDATE() &lt;= ES.EntryCloseTime
+				THEN 1 -- Inprogress
+			WHEN ES.EntryStartTime &gt; GETUTCDATE()
+				THEN 2 -- Furture
+       END AS Status,
+	   EQ.Weight,
+	   EQ.EntryTypeId,
+	   EQ.MaxMarks,
+       ES.EntryCloseTime AS AvailableDate,
+	   ER.IsEvaluatorInstructor
+FROM EvaluationPairings AS EP INNER JOIN EvaluationTargets AS ET ON	ET.EvaluationPairingId = EP.EvaluationPairingId AND ET.IsOrgUnit = 1
+INNER JOIN Evaluations AS E ON E.EvaluationId = EP.EvaluationId AND E.IsDeleted = 0
+INNER JOIN CategoryGroups AS CG ON ET.OrgUnitId = CG.Id AND ET.IsOrgUnit = 1
+INNER JOIN UserGroups AS UG ON UG.CategoryGroupId = CG.Id AND UG.UserId = @UserId
+INNER JOIN EvaluationPairingSessions AS EPS ON EPS.EvaluationPairingId = EP.EvaluationPairingId 
+INNER JOIN EvaluationSessions AS ES ON ES.EvaluationSessionId = EPS.EvaluationSessionId
+
+    CROSS JOIN
+    (
+        SELECT EQ.EvaluationQuestionId,
+			   EQ.Name,
+			   EQ.Question,
+			   EQ.Weight,
+			   EQ.EntryTypeId,
+			   EQ.MaxMarks
+        FROM EvaluationQuestions AS EQ
+        WHERE EQ.EvaluationId = @EvaluationId
+    ) AS EQ
+    INNER JOIN EvaluationReleaseSettings AS ERS
+        ON ERS.EvaluationId = EP.EvaluationId
+           AND ERS.EvaluationQuestionId = EQ.EvaluationQuestionId
+           AND ERS.EvaluationSessionId = ES.EvaluationSessionId
+		   AND ERS.IsReleased = 1 /*Only shows when set "Show in release settings"*/
+
+    LEFT JOIN EvaluationResponses AS ER
+        ON ER.EvaluationId = EP.EvaluationId
+           AND ER.EvaluationQuestionId = ERS.EvaluationQuestionId
+           AND ER.EvaluationSessionId = ERS.EvaluationSessionId
+           AND ER.TargetOrgUnitId = UG.CategoryGroupId
+WHERE EP.EvaluationId = @EvaluationId</value>
+  </data>
+  <data name="Evaluation_GetTotalCount" xml:space="preserve">
+    <value>SELECT COUNT(e.EvaluationId) AS TotalCount FROM Evaluations e WHERE e.IsDeleted = 0 AND e.CourseId = {0} AND e.[Name] LIKE N'%{1}%' </value>
+  </data>
+  <data name="Evaluators_GetEvaluatorsByPairingId" xml:space="preserve">
+    <value>SELECT et.OrgUnitId,
+       et.UserId,
+       et.IsOrgUnit,
+       us.OrgDefinedId,
+       us.DisplayName,
+       '' AS Section
+FROM Evaluators et
+    INNER JOIN Users us
+        ON us.Id = et.UserId
+           AND et.EvaluationPairingId = {0};</value>
+  </data>
+  <data name="Evaluators_GetEvaluatorsByPairingIdByEvaluatorUserId" xml:space="preserve">
+    <value>SELECT et.OrgUnitId,
+       et.UserId,
+       et.IsOrgUnit,
+       us.OrgDefinedId,
+       us.DisplayName,
+       '' AS Section
+FROM Evaluators et
+    INNER JOIN Users us
+        ON us.Id = et.UserId
+           AND et.EvaluationPairingId = {0} AND et.UserId = {1} ;</value>
+  </data>
+  <data name="Evaluator_GetDataInstruction" xml:space="preserve">
+    <value />
+  </data>
+  <data name="Evaluator_GetListByEvaluationId" xml:space="preserve">
+    <value>SELECT e.[EvaluatorId]
+      ,e.[UserId]
+      ,e.[OrgUnitId]
+      ,e.[IsOrgUnit]
+      ,e.[IsDeleted]
+      ,e.[LastUpdatedBy]
+      ,e.[LastUpdatedTime]
+      ,e.[EvaluationPairingId]
+  FROM [Evaluators] e INNER JOIN EvaluationPairings ep ON ep.EvaluationPairingId = e.EvaluationPairingId AND e.IsDeleted = 0 AND ep.EvaluationId = {0}</value>
+  </data>
+  <data name="Evaluator_GetOrgUnitByEvaluationId" xml:space="preserve">
+    <value>SELECT tg.OrgUnitId FROM Evaluators tg INNER JOIN EvaluationPairings pair ON pair.EvaluationPairingId = tg.EvaluationPairingId AND tg.IsOrgUnit = 1 AND tg.IsDeleted = 0 AND pair.EvaluationId = {0} AND pair.IsDeleted = 0</value>
+  </data>
+  <data name="Evaluator_GetTotalCount" xml:space="preserve">
+    <value> BEGIN;
+    WITH tbl
+    AS (SELECT parring.EvaluationId,
+                NULL EvaluationResponseId,
+                etg.UserId,
+                NULL CourseId,
+                us.DisplayName,
+                cg.[Name] AS GroupName,
+                '' AS SectionName,
+			    us.OrgDefinedId
+        FROM Evaluators etg
+            INNER JOIN EvaluationPairings parring ON parring.EvaluationPairingId = etg.EvaluationPairingId
+            INNER JOIN Users us ON etg.UserId = us.Id AND etg.IsDeleted = 0 AND etg.IsOrgUnit = 0 AND parring.EvaluationId = {0}
+            INNER JOIN UserEnrollments ue ON us.Id = ue.UserId
+            INNER JOIN UserGroups ug ON ug.UserId = us.Id
+            INNER JOIN CategoryGroups cg ON cg.Id = ug.CategoryGroupId
+            INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {1}
+        UNION
+        SELECT parring.EvaluationId,
+                NULL EvaluationResponseId,
+                NULL UserId,
+                etg.OrgUnitId AS CourseId,
+                cg.[Name] AS DisplayName,
+                cg.[Name] AS GroupName,
+                '' AS SectionName,
+			    NULL OrgDefinedId
+        FROM Evaluators etg
+            INNER JOIN EvaluationPairings parring ON parring.EvaluationPairingId = etg.EvaluationPairingId
+					INNER JOIN CategoryGroups cg ON cg.Id = etg.OrgUnitId AND etg.IsOrgUnit = 1 AND etg.IsDeleted = 0 AND parring.EvaluationId = {0}
+            INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {1})
+    SELECT COUNT( tbl.UserId) FROM  tbl;
+END;</value>
+  </data>
+  <data name="Evaluator_GetUserDataByEvaluationIdAndRoleId" xml:space="preserve">
+    <value>SELECT 
+	tg.UserId, tg.OrgUnitId, us.OrgDefinedId, us.DisplayName AS [Name] 
+FROM 
+	Evaluators tg 
+	INNER JOIN EvaluationPairings pair ON tg.EvaluationPairingId = pair.EvaluationPairingId AND tg.IsDeleted = 0 AND tg.IsOrgUnit = 0 AND pair.EvaluationId = {0} 
+	INNER JOIN Users us ON us.Id = tg.UserId 
+	INNER JOIN UserEnrollments ue ON ue.UserId = us.Id AND ue.RoleId IN ({1})</value>
+  </data>
+  <data name="RankMarkLabelDetail_GetByCourse" xml:space="preserve">
+    <value>SELECT md.[Id]
+      ,md.[MarkRankLabelId]
+      ,md.[MarkNumber]
+      ,md.[Label]
+  FROM [MarkRankLabelDetail] md INNER JOIN MarkRankLabel ml ON md.MarkRankLabelId = ml.Id AND ml.IsDeleted = 0 AND ml.CourseId = {0}</value>
+  </data>
+  <data name="User_GetEvaluationUserEntries" xml:space="preserve">
+    <value>
+          BEGIN;
+              WITH tbl
+              AS (SELECT parring.EvaluationId,
+                         etg.UserId,
+                         etg.OrgUnitId,
+                         us.DisplayName,
+                         cg.[Name] AS GroupName,
+                         '' AS SectionName,
+			                  us.OrgDefinedId
+                  FROM Evaluators etg
+                      INNER JOIN EvaluationPairings parring ON parring.EvaluationPairingId = etg.EvaluationPairingId
+                      INNER JOIN Users us ON etg.UserId = us.Id AND etg.IsDeleted = 0 AND etg.IsOrgUnit = 0 AND parring.EvaluationId = {0}
+                      INNER JOIN UserEnrollments ue ON us.Id = ue.UserId
+                      INNER JOIN UserGroups ug ON ug.UserId = us.Id
+                      INNER JOIN CategoryGroups cg ON cg.Id = ug.CategoryGroupId
+                      INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {1}
+                  UNION
+                  SELECT parring.EvaluationId,
+                         NULL UserId,
+                         etg.OrgUnitId,
+                         cg.[Name] AS DisplayName,
+                         cg.[Name] AS GroupName,
+                         '' AS SectionName,
+			             NULL OrgDefinedId
+                  FROM Evaluators etg
+                      INNER JOIN EvaluationPairings parring ON parring.EvaluationPairingId = etg.EvaluationPairingId
+					            INNER JOIN CategoryGroups cg ON cg.Id = etg.OrgUnitId AND etg.IsOrgUnit = 1 AND etg.IsDeleted = 0 AND parring.EvaluationId = {0}
+                      INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {1})
+              SELECT tbl.EvaluationId,
+                     tbl.OrgUnitId,
+                     tbl.DisplayName,
+                     tbl.GroupName,
+                     tbl.SectionName,
+                     tbl.OrgDefinedId FROM  tbl ORDER BY tbl.DisplayName OFFSET {2} * ({3} - 1) ROWS FETCH NEXT {2} ROWS ONLY;
+          END;
+    </value>
+  </data>
+  <data name="User_GetEvaluationUserEntriesByTarget" xml:space="preserve">
+    <value>
+          BEGIN;
+              WITH tbl
+              AS (SELECT parring.EvaluationId,
+                         etg.UserId,
+                         etg.OrgUnitId,
+                         us.DisplayName,
+                         cg.[Name] AS GroupName,
+                         '' AS SectionName,
+			                  us.OrgDefinedId
+                  FROM EvaluationTargets etg
+                      INNER JOIN EvaluationPairings parring ON parring.EvaluationPairingId = etg.EvaluationPairingId
+                      INNER JOIN Users us ON etg.UserId = us.Id AND etg.IsDeleted = 0 AND etg.IsOrgUnit = 0 AND parring.EvaluationId = {0}
+                      INNER JOIN UserEnrollments ue ON us.Id = ue.UserId
+                      INNER JOIN UserGroups ug ON ug.UserId = us.Id
+                      INNER JOIN CategoryGroups cg ON cg.Id = ug.CategoryGroupId
+                      INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {1}
+                  UNION
+                  SELECT parring.EvaluationId,
+                         etg.UserId,
+                         etg.OrgUnitId,
+                         cg.[Name] AS DisplayName,
+                         cg.[Name] AS GroupName,
+                         '' AS SectionName,
+			             NULL OrgDefinedId
+                  FROM EvaluationTargets etg
+                      INNER JOIN EvaluationPairings parring ON parring.EvaluationPairingId = etg.EvaluationPairingId
+					            INNER JOIN CategoryGroups cg ON cg.Id = etg.OrgUnitId AND etg.IsOrgUnit = 1 AND etg.IsDeleted = 0 AND parring.EvaluationId = {0}
+                      INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {1})
+              SELECT tbl.EvaluationId,
+                     tbl.OrgUnitId,
+                     tbl.DisplayName,
+                     tbl.GroupName,
+                     tbl.SectionName,
+                     tbl.UserId,
+                     tbl.OrgDefinedId FROM  tbl ORDER BY tbl.DisplayName OFFSET {2} * ({3} - 1) ROWS FETCH NEXT {2} ROWS ONLY;
+          END;
+    </value>
+  </data>
+  <data name="User_GetUserEnrollWithGroup" xml:space="preserve">
+    <value>SELECT
+ b.UserId, d.Id AS OrgUnitId, a.OrgDefinedId, a.DisplayName AS 'Name'
+FROM
+	Users a 
+	INNER JOIN UserEnrollments b ON a.Id = b.UserId AND b.CourseId = {0} AND b.RoleId IN ({1}) 
+	INNER JOIN CourseCategories c ON c.CourseId = b.CourseId 
+	INNER JOIN CategoryGroups d ON d.CourseCategoryId = c.Id AND d.Id IN ({2})
+	INNER JOIN UserGroups e ON e.CategoryGroupId = d.Id AND e.UserId = b.UserId</value>
+  </data>
+  <data name="Evaluators_GetByEvaluationId" xml:space="preserve">
+    <value>SELECT 
+	el.UserId,
+	eps.EvaluationSessionId,
+	el.EvaluationPairingId
+	 FROM Evaluators el INNER JOIN EvaluationPairingSessions eps ON eps.EvaluationPairingId = el.EvaluationPairingId
+	 INNER JOIN  EvaluationSessions AS ES ON ES.EvaluationSessionId = eps.EvaluationSessionId AND ES.IsDeleted = 0
+	 INNER JOIN EvaluationPairings epr ON epr.EvaluationPairingId = eps.EvaluationPairingId AND epr.IsDeleted = 0
+	 INNER JOIN Evaluations ev ON ev.EvaluationId = epr.EvaluationId WHERE ev.EvaluationId = {0} AND ev.IsDeleted = 0</value>
+  </data>
+  <data name="User_GetUserWithCategoryGroup" xml:space="preserve">
+    <value>SELECT DISTINCT cg.Id, ug.UserId FROM CategoryGroups cg 
+			INNER JOIN UserGroups ug ON ug.CategoryGroupId = cg.Id AND ug.UserId IN ({0})
+			INNER JOIN UserEnrollments ue ON ue.UserId = ug.UserId
+			INNER JOIN CourseCategories cc ON cc.Id = cg.CourseCategoryId AND cc.CourseId = {1}</value>
+  </data>
+  <data name="AttendanceData_GetDataForMyAttendanceDetail" xml:space="preserve">
+    <value>
+SELECT 
+	   ad.AttendanceSessionId,
+     ad.[Percentage],
+     ad.AttendanceDataId
+   ,ad.Participation
+      ,ad.Excused
+	   ,ats.AttendanceListId
+FROM 
+	AttendanceDatas ad
+    INNER JOIN AttendanceSessions ats 
+		ON ats.AttendanceSessionId = ad.AttendanceSessionId AND ad.UserId = {0} AND ats.AttendanceListId IN ({1}) AND ats.IsDeleted = 0
+</value>
+  </data>
+  <data name="AttendanceData_GetAllStudentAttendanceDataByListIds" xml:space="preserve">
+    <value>
+SELECT 
+	   ad.AttendanceSessionId,
+     ad.[Percentage],
+     ad.AttendanceDataId,
+	   ats.AttendanceListId,
+     ad.UserId
+FROM 
+	AttendanceDatas ad
+    INNER JOIN AttendanceSessions ats 
+		ON ats.AttendanceSessionId = ad.AttendanceSessionId AND ats.AttendanceListId IN ({1}) AND ats.IsDeleted = 0
+
+  UNION
+
+SELECT 
+	ats.AttendanceSessionId,
+	0 AS [Percentage],
+	0 AS AttendanceDataId,
+	ats.AttendanceListId,
+  0 UserId
+FROM 
+	AttendanceSessions ats
+WHERE 
+	NOT EXISTS
+	(
+		SELECT 
+			ad.AttendanceSessionId
+		FROM 
+			AttendanceDatas ad WHERE ad.AttendanceSessionId = ats.AttendanceSessionId
+	)
+	AND (
+		  (
+			  ats.EntryCloseTime IS NULL AND ats.SessionStartTime &lt; GETUTCDATE()
+		  )
+		  OR
+		  (
+			  ats.EntryCloseTime IS NOT NULL AND ats.EntryCloseTime &lt; GETUTCDATE()
+		  )
+		)
+	AND ats.AttendanceListId IN ({1})
+</value>
+  </data>
+  <data name="AttendanceSession_GetById" xml:space="preserve">
+    <value>SELECT ads.[AttendanceSessionId]
+      ,ads.[AttendanceListId]
+      ,ads.[SessionStartTime]
+      ,ads.[EntryCloseTime]
+      ,ads.[LastUpdatedBy]
+      ,ads.[LastUpdatedTime]
+      ,ads.[IsDeleted] FROM AttendanceSessions ads WHERE ads.AttendanceListId = {0} AND ads.IsDeleted = 0 ORDER BY ads.SessionStartTime DESC</value>
+  </data>
+  <data name="AttendanceData_GetById" xml:space="preserve">
+    <value>SELECT ad.[AttendanceDataId]
+      ,ad.[AttendanceSessionId]
+      ,ad.[UserId]
+      ,ad.[Percentage]
+      ,ad.[Remarks]
+      ,ad.[LastUpdatedBy]
+      ,ad.[LastUpdatedTime]
+      ,ad.Participation
+      ,ad.Excused
+      ,ad.[IsDeleted] FROM AttendanceDatas ad WHERE ad.UserId = {0} AND ad.IsDeleted = 0 AND ad.AttendanceSessionId IN ({1})</value>
+  </data>
+  <data name="AttendanceList_GetListId" xml:space="preserve">
+    <value>SELECT al.AttendanceListId FROM AttendanceLists al WHERE al.IsDeleted = 0 AND al.CourseId = {0}</value>
+  </data>
+  <data name="AttendanceData_UpdateAbsent" xml:space="preserve">
+    <value>UPDATE ad 
+	SET  ad.[Percentage] = 0, ad.LastUpdatedBy = {0}, ad.LastUpdatedTime = GETUTCDATE()
+FROM
+	AttendanceDatas ad
+	INNER JOIN AttendanceSessions ats ON ats.AttendanceSessionId = ad.AttendanceSessionId AND ad.IsDeleted = 0 AND ad.[Percentage] IS NULL
+	INNER JOIN AttendanceLists al ON al.AttendanceListId = ats.AttendanceListId AND ats.IsDeleted = 0 AND al.CourseId = {1}
+WHERE 
+	(
+		  (
+			  ats.EntryCloseTime IS NULL AND ats.SessionStartTime &lt; GETUTCDATE()
+		  )
+		  OR
+		  (
+			  ats.EntryCloseTime IS NOT NULL AND ats.EntryCloseTime &lt; GETUTCDATE()
+		  )
+		)</value>
+  </data>
+  <data name="AttendanceSession_GetListExpired" xml:space="preserve">
+    <value>SELECT 
+			ats.AttendanceSessionId, ats.AttendanceListId 
+		FROM AttendanceSessions ats
+			INNER JOIN AttendanceLists al ON al.AttendanceListId = ats.AttendanceListId AND ats.IsDeleted = 0 AND al.CourseId = {0}
+WHERE NOT EXISTS ( SELECT * FROM AttendanceDatas ad WHERE ad.AttendanceSessionId = ats.AttendanceSessionId AND ad.[Percentage] IS NOT NULl ) AND
+	(
+		  (
+			  ats.EntryCloseTime IS NULL AND ats.SessionStartTime &lt; GETUTCDATE()
+		  )
+		  OR
+		  (
+			  ats.EntryCloseTime IS NOT NULL AND ats.EntryCloseTime &lt; GETUTCDATE()
+		  )
+		)</value>
+  </data>
+  <data name="AttendanceList_Delete" xml:space="preserve">
+    <value>BEGIN TRY
+  BEGIN TRANSACTION;
+    DECLARE @AttendanceListId AS int;
+    SET @AttendanceListId = {0};
+    CREATE TABLE #Temp (
+      AttendanceDataId int,
+      AttendanceSessionId int
+    );
+    BEGIN
+      INSERT INTO #Temp (AttendanceDataId,
+      AttendanceSessionId)
+        SELECT
+          ad.AttendanceDataId,
+          ad.AttendanceSessionId
+        FROM AttendanceDatas ad
+        INNER JOIN AttendanceSessions ats
+          ON ats.AttendanceSessionId = ad.AttendanceSessionId
+          AND ats.AttendanceListId = @AttendanceListId;
+    END;
+    DELETE a
+      FROM AttendanceAttachments a
+      INNER JOIN #Temp ud
+        ON ud.AttendanceDataId = a.AttendanceDataId;
+    UPDATE ad
+    SET ad.IsDeleted = 1
+    FROM AttendanceDatas ad
+    INNER JOIN #Temp ud
+      ON ad.AttendanceSessionId = ud.AttendanceSessionId;
+    UPDATE AttendanceSessions
+    SET IsDeleted = 1
+    WHERE AttendanceListId = @AttendanceListId;
+    DELETE AttendanceListCategoryOrSections
+    WHERE AttendanceListId = @AttendanceListId;
+    UPDATE AttendanceLists
+    SET IsDeleted = 1
+    WHERE AttendanceListId = @AttendanceListId;
+    DROP TABLE #Temp;
+  COMMIT;
+END TRY
+BEGIN CATCH
+  ROLLBACK;
+END CATCH;</value>
+  </data>
+  <data name="AttendanceSession_DeleteSelected" xml:space="preserve">
+    <value>BEGIN TRY
+    BEGIN TRANSACTION;
+    DECLARE @AttendanceListId AS INT;
+    SET @AttendanceListId = {0};
+    CREATE TABLE #TempSession
+    (
+        AttendanceDataId INT
+    );
+    BEGIN
+        INSERT INTO #TempSession
+        (
+            AttendanceDataId
+        )
+        SELECT ad.AttendanceDataId
+        FROM AttendanceDatas ad
+            INNER JOIN AttendanceSessions ats
+                ON ats.AttendanceSessionId = ad.AttendanceSessionId
+                   AND ats.AttendanceListId = @AttendanceListId AND ats.AttendanceSessionId IN ({1});
+    END;
+	PRINT '1';
+    DELETE a FROM AttendanceAttachments a INNER JOIN #TempSession ud ON ud.AttendanceDataId = a.AttendanceDataId;
+	PRINT '2';
+    UPDATE ad SET ad.IsDeleted = 1 FROM AttendanceDatas ad INNER JOIN #TempSession ud ON ad.AttendanceDataId = ud.AttendanceDataId;
+	PRINT '3';
+    UPDATE AttendanceSessions SET IsDeleted = 1 WHERE AttendanceSessionId IN ({1});
+	PRINT '2';
+    DROP TABLE #TempSession;
+    COMMIT;
+END TRY
+BEGIN CATCH
+    ROLLBACK;
+END CATCH;
+</value>
+  </data>
+  <data name="EvaluationSession_GetStudentEvaluateOwnGroupEvaluationById" xml:space="preserve">
+    <value>SELECT DISTINCT
+       us.Id AS UserId,
+       us.DisplayName,
+       us.EmailAddress,
+       us.OrgDefinedId,
+       cg.[Name] as GroupName, 
+	   cg.Id AS GroupId,
+       '' as SectionName,
+       ep.EvaluationPairingId
+FROM EvaluationPairingSessions eps 
+	INNER JOIN EvaluationPairings ep on eps.EvaluationPairingId = ep.EvaluationPairingId  AND ep.IsDeleted = 0
+	INNER JOIN Evaluators evo ON ep.EvaluationPairingId = evo.EvaluationPairingId  AND evo.IsDeleted = 0
+	INNER JOIN EvaluationTargets evt ON ep.EvaluationPairingId = evt.EvaluationPairingId  AND evt.IsDeleted = 0
+	INNER JOIN Users us on evt.UserId = us.Id
+	LEFT OUTER JOIN UserGroups ug on us.Id = ug.UserId
+	LEFT OUTER JOIN CategoryGroups cg on ug.CategoryGroupId = cg.Id
+	LEFT OUTER  JOIN CourseCategories AS CC ON cg.CourseCategoryId = CC.Id 
+  WHERE  eps.EvaluationSessionId = {0} AND evo.UserId = {1} AND CC.CourseId = {2}  AND evt.OrgUnitId = evo.OrgUnitId</value>
+  </data>
+  <data name="EvaluationResponse_ClearResponse" xml:space="preserve">
+    <value>BEGIN
+	            DECLARE @IsGroup AS INT
+	            SET @IsGroup = {0}
+	            IF @IsGroup = 1 
+		            UPDATE EvaluationResponses SET IsDeleted = 1, LastUpdatedTime = GETUTCDATE() WHERE EvaluationId = {1} AND EvaluatorUserId = {2} AND TargetOrgUnitId IN ({3});
+	            ELSE
+		            UPDATE EvaluationResponses SET IsDeleted = 1, LastUpdatedTime = GETUTCDATE() WHERE EvaluationId = {1} AND EvaluatorUserId = {2} AND TargetUserId IN ({3});
+            END
+  </value>
+  </data>
+  <data name="EvaluationResponse_ClearResponseForTarget" xml:space="preserve">
+    <value>
+          BEGIN
+	          DECLARE @IsGroup AS INT
+	          SET @IsGroup = {0}
+	          IF @IsGroup = 1 
+		          UPDATE EvaluationResponses SET IsDeleted = 1, LastUpdatedTime = GETUTCDATE() WHERE EvaluationId = {1} AND TargetOrgUnitId = {2} AND EvaluatorUserId IN ({3});
+	          ELSE
+		          UPDATE EvaluationResponses SET IsDeleted = 1, LastUpdatedTime = GETUTCDATE() WHERE EvaluationId = {1} AND TargetUserId = {2} AND EvaluatorUserId IN ({3});
+          END
+    </value>
+  </data>
+  <data name="Evaluation_GetResultByEvaluationId" xml:space="preserve">
+    <value>DECLARE @UserId INT
+SET @UserId = {0}
+DECLARE @CourseId INT
+SET @CourseId = {1}
+DECLARE @EvaluationId INT
+SET @EvaluationId = {2}
+SELECT E.EvaluationId,
+       E.CourseId,
+       E.Name,
+       E.Description,
+       E.EvaluationTypeId,
+       E.AllowSelfEvaluate,
+       E.IsInstructorEvaluator,
+       E.InstructorWeight,
+       E.AllowEvaluation,
+       E.QuestionScoreCalculation,
+       E.SessionScoreCalculation,
+       E.LastUpdatedBy,
+       E.LastUpdatedTime,
+       E.CreatedTime,
+       E.IsDeleted,
+       E.GradeObjectId,
+       E.GradeObjectName FROM Evaluations AS E
+INNER JOIN EvaluationPairings AS EP ON EP.EvaluationId = E.EvaluationId
+INNER JOIN EvaluationTargets AS ET ON	ET.EvaluationPairingId = EP.EvaluationPairingId
+WHERE E.CourseId = @CourseId AND ET.UserId = @UserId AND ET.IsOrgUnit = 0 AND EP.IsDeleted = 0 AND ET.IsDeleted = 0 AND E.EvaluationId = @EvaluationId
+UNION
+SELECT E.EvaluationId,
+       E.CourseId,
+       E.Name,
+       E.Description,
+       E.EvaluationTypeId,
+       E.AllowSelfEvaluate,
+       E.IsInstructorEvaluator,
+       E.InstructorWeight,
+       E.AllowEvaluation,
+       E.QuestionScoreCalculation,
+       E.SessionScoreCalculation,
+       E.LastUpdatedBy,
+       E.LastUpdatedTime,
+       E.CreatedTime,
+       E.IsDeleted,
+       E.GradeObjectId,
+       E.GradeObjectName FROM Evaluations AS E
+INNER JOIN EvaluationPairings AS EP ON EP.EvaluationId = E.EvaluationId
+INNER JOIN EvaluationTargets AS ET ON	ET.EvaluationPairingId = EP.EvaluationPairingId
+INNER JOIN CategoryGroups AS CG ON ET.OrgUnitId = CG.Id AND ET.IsOrgUnit = 1
+INNER JOIN UserGroups AS UG ON UG.CategoryGroupId = CG.Id
+WHERE E.CourseId = @CourseId AND UG.UserId = @UserId AND EP.IsDeleted = 0 AND ET.IsDeleted = 0 AND E.EvaluationId = @EvaluationId</value>
+  </data>
+  <data name="Evaluation_GetListPairingId" xml:space="preserve">
+    <value>DECLARE @UserId INT
+SET @UserId = {0}
+DECLARE @CourseId INT
+SET @CourseId = {1}
+DECLARE @EvaluationId INT
+SET @EvaluationId = {2}
+SELECT EP.EvaluationPairingId FROM Evaluations AS E
+INNER JOIN EvaluationPairings AS EP ON EP.EvaluationId = E.EvaluationId
+INNER JOIN EvaluationTargets AS ET ON	ET.EvaluationPairingId = EP.EvaluationPairingId
+WHERE E.CourseId = @CourseId AND ET.UserId = @UserId AND ET.IsOrgUnit = 0 AND EP.IsDeleted = 0 AND ET.IsDeleted = 0 AND E.EvaluationId = @EvaluationId
+UNION
+SELECT EP.EvaluationPairingId FROM Evaluations AS E
+INNER JOIN EvaluationPairings AS EP ON EP.EvaluationId = E.EvaluationId
+INNER JOIN EvaluationTargets AS ET ON	ET.EvaluationPairingId = EP.EvaluationPairingId
+INNER JOIN CategoryGroups AS CG ON ET.OrgUnitId = CG.Id AND ET.IsOrgUnit = 1
+INNER JOIN UserGroups AS UG ON UG.CategoryGroupId = CG.Id
+WHERE E.CourseId = @CourseId AND UG.UserId = @UserId AND EP.IsDeleted = 0 AND ET.IsDeleted = 0 AND E.EvaluationId = @EvaluationId</value>
+  </data>
+</root>

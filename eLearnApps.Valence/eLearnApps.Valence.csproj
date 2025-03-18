@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="D2L.Extensibility.AuthSdk" Version="2.0.0" />
+    <PackageReference Include="D2L.Extensibility.AuthSdk.Restsharp" Version="1.2.0" />
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters" Version="1.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\eLearnApps.Core\eLearnApps.Core.csproj" />
+    <ProjectReference Include="..\eLearnApps.Data\eLearnApps.Data.csproj" />
+    <ProjectReference Include="..\eLearnApps.Entity\eLearnApps.Entity.csproj" />
+    <ProjectReference Include="..\eLearnApps.ViewModel\eLearnApps.ViewModel.csproj" />
+  </ItemGroup>
+</Project>

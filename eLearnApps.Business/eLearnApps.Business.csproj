@@ -7,8 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="log4net" Version="3.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\eLearnApps.Data\eLearnApps.Data.csproj" />
     <ProjectReference Include="..\eLearnApps.Entity\eLearnApps.Entity.csproj" />
+    <ProjectReference Include="..\eLearnApps.Valence\eLearnApps.Valence.csproj" />
     <ProjectReference Include="..\eLearnApps.ViewModel\eLearnApps.ViewModel.csproj" />
   </ItemGroup>
 

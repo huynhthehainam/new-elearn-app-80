@@ -1,4 +1,4 @@
-﻿namespace eLearnApps.ViewModel
+﻿namespace eLearnApps.Valence
 {
     public class Class1
     {
