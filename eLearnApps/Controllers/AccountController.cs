@@ -27,15 +27,21 @@ namespace eLearnApps.Controllers
         private readonly IUserService _userService;
         private readonly IValenceService _valenceService;
         private readonly IRoleService _roleService;
+        private readonly IServiceProvider _serviewProvider;
+        private readonly ILoggingService _loggingService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly WebHelper _webHelper;
-        public AccountController(IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor)
+        public AccountController(IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor, IServiceProvider serviewProvider, ILoggingService loggingService)
         {
             _appSettingService = appSettingService;
             _configuration = configuration;
             _userService = userService;
             _valenceService = valenceService;
             _roleService = roleService;
+            _httpContextAccessor = httpContextAccessor;
             _webHelper = new WebHelper(httpContextAccessor);
+            _serviewProvider = serviewProvider;
+            _loggingService = loggingService;
         }
         [AllowAnonymous]
         public IActionResult LtiView()
@@ -97,12 +103,13 @@ namespace eLearnApps.Controllers
             SignIn(user);
 
             // set userinfo into cache
+            var claimHelper = new ClaimHelper(_serviewProvider, _configuration, _httpContextAccessor);
             log.Debug($"Setting permission into cache: {userId} - {courseId}");
-            ClaimHelper.SetUserInfoIntoCache(user);
-            var enrollment = ClaimHelper.GetEnrollmentFromCache(userId, courseId);
+            claimHelper.SetUserInfoIntoCache(user);
+            var enrollment = claimHelper.GetEnrollmentFromCache(userId, courseId);
 
             log.Debug($"Get redirection url {userId} - {courseId}");
-            var userInfo = ClaimHelper.GetUserInfoFromCache(userId);
+            var userInfo = claimHelper.GetUserInfoFromCache(userId);
 
             log.Debug($"Setting permission into cache: {userId} - {courseId}");
 
@@ -111,7 +118,7 @@ namespace eLearnApps.Controllers
                 var roleId = enrollment.RoleId;
                 var reload = true;
                 // this is login stage, so we reload when when ever passing this stage
-                var topPermission = ClaimHelper.GetPermissionCache(roleId, reload)
+                var topPermission = claimHelper.GetPermissionCache(roleId, reload)
                     .Where(p => string.Equals(p.Category, toolName, StringComparison.InvariantCultureIgnoreCase))
                     .OrderBy(p => p.Order).FirstOrDefault();
                 if (topPermission != null)

@@ -3,6 +3,7 @@ using eLearnApps.Core;
 using eLearnApps.Core.Caching;
 using eLearnApps.Entity.LmsTools;
 using eLearnApps.Models;
+using System.Text.Json;
 
 namespace eLearnApps.Helpers
 {
@@ -10,16 +11,18 @@ namespace eLearnApps.Helpers
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
-        public ClaimHelper(IServiceProvider serviceProvider, IConfiguration configuration)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ClaimHelper(IServiceProvider serviceProvider, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _serviceProvider = serviceProvider;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
         public void SetUserInfoIntoCache(User user)
         {
 
             var cacheManager = _serviceProvider.GetRequiredService<ICacheManager>();
-            setIntoCache(cacheManager, user);
+            SetIntoCache(cacheManager, user);
 
         }
 
@@ -29,7 +32,7 @@ namespace eLearnApps.Helpers
             var userService = _serviceProvider.GetRequiredService<IUserService>();
 
             var user = userService.GetById(userId);
-            setIntoCache(cacheManager, user);
+            SetIntoCache(cacheManager, user);
 
         }
         //public void SetGptAccessIntoCache(int userId)
@@ -144,9 +147,10 @@ namespace eLearnApps.Helpers
         //    }
         //}
 
-        private static void setIntoCache(ICacheManager cacheManager, User user)
+        private void SetIntoCache(ICacheManager cacheManager, User user)
         {
-            if (!cacheManager.IsSet(string.Format(Constants.KeyUserInfo, user.Id)))
+            var constants = new Constants(_configuration);
+            if (!cacheManager.IsSet(string.Format(constants.KeyUserInfo, user.Id)))
             {
                 // user into not yet in cache. 
                 var userInfo = new UserModel
@@ -165,12 +169,12 @@ namespace eLearnApps.Helpers
                     SelectedRoleId = -1
                 };
 
-                cacheManager.Set(string.Format(Constants.KeyUserInfo, user.Id), userInfo, Convert.ToInt32(Constants.Timeout));
+                cacheManager.Set(string.Format(constants.KeyUserInfo, user.Id), userInfo, Convert.ToInt32(constants.Timeout));
             }
             else
             {
                 // reset previous selection
-                var userInfo = cacheManager.Get<UserModel>(string.Format(Constants.KeyUserInfo, user.Id));
+                var userInfo = cacheManager.Get<UserModel>(string.Format(constants.KeyUserInfo, user.Id));
                 userInfo.SelectedStrm = string.Empty;
                 userInfo.SelectedTerm = string.Empty;
                 userInfo.SelectedAcadCareer = string.Empty;
@@ -369,66 +373,65 @@ namespace eLearnApps.Helpers
 
         }
 
-        public static void ClearUserFromCache(int userId)
+        public void ClearUserFromCache(int userId)
         {
-            using (var lifetimeScope = AutofacDependencyResolver.Current.ApplicationContainer.BeginLifetimeScope("AutofacWebRequest"))
-            {
-                var cacheManager = lifetimeScope.Resolve<ICacheManager>();
+            var constants = new Constants(_configuration);
+            var cacheManager = _serviceProvider.GetRequiredService<ICacheManager>();
 
-                cacheManager.Remove(string.Format(Constants.KeyUserInfo, userId));
-            }
+            cacheManager.Remove(string.Format(constants.KeyUserInfo, userId));
         }
-        public static void SetPFAccessIntoCache(User user)
+        public void SetPFAccessIntoCache(User user)
         {
-            using (var lifetimeScope = AutofacDependencyResolver.Current.ApplicationContainer.BeginLifetimeScope("AutofacWebRequest"))
+            var constants = new Constants(_configuration);
+            var cacheManager = _serviceProvider.GetRequiredService<ICacheManager>();
+            var enrollmentService = _serviceProvider.GetRequiredService<IUserEnrollmentService>();
+
+            var enrolls = enrollmentService.GetUserEnrolledWithCourseByUserId(user.Id);
+            var roles = enrolls?.Select(x => x.RoleId).Distinct().ToList();
+            var roleService = _serviceProvider.GetRequiredService<IRoleService>();
+            var rolesByUser = roleService.GetRoleByUserId(user.Id);
+            var isExistsRole = roles.Any() && rolesByUser.Any(x => roles.Contains(x.Id));
+            if (isExistsRole)
             {
-                var enrollmentService = lifetimeScope.Resolve<IUserEnrollmentService>();
-                var enrolls = enrollmentService.GetUserEnrolledWithCourseByUserId(user.Id);
-                var roles = enrolls?.Select(x => x.RoleId).Distinct().ToList();
-                var roleService = lifetimeScope.Resolve<IRoleService>();
-                var rolesByUser = roleService.GetRoleByUserId(user.Id);
-                var isExistsRole = roles.Any() && rolesByUser.Any(x => roles.Contains(x.Id));
-                if (isExistsRole)
+                var courses = enrolls.Select(x => new EnrollmentModel
                 {
-                    var courses = enrolls.Select(x => new EnrollmentModel
-                    {
-                        RoleId = x.RoleId,
-                        CourseId = x.CourseId,
-                        RoleName = x.RoleName,
-                        CourseCode = x.CourseCode,
-                    }).ToList();
-                    var isStudent = rolesByUser
-                        .Any(x => string.Equals(x.Name, RoleName.Student.ToString(), StringComparison.OrdinalIgnoreCase));
-                    var hasAdmin = Constants.PeerFeedbackAdmins.IndexOf(user.Id.ToString(), StringComparison.Ordinal) > -1;
-                    var isInstructor = rolesByUser
-                        .Any(x => string.Equals(x.Name, RoleName.Instructor.ToString(), StringComparison.OrdinalIgnoreCase));
-                    // user info must have already been set at this stage. if not let exception handle it
-                    var userInfo = new UserModel
-                    {
-                        UserId = user.Id,
-                        DisplayName = user.DisplayName,
-                        EmailAddress = user.EmailAddress,
-                        UserName = user.DisplayName,
-                        SelectedStrm = string.Empty,
-                        SelectedTerm = string.Empty,
-                        SelectedAcadCareer = string.Empty,
-                        SelectedAcadGroup = string.Empty,
-                        SelectedAcadOrg = string.Empty,
-                        SelectedRoleId = -1,
-                        IsStudent = isStudent,
-                        HasAdmin = hasAdmin,
-                        IsInstructor = isInstructor,
-                        CurrentLoadedCourses = courses
-                    };
-
-                    HttpContext.Current.Session.Add(Constants.SessionUserKey, userInfo);
-                }
-                else
+                    RoleId = x.RoleId,
+                    CourseId = x.CourseId,
+                    RoleName = x.RoleName,
+                    CourseCode = x.CourseCode,
+                }).ToList();
+                var isStudent = rolesByUser
+                    .Any(x => string.Equals(x.Name, RoleName.Student.ToString(), StringComparison.OrdinalIgnoreCase));
+                var hasAdmin = constants.PeerFeedbackAdmins.IndexOf(user.Id.ToString(), StringComparison.Ordinal) > -1;
+                var isInstructor = rolesByUser
+                    .Any(x => string.Equals(x.Name, RoleName.Instructor.ToString(), StringComparison.OrdinalIgnoreCase));
+                // user info must have already been set at this stage. if not let exception handle it
+                var userInfo = new UserModel
                 {
-                    throw new ArgumentNullException("role doesn't exist.");
-                }
-
+                    UserId = user.Id,
+                    DisplayName = user.DisplayName,
+                    EmailAddress = user.EmailAddress,
+                    UserName = user.DisplayName,
+                    SelectedStrm = string.Empty,
+                    SelectedTerm = string.Empty,
+                    SelectedAcadCareer = string.Empty,
+                    SelectedAcadGroup = string.Empty,
+                    SelectedAcadOrg = string.Empty,
+                    SelectedRoleId = -1,
+                    IsStudent = isStudent,
+                    HasAdmin = hasAdmin,
+                    IsInstructor = isInstructor,
+                    CurrentLoadedCourses = courses
+                };
+                var context = _httpContextAccessor.HttpContext;
+                context.Session.SetString(constants.SessionUserKey, JsonSerializer.Serialize(userInfo));
             }
+            else
+            {
+                throw new ArgumentNullException("role doesn't exist.");
+            }
+
         }
+
     }
 }
