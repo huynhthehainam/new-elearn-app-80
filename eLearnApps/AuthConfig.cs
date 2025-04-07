@@ -39,6 +39,7 @@ namespace eLearnApps
                         }
                     };
                 });
+            builder.Services.AddAuthorization();
         }
 
         public static void UseAuth(this WebApplication app)

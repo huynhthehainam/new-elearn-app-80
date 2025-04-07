@@ -1,0 +1,9 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Exam Extraction";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/ee.png");
+
+    string sCourseId = Context.Request.Query["CourseId"];
+    ViewBag.AppHomeLink = Url.Action("Index", "EE", new { CourseId = sCourseId });
+
+}

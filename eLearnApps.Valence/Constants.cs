@@ -40,7 +40,7 @@ namespace eLearnApps.Valence
             }
         }
 
-        public string VALENCE_LE_VERSION
+        public string ValenceLEVersion
         {
             get
             {

@@ -1,0 +1,249 @@
+﻿@model eLearnApps.ViewModel.EE.CreateExtractionViewModel
+
+<form id="extractionForm">
+    @Html.AntiForgeryToken()
+    <div id="sessionList" class="col-md-12">
+        <div class="row">
+            <div class="col-sm-12 mb-10">
+                <div id="accordion" role="tablist">
+                    <div class="card">
+                        <div class="card-header" id="headingOne" role="tab">
+                            <h5 class="mb-0">
+                                <a data-toggle="collapse" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne" class="collapsed">Exam Extraction</a>
+                            </h5>
+                        </div>
+                        <div class="collapse show" id="collapseOne" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" style="">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="form-group col-12">
+                                        <div class="alert alert-info mb-1">
+                                            <strong class="d-inline-block mb-2">Disclaimer:</strong>
+                                            <ul class="card-text mb-auto">
+                                                <li><strong>By default, "Written Response" question type will be exported, you may choose to select other question type(s) from below.</strong></li>
+                                                <ul>
+                                                    @for (int i = 0; i < 4; i++)
+                                                    {
+                                                        if (i == 0)
+                                                        {
+                                                            <li>
+                                                                @Html.CheckBoxFor(model => model.QuestionTypes[i].IsSelected)&nbsp;@Html.HiddenFor(x => x.QuestionTypes[i].Name)Written Response
+                                                            </li>
+                                                        }
+                                                        else
+                                                        {
+                                                            <li>
+                                                                @Html.CheckBoxFor(model => model.QuestionTypes[i].IsSelected)&nbsp;@Html.HiddenFor(x => x.QuestionTypes[i].Name)@Model.QuestionTypes[i].Name
+                                                            </li>
+                                                        }
+
+                                                    }
+                                                    @*<li>@Html.CheckBoxFor(model => model.IsLongAnswerQuestion)Written Response</li>
+                                                        <li>@Html.CheckBoxFor(model => model.IsShortAnswerQuestion)Short answer</li>
+                                                        <li>@Html.CheckBoxFor(model => model.IsMultiShortAnswerQuestion)Multi-short answer</li>
+                                                        <li>@Html.CheckBoxFor(model => model.IsFillinTheBlanksQuestion)Fill in the blank</li>*@
+                                                </ul>
+                                                <li>For quizzes with mutiple attempts, only the latest attempt will be exported</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <h6>Select quiz:</h6>
+                                        @Html.DropDownListFor(m => m.QuizId, Model.Quizzes, null, new { @class = "custom-select d-block w-100" })
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <h6>Select section:</h6>
+                                        @Html.DropDownListFor(m => m.SectionId, Model.Sections, null, new { @class = "custom-select d-block w-100" })
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-6">
+                                        <h6>Grade/Group Answers By :</h6>
+                                        <div class="form-group col-sm-3">
+                                            @Html.RadioButton("GroupBy", (int)ExamExtractionGroupBy.Question, false, new { @class = "k-radio", @id = "rdbGroupByQuestion" })
+                                            <label class="k-radio-label" for="rdbGroupByQuestion">Question</label>
+                                        </div>
+                                        <div class="form-group col-sm-3">
+                                            @Html.RadioButton("GroupBy", (int)ExamExtractionGroupBy.Student, true, new { @class = "k-radio", @id = "rdbGroupByStudent" })
+                                            <label class="k-radio-label" for="rdbGroupByStudent">Student</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <h6>Sort Student By :</h6>
+                                        <div class="form-group col-sm-3">
+                                            @Html.RadioButton("SortBy", (int)ExamExtractionSortBy.Name, true, new { @class = "k-radio", @id = "rdbSortByName" })
+                                            <label class="k-radio-label" for="rdbSortByName">Student name</label>
+                                        </div>
+                                        <div class="form-group col-sm-3">
+                                            @Html.RadioButton("SortBy", (int)ExamExtractionSortBy.OrgDefinedId, false, new { @class = "k-radio", @id = "rdbSortByOrgDefinedId" })
+                                            <label class="k-radio-label" for="rdbSortByOrgDefinedId">Campus Id</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-6">
+                                        <h6>Print student name:</h6>
+                                        <div class="form-group col-sm-1">
+                                            @Html.RadioButton("IsStudentNameShown", !Model.IsStudentNameShown, true, new { @class = "k-radio", @id = "rdbPrintStudentNameYes" })
+                                            <label class="k-radio-label" for="rdbPrintStudentNameYes">Yes</label>
+                                        </div>
+                                        <div class="form-group col-sm-1">
+                                            @Html.RadioButton("IsStudentNameShown", Model.IsStudentNameShown, false, new { @class = "k-radio", @id = "rdbPrintStudentNameNo" })
+                                            <label class="k-radio-label" for="rdbPrintStudentNameNo">No</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <h6>Display question text</h6>
+                                        <div class="form-group col-sm-1">
+                                            @Html.RadioButton("IsQuestionShown", !Model.IsQuestionShown, true, new { @class = "k-radio", @id = "rdbDispQuesTextYes" })
+                                            <label class="k-radio-label" for="rdbDispQuesTextYes">Yes</label>
+                                        </div>
+                                        <div class="form-group col-sm-1">
+                                            @Html.RadioButton("IsQuestionShown", Model.IsQuestionShown, false, new { @class = "k-radio", @id = "rdbDispQuesTextNo" })
+                                            <label class="k-radio-label" for="rdbDispQuesTextNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" id="rowExportOption">
+                                    <div class="form-group col-6">
+                                        <h6>Export options :</h6>
+                                        <div class="form-group col-sm-3">
+                                            @Html.RadioButton("ExportOption", (int)ExportOption.AllToOneDocument, true, new { @class = "k-radio", @id = "rdbAllToOneDocument" })
+                                            <label class="k-radio-label" for="rdbAllToOneDocument">Collate all result into 1 word document</label>
+                                        </div>
+                                        <div class="form-group col-sm-3">
+                                            @Html.RadioButton("ExportOption", (int)ExportOption.OneDocumentPerStudent, false, new { @class = "k-radio", @id = "rdbOneDocumentPerStudent" })
+                                            <label class="k-radio-label" for="rdbOneDocumentPerStudent">1 word document per student</label>
+                                        </div>
+                                    </div>
+                                    @if (Model.EnableGPTZeroOption)
+                                    {
+                                        <div class="form-group col-6">
+                                            <h6 style="color: red;"> <i>New (Beta)</i></h6>
+                                            <h6>Additional Export options :</h6>
+                                            <div class="form-group col-12">
+                                                <input type="checkbox" id="AdditionalExportOptions" name="AdditionalExportOptions" class="k-checkbox" />
+                                                <label class="k-checkbox-label" for="AdditionalExportOptions">Highlight each sentence possibly generated by AI Tools (e.g ChatGPT)</label>
+                                                <br />
+                                                <div style="font-size: x-small">
+                                                    <i>Notes:</i>
+                                                    <ul>
+                                                        <li>
+                                                            <i>Highlighting of sentences is only applicable for "Written Response" question type.</i>
+                                                        </li>
+                                                        <li>
+                                                            <i>The nature of AI-generated content is changing constantly. While we build detection features for non original work, we recommend that instructors take these results as one of many pieces in a holistic assessment of student work.</i>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-6">
+                                        <h6>Font Size*</h6>
+                                        @Html.DropDownListFor(m => m.FontSize, Model.FontSizes, null, new { @class = "custom-select d-block w-100" })
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <h6>Line Spacing*</h6>
+                                        @Html.DropDownListFor(m => m.LineSpace, Model.LineSpaces, null, new { @class = "custom-select d-block w-100" })
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        <div class="alert alert-info mb-1">
+                                            <small>
+                                                <strong>*</strong>Only applicable for answers which do not use HTML editor
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="card-footer">
+                                <button class="k-button" id="btnExport" type="submit">
+                                    Export To Word
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.HiddenFor(m => m.CourseId, Model.CourseId)
+    @Html.HiddenFor(m => m.ClientTimezone, Model.ClientTimezone)
+    @Html.HiddenFor(m => m.SectionName)
+</form>
+
+<script type="text/javascript">
+
+    $(function () {
+
+        // Get tz info from client so we could adjust the datetime displayed
+        // in the word doc(on the server side) accordingly
+        var current_date = new Date();
+        var tz = moment.tz.guess();
+        document.getElementById("ClientTimezone").value = tz;
+
+        // Validation
+        // Only allow user to proceed if select list is not empty
+        // enabling/disabling the Export to word button
+        var btnExport = $("#btnExport").kendoButton({
+            icon: "k-icon  k-i-file-word"
+        }).data("kendoButton");
+
+        if ($('#QuizId option').length === 0) {
+            btnExport.enable(false);
+        }
+        $("#extractionForm").submit(function (event) {
+            btnExport.enable(false);
+            event.preventDefault();
+            DownloadFile();
+        });
+        $('input[name="GroupBy"]').change(function () {
+            var isChecked = $('#rdbGroupByStudent').is(":checked");
+            if (isChecked) {
+                $("input[name='ExportOption'").attr('disabled', false);
+                $("input[name='IsQuestionShown'").attr('disabled', false);
+            } else {
+
+                $("input[name='ExportOption'").attr('disabled', true);
+                $("input[name='IsQuestionShown'").attr('disabled', true);
+            }
+        });
+        $('#AdditionalExportOptions').change(function () {
+            const isChecked = $(this).is(":checked");
+            $(this).val(isChecked ? 1 : 0);
+        });
+        // to set initial value of SectionName
+        const selectedText = $("#SectionId option:selected").text();
+        $('#SectionName').val(selectedText)
+        $('#SectionId').change(function (val) {
+         
+            const selectedText = $("#SectionId option:selected").text();
+            // const selectedVal = $('#SectionId').find(":selected").val();
+            $('#SectionName').val(selectedText)
+               
+        })
+    });
+    async function DownloadFile() {
+        kendo.ui.progress($('#extractionForm'), true);
+        let url = '@Url.Action("CreateExtraction", "EE", new {courseId = ViewBag.CourseId})';
+        const response = await fetch(url, { method: HttpMethod.POST, body: new FormData(document.forms.extractionForm) });
+        const data = await response.blob();
+        if (data !== null && data !== undefined) {
+            var fileName = response.headers.get('content-disposition');
+            fileName = fileName.replace('inline; filename=', '').replace(/"/g, '');
+            var blob = new Blob([data]);
+            kendo.saveAs({
+                dataURI: blob,
+                fileName: fileName
+            });
+            kendo.ui.progress($('#extractionForm'), false);
+            var btnExport = $("#btnExport").data("kendoButton");
+            btnExport.enable(true);
+        }
+    }
+</script>

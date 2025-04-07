@@ -103,7 +103,7 @@ namespace eLearnApps.Controllers
             SignIn(user);
 
             // set userinfo into cache
-            var claimHelper = new ClaimHelper(_serviewProvider, _configuration, _httpContextAccessor);
+            var claimHelper = new ClaimHelper(_serviewProvider);
             log.Debug($"Setting permission into cache: {userId} - {courseId}");
             claimHelper.SetUserInfoIntoCache(user);
             var enrollment = claimHelper.GetEnrollmentFromCache(userId, courseId);
@@ -124,7 +124,7 @@ namespace eLearnApps.Controllers
                 if (topPermission != null)
                 {
                     var targetUrl = string.Format(topPermission.Url, enrollment.CourseId);
-
+                    var sessionId = HttpContext.Session.Id;
                     log.Debug($"target url: {userId} - {courseId} - {targetUrl}");
                     _loggingService.Debug(new DebugLog
                     {

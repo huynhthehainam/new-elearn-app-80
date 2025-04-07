@@ -1,10 +1,14 @@
+using DocumentFormat.OpenXml.InkML;
 using eLearnApps.Business;
 using eLearnApps.Business.Interface;
 using eLearnApps.Core.Caching;
 using eLearnApps.Data;
 using eLearnApps.Data.Interface;
+using eLearnApps.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using System.Net;
 
 namespace eLearnApps
 {
@@ -12,11 +16,21 @@ namespace eLearnApps
     {
         public static void Main(string[] args)
         {
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(20); // Set session timeout
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
+            // Add services to the container.
+
+            builder.Services.AddMemoryCache();
+            builder.Services.AddDistributedMemoryCache();
             builder.Services.AddScoped<ICacheManager, MemoryCacheManager>();
 
             builder.Services.AddScoped<IDaoFactory, DaoFactory>();
@@ -41,6 +55,7 @@ namespace eLearnApps
             builder.Services.AddScoped<IPermissionRoleService, PermissionRoleService>();
             builder.Services.AddScoped<IToolAccessLogService, ToolAccessLogService>();
             builder.Services.AddScoped<ICategoryGroupService, CategoryGroupService>();
+            builder.Services.AddScoped<IAuditService, AuditService>();
 
             builder.Services.AddScoped<IValenceService, ValenceService>();
 
@@ -55,7 +70,8 @@ namespace eLearnApps
    options.UseSqlServer(builder.Configuration.GetConnectionString("LMSIsisContext")));
             builder.Services.AddScoped<IDbContext, DataContext>();
             builder.ConfigureAuth();
-
+            builder.Services.AddControllers();
+            builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
 
@@ -71,18 +87,28 @@ namespace eLearnApps
             app.UseStaticFiles();
 
             app.UseRouting();
-
-            app.UseAuthorization();
+            app.UseSession();
+            app.UseAuth();
+            app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
             app.MapControllerRoute(
-           name: "default",
-           pattern: "{controller}/{action}/{id?}",
-           defaults: new { controller = "Account", action = "LTIVIEW" });
+                name: "default",
+                pattern: "{controller=Account}/{action=LTIVIEW}/{id?}");
+
+
+            app.MapControllers(); // For API routes
             using (var scope = app.Services.CreateScope())
             {
                 var permissionRoleService = scope.ServiceProvider.GetRequiredService<IPermissionRoleService>();
                 permissionRoleService.ResetPermissionRole();
+                var endpointDataSource = scope.ServiceProvider.GetRequiredService<EndpointDataSource>();
+                foreach (var endpoint in endpointDataSource.Endpoints)
+                {
+                    Console.WriteLine($"Route: {endpoint.DisplayName}");
+                }
+
             }
+
             app.Run();
         }
     }

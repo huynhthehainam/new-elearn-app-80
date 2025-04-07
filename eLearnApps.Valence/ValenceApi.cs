@@ -35,7 +35,7 @@ namespace eLearnApps.Valence
             var productLP = productVersions.Where(s => string.Compare(s.ProductCode, "lp", ignoreCase) == 0).FirstOrDefault();
             var productLE = productVersions.Where(s => string.Compare(s.ProductCode, "le", ignoreCase) == 0).FirstOrDefault();
             lpVersion = productLP?.LatestVersion ?? _constants.LpVersion;
-            leVersion = productLE?.LatestVersion ?? _constants.VALENCE_LE_VERSION;
+            leVersion = productLE?.LatestVersion ?? _constants.ValenceLEVersion;
         }
 
         public T Execute<T>(string route) where T : new()
@@ -109,7 +109,7 @@ namespace eLearnApps.Valence
             return productVersions;
         }
 
-        public List<QuestionData> getQuizQustions(int orgUnitId, int quizId)
+        public List<QuestionData> GetQuizQuestions(int orgUnitId, int quizId)
         {
             var route = $"/d2l/api/le/{leVersion}/{orgUnitId}/quizzes/{quizId}/questions/";
             //List<QuestionData> result = new List<QuestionData>();
@@ -269,7 +269,7 @@ namespace eLearnApps.Valence
 
         public List<GradeObject> GetGradeObjectByCourseId(int courseId)
         {
-            var route = $"{_constants.LEBasePath}{_constants.VALENCE_LE_VERSION}/{courseId}/grades/";
+            var route = $"{_constants.LEBasePath}{_constants.ValenceLEVersion}/{courseId}/grades/";
             var gradeObjects = Execute<List<GradeObject>>(route);
 
             // need to massage data alittle 
@@ -562,7 +562,7 @@ namespace eLearnApps.Valence
 
         public string GetGradeSchemeUrl(int orgUnitId, int orgSchemeId)
         {
-            var route = $"{_constants.LEBasePath}{_constants.VALENCE_LE_VERSION}/{orgUnitId}/grades/schemes/{orgSchemeId}";
+            var route = $"{_constants.LEBasePath}{_constants.ValenceLEVersion}/{orgUnitId}/grades/schemes/{orgSchemeId}";
             return route;
         }
 
@@ -604,13 +604,13 @@ namespace eLearnApps.Valence
         public HttpStatusCode UpdateUserGradeFinalValue(int courseId, int userId, double? pointsNumerator,
             double? pointsDenominator)
         {
-            var route = $"{_constants.LEBasePath}{_constants.VALENCE_LE_VERSION}/{courseId}/grades/final/values/{userId}";
+            var route = $"{_constants.LEBasePath}{_constants.ValenceLEVersion}/{courseId}/grades/final/values/{userId}";
             return Put(route, new { PointsNumerator = pointsNumerator, PointsDenominator = pointsDenominator });
         }
 
         public List<ViewModel.Valence.UserGradeValue> GetCourseFinalGrade(int courseId)
         {
-            var route = $"{_constants.LEBasePath}{_constants.VALENCE_LE_VERSION}/{courseId}/grades/final/values/";
+            var route = $"{_constants.LEBasePath}{_constants.ValenceLEVersion}/{courseId}/grades/final/values/";
 
             List<ViewModel.Valence.UserGradeValue> result = new List<ViewModel.Valence.UserGradeValue>();
             bool keeplooping = true;

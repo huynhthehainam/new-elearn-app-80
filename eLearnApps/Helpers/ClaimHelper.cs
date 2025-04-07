@@ -12,11 +12,11 @@ namespace eLearnApps.Helpers
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public ClaimHelper(IServiceProvider serviceProvider, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public ClaimHelper(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
+            _configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            _httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
         }
         public void SetUserInfoIntoCache(User user)
         {

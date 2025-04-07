@@ -41,7 +41,7 @@ namespace eLearnApps
         public string LinkedServerPrefix =>
             _configuration.GetValue<string>("LinkedServerPrefix") ?? "";
 
-        public string LocalIpAddress = "127.0.0.1";
+        public static string LocalIpAddress = "127.0.0.1";
         public string LinkInvite => _configuration.GetValue<string>("LinkInvite") ?? "";
         public string MailError => _configuration.GetValue<string>("MailError") ?? "";
         public string SystemMailAddress => _configuration.GetValue<string>("SystemMailAddress") ?? "";
