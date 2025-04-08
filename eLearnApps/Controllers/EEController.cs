@@ -680,13 +680,13 @@ namespace eLearnApps.Controllers
                                 form.Add(fileContent, "files", $"UserId_{item.Key}-{Guid.NewGuid()}.txt");
                             }
                         }
-
-                        HttpResponseMessage response = await httpClient.PostAsync(_constants.GPTZeroUrl, form);
-                        log.Info($"Call API GptZero StatusCode: {response.StatusCode}");
-                        response.EnsureSuccessStatusCode();
-                        string finalResult = await response.Content.ReadAsStringAsync();
                         try
                         {
+                            HttpResponseMessage response = await httpClient.PostAsync(_constants.GPTZeroUrl, form);
+                            log.Info($"Call API GptZero StatusCode: {response.StatusCode}");
+                            response.EnsureSuccessStatusCode();
+                            string finalResult = await response.Content.ReadAsStringAsync();
+
                             if (results == null)
                                 results = JsonSerializer.Deserialize<GPTZeroModel>(finalResult);
                             else

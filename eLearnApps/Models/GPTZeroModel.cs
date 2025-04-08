@@ -1,46 +1,47 @@
-﻿using Newtonsoft.Json;
+﻿
+using System.Text.Json.Serialization;
 
 namespace eLearnApps.Models.GptZeroModels
 {
     public class GPTZeroModel
     {
-        [JsonProperty("documents")]
+        [JsonPropertyName("documents")]
         public List<Document> Documents { get; set; }
     }
 
     public class Document
     {
-        [JsonProperty("average_generated_prob")]
+        [JsonPropertyName("average_generated_prob")]
         public float AverageGeneratedProb { get; set; }
-        [JsonProperty("completely_generated_prob")]
+        [JsonPropertyName("completely_generated_prob")]
         public float CompletelyGeneratedProb { get; set; }
-        [JsonProperty("overall_burstiness")]
+        [JsonPropertyName("overall_burstiness")]
         public float OverallBurstiness { get; set; }
-        [JsonProperty("paragraphs")]
+        [JsonPropertyName("paragraphs")]
         public Paragraph[] Paragraphs { get; set; }
-        [JsonProperty("sentences")]
+        [JsonPropertyName("sentences")]
         public Sentence[] Sentences { get; set; }
     }
 
     public class Paragraph
     {
-        [JsonProperty("completely_generated_prob")]
+        [JsonPropertyName("completely_generated_prob")]
         public float CompletelyGeneratedProb { get; set; }
-        [JsonProperty("num_sentences")]
+        [JsonPropertyName("num_sentences")]
         public int NumSentences { get; set; }
-        [JsonProperty("start_sentence_index")]
+        [JsonPropertyName("start_sentence_index")]
         public int StartSentenceIndex { get; set; }
     }
 
     public class Sentence
     {
-        [JsonProperty("generated_prob")]
+        [JsonPropertyName("generated_prob")]
         public float GeneratedProb { get; set; }
-        [JsonProperty("perplexity")]
+        [JsonPropertyName("perplexity")]
         public float Perplexity { get; set; }
-        [JsonProperty("sentence")]
+        [JsonPropertyName("sentence")]
         public string SentenceContent { get; set; }
-        [JsonProperty("highlight_sentence_for_ai")]
+        [JsonPropertyName("highlight_sentence_for_ai")]
         public bool HighlightSentenceForAi { get; set; }
         private Guid guid;
         public void SetGuid(Guid value) => guid = value;

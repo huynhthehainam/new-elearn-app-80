@@ -108,9 +108,9 @@ namespace eLearnApps
         public string ExceedsExpectationsQuestionText => _configuration.GetValue<string>("ExceedsExpectationsQuestion") ?? "";
 
         public string QuestionTypes => _configuration.GetValue<string>("QuestionTypes") ?? "";
-        public string GPTZeroApiKey => _configuration.GetValue<string>("GPTZeroApiKey") ?? "";
-        public int GPTZeroMaxItemPerRequest => Convert.ToInt32(_configuration.GetValue<string>("GPTZeroMaxItemPerRequest"));
-        public string GPTZeroUrl => _configuration.GetValue<string>("GPTZeroUrl") ?? "";
+        public string GPTZeroApiKey => _configuration.GetValue<string>("GPTZero:ApiKey") ?? "";
+        public int GPTZeroMaxItemPerRequest => Convert.ToInt32(_configuration.GetValue<string>("GPTZero:MaxItemPerRequest"));
+        public string GPTZeroUrl => _configuration.GetValue<string>("GPTZero:Url") ?? "";
         public bool EnableGPTZeroOption => _configuration.GetValue<bool>("EnableGPTZeroOption");
 
         public string ToolIdPeerTutoring => "PeerTutoring";
