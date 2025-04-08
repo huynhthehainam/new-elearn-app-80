@@ -40,6 +40,7 @@ namespace eLearnApps.Controllers
             return PartialView(MenuName);
         }
         [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<ActionResult> PopulateDropdown(int? semesterId)
         {
             var semesters = await _semesterService.GetAllByUserIdAsync(UserInfo.UserId);
@@ -52,5 +53,21 @@ namespace eLearnApps.Controllers
             }).OrderByDescending(s => s.id).ToList();
             return Json(result);
         }
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<ActionResult> GetBySemesterId(int? semesterId)
+        {
+            var lstCourse = new List<Entity.LmsTools.Course>();
+            if (semesterId.HasValue)
+            {
+                lstCourse = await _courseService.GetBySemesterIdAsync(UserInfo.UserId, semesterId.Value);
+            }
+            return Json(lstCourse.Select(x => new NodeItem
+            {
+                id = x.Id,
+                text = x.Name
+            }).OrderByDescending(item => item.id).ToList());
+        }
     }
+
 }

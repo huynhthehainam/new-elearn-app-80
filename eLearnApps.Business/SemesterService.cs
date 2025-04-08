@@ -78,7 +78,7 @@ namespace eLearnApps.Business
                          where e.UserId == userId
                          select s).OrderByDescending(s => s.Id).Distinct();
 
-            return await query.ToListAsync();
+            return query.ToList();
         }
 
         public void Save(List<Semester> semesters)

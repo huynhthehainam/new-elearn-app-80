@@ -170,7 +170,7 @@ namespace eLearnApps.Business
                         where e.UserId == userId && c.SemesterId == semesterId
                         select c;
 
-            return await query.Distinct().ToListAsync();
+            return query.Distinct().ToList();
         }
         public List<Course> GetByInstructor(int userId, int semesterId)
         {

@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using eLearnApps.Helpers;
 using Microsoft.AspNetCore.Http;
+using System.Web;
 
 namespace eLearnApps.Controllers
 {
@@ -146,6 +147,44 @@ namespace eLearnApps.Controllers
 
             log.Debug($"no access found for user: {userId} - {courseId}");
             return RedirectToAction("AccessDenied", "Error");
+        }
+        [Authorize, HttpPost, ValidateAntiForgeryToken]
+        public ActionResult UpdateClaims(int courseId, string hash, string referrer)
+        {
+            // TODO, need to just integrate with claims, no need to use this function
+            var claimHelper = new ClaimHelper(_serviewProvider);
+            var user = User as ClaimsPrincipal;
+            var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var enrollment = claimHelper.GetEnrollmentFromCache(userId, courseId);
+            if (enrollment != null)
+            {
+                var roleId = enrollment.RoleId;
+                var permissions = claimHelper.GetPermissionCache(roleId);
+
+                var categoryName = string.IsNullOrEmpty(referrer) ? _webHelper.CategoryName : _webHelper.GetCategoryNameFromUrl(referrer);
+                var nextPriorityPath = permissions.Where(p => p.Category == categoryName).OrderBy(p => p.Order).FirstOrDefault();
+                if (nextPriorityPath != null)
+                {
+                    return Json(new
+                    {
+                        Data = new
+                        {
+                            redirectUrl = HttpUtility.HtmlEncode(string.Format(nextPriorityPath.Url, courseId)),
+                            hash = HttpUtility.HtmlEncode("#" + hash)
+                        }
+                    });
+                }
+            }
+
+            // user have not login, redirect 
+            return Json(new
+            {
+                Data = new
+                {
+                    redirectUrl = HttpUtility.HtmlEncode(Url.Action("AccessDenied", "Error", Request.Scheme)),
+                    hash = HttpUtility.HtmlEncode("#" + hash)
+                }
+            });
         }
         private async Task SignIn(User user)
         {
