@@ -29,7 +29,6 @@ using eLearnApps.Models.GptZeroModels;
 namespace eLearnApps.Controllers
 {
     [Authorize, TrackingLog]
-    [Route("EE")]
     public class EEController : BaseController
     {
         private readonly ICourseService _courseService;
@@ -77,7 +76,6 @@ namespace eLearnApps.Controllers
             _serviceScopeFactory = serviceScopeFactory;
         }
         [HttpGet, ClaimRequirement(nameof(StandardPermissionProvider.ManageExtraction))]
-        [Route("Index")]
         public IActionResult Index()
         {
             var userGuideRelativePath = "~/Content/guide/EE_Instructor_UserGuide.pdf";
@@ -477,15 +475,15 @@ namespace eLearnApps.Controllers
 
 
 
-        public void SaveMemoryStream(MemoryStream ms, string fileName)
+        private void SaveMemoryStream(MemoryStream ms, string fileName)
         {
             using (FileStream outStream = System.IO.File.OpenWrite(fileName))
             {
                 ms.WriteTo(outStream);
             }
         }
-
-        public ActionResult DownloadFile(List<UserResponse> userResponses, ExtractionInfoModel options)
+        [NonAction]
+        private ActionResult DownloadFile(List<UserResponse> userResponses, ExtractionInfoModel options)
         {
             var groupBy = (ExamExtractionGroupBy)options.GroupBy;
             var sessionId = HttpContext.Session.Id;
@@ -573,7 +571,7 @@ namespace eLearnApps.Controllers
                         OpenXmlHelper openXmlHelper = new OpenXmlHelper(_configuration);
                         openXmlHelper.CreateDoc(ms, responses, fullQuestions, extractionOptions);
                         var studentFileName = GetSafeFilename(options, student.User);
-                        outputPath = $"{zipPath}{studentFileName}";
+                        outputPath = Path.Combine(zipPath, studentFileName);
                         SaveMemoryStream(ms, outputPath);
                     }
                     filename = GetSafeFilename(options).Replace(".docx", ".zip");
@@ -585,7 +583,8 @@ namespace eLearnApps.Controllers
                         Inline = true
                     };
                     var bytes = System.IO.File.ReadAllBytes(fullFilename);
-                    return File(bytes, "application/zip", filename);
+                    Response.Headers["Content-Disposition"] = contentDisposition.ToString();
+                    return File(bytes, "application/zip");
                 }
             }
             else
@@ -615,8 +614,14 @@ namespace eLearnApps.Controllers
                         CreateWordDocumentGroupByQuestion docByQuestion = new CreateWordDocumentGroupByQuestion(responses, options, fullQuestions, _configuration);
                         docByQuestion.CreatePackage(ms);
                     }
+                    var contentDisposition = new System.Net.Mime.ContentDisposition
+                    {
+                        FileName = filename,
+                        Inline = true
+                    };
+                    Response.Headers["Content-Disposition"] = contentDisposition.ToString();
 
-                    return File(ms.ToArray(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document", filename);
+                    return File(ms.ToArray(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
                 }
             }
 
@@ -649,7 +654,7 @@ namespace eLearnApps.Controllers
         }
 
         #endregion
-        public async Task<GPTZeroModel> RequestGptZero(Dictionary<int, string> studentAnswers)
+        private async Task<GPTZeroModel> RequestGptZero(Dictionary<int, string> studentAnswers)
         {
             log.Info($"RequestGptZero POST answers: {JsonSerializer.Serialize(studentAnswers)}");
             GPTZeroModel results = null;
@@ -726,7 +731,7 @@ namespace eLearnApps.Controllers
             });
         }
         [NonAction]
-        public void UpdateUserResponseWithGPTResult(ref List<UserResponse> listUserResponse, ref GPTZeroModel result, ref string gptZeroTitle, ref CreateExtractionViewModel model, ref List<int> studentsTitle)
+        private void UpdateUserResponseWithGPTResult(ref List<UserResponse> listUserResponse, ref GPTZeroModel result, ref string gptZeroTitle, ref CreateExtractionViewModel model, ref List<int> studentsTitle)
         {
             if (result != null && result.Documents != null && result.Documents.Any())
             {

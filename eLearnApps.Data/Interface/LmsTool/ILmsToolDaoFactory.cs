@@ -21,13 +21,13 @@ namespace eLearnApps.Data.Interface.LmsTool
         //IJournalDao JournalDao { get; }
         //IJournalEntryDao JournalEntryDao { get; }
         //IJournalEntryCommentDao JournalEntryCommentDao { get; }
-        //IIcsSessionDao IcsSessionDao { get; }
+        IIcsSessionDao IcsSessionDao { get; }
         IUserEnrollmentDao UserEnrollmentDao { get; }
-        //IIcsSessionUserSenseDao IcsSessionUserSenseDao { get; }
-        //IQuestionDao QuestionDao { get; }
-        //ILearningPointDao LearningPointDao { get; }
-        //ILearningPointCheckDao LearningPointCheckDao { get; }
-        //IAttendanceDataDao AttendanceDataDao { get; }
+        IIcsSessionUserSenseDao IcsSessionUserSenseDao { get; }
+        IQuestionDao QuestionDao { get; }
+        ILearningPointDao LearningPointDao { get; }
+        ILearningPointCheckDao LearningPointCheckDao { get; }
+        IAttendanceDataDao AttendanceDataDao { get; }
         ICategoryGroupDao CategoryGroupDao { get; }
         //IGptDao GptDao { get; }
         //IAttendanceAttachmentDao AttendanceAttachmentDao { get; }

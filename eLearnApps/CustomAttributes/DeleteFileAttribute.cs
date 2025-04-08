@@ -10,7 +10,7 @@ namespace eLearnApps.CustomAttribute
             var env = context.HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
 
             // Assume session is enabled and contains a SessionID
-            var sessionId = context.HttpContext.Session.GetString("SessionID");
+            var sessionId = context.HttpContext.Session.Id;
             if (string.IsNullOrEmpty(sessionId)) return;
 
             var relativePath = Path.Combine("Content", "Upload", "EE", sessionId);

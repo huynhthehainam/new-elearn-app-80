@@ -1,0 +1,13 @@
+﻿@{
+   var controllerName = ViewContext.RouteData.Values["controller"].ToString();
+    if (string.Compare(controllerName, FunctionName.Journal.ToString(), StringComparison.OrdinalIgnoreCase) == 0)
+    {
+        <script src="~/Scripts/ckeditor/ckeditor.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+        <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js"></script>
+        <script>
+            const ViewType = {  List: 'List', Grid: 'Grid', Group: 'Group' }
+        </script>
+    }
+}

@@ -56,6 +56,9 @@ namespace eLearnApps
             builder.Services.AddScoped<IToolAccessLogService, ToolAccessLogService>();
             builder.Services.AddScoped<ICategoryGroupService, CategoryGroupService>();
             builder.Services.AddScoped<IAuditService, AuditService>();
+            builder.Services.AddScoped<IIcsService, IcsService>();
+            builder.Services.AddScoped<IAttendanceDataService, AttendanceDataService>();
+            builder.Services.AddScoped<ICmtService, CmtService>();
 
             builder.Services.AddScoped<IValenceService, ValenceService>();
 
@@ -82,6 +85,10 @@ namespace eLearnApps
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            else
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -96,7 +103,6 @@ namespace eLearnApps
                 pattern: "{controller=Account}/{action=LTIVIEW}/{id?}");
 
 
-            app.MapControllers(); // For API routes
             using (var scope = app.Services.CreateScope())
             {
                 var permissionRoleService = scope.ServiceProvider.GetRequiredService<IPermissionRoleService>();

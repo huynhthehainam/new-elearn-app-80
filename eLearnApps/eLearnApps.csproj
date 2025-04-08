@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\Shared\_Layout.cshtml.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Views\Shared\_Layout.cshtml.css" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.9.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.0" />
     <PackageReference Include="itext" Version="9.1.0" />
@@ -26,6 +34,10 @@
     <ProjectReference Include="..\eLearnApps.Core\eLearnApps.Core.csproj" />
     <ProjectReference Include="..\eLearnApps.Data\eLearnApps.Data.csproj" />
     <ProjectReference Include="..\eLearnApps.Entity\eLearnApps.Entity.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\Content\Upload\" />
   </ItemGroup>
 
 </Project>

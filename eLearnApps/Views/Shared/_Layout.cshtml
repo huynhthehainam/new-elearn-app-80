@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Mvc.Rendering;
+@{
     string version = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(DateTime.Now.Ticks.ToString()));
 }
 <!DOCTYPE html>
@@ -54,7 +55,7 @@
         var CourseId;
         var detect = jstz.determine();
         var TimeZone = detect.name();
-
+        console.log('init')
         kendo.pdf.defineFont({
             "DejaVu Sans"             : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans.ttf")",
             "DejaVu Sans|Bold"        : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Bold.ttf")",
@@ -77,7 +78,7 @@
     </script>
     @Html.Partial("_Header")
     <div class="app-body">
-        @await Html.PartialAsync("_LeftMenu", "Menu") <!-- Renders the result of the action -->
+        @Html.Partial("_LeftMenuEE")
         <main class="main">
             <br />
             <div class="container-fluid" id="main">
