@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering;
 @{
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
     string version = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(DateTime.Now.Ticks.ToString()));
+
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -78,7 +80,7 @@
     </script>
     @Html.Partial("_Header")
     <div class="app-body">
-        @Html.Partial("_LeftMenuEE")
+        @Html.Partial("_LeftMenu" + controllerName)
         <main class="main">
             <br />
             <div class="container-fluid" id="main">
