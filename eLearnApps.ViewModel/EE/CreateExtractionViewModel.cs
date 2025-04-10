@@ -5,13 +5,13 @@ namespace eLearnApps.ViewModel.EE
     public class CreateExtractionViewModel
     {
         public int CourseId { get; set; }
-        public string QuizId { get; set; }
+        public string? QuizId { get; set; }
         public int? SectionId { get; set; }
-        public string SectionName { get; set; }
-        public string FontSize { get; set; }
-        public string LineSpace { get; set; }
+        public string? SectionName { get; set; }
+        public string? FontSize { get; set; }
+        public string? LineSpace { get; set; }
 
-        public string ClientTimezone { get; set; }
+        public string? ClientTimezone { get; set; }
 
         public bool IsStudentNameShown { get; set; }
 

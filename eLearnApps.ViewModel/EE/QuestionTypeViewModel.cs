@@ -2,7 +2,7 @@
 {
     public class QuestionTypeViewModel
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
         public bool IsSelected { get; set; }
     }
 }

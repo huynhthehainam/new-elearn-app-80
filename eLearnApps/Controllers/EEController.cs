@@ -212,7 +212,7 @@ namespace eLearnApps.Controllers
                 foreach (var userIds in section.Enrollments)
                 {
                     var quizResponse = vapi.GetQuizResponseByUserId(model.CourseId, quizId, userIds);
-                    quizResponse.SectionName = section.Name;
+                    quizResponse.SectionName = string.IsNullOrEmpty(section.Name) ? string.Empty : section.Name;
                     //if (isFirst)
                     //{
                     //    isFirst = false;
@@ -310,16 +310,16 @@ namespace eLearnApps.Controllers
                 QuizId = quizId,
                 IsQuestionShown = model.IsQuestionShown,
                 IsStudentNameShown = model.IsStudentNameShown,
-                FontSize = model.FontSize,
-                LineSpacing = model.LineSpace,
+                FontSize = string.IsNullOrEmpty(model.FontSize) ? string.Empty : model.FontSize,
+                LineSpacing = string.IsNullOrEmpty(model.LineSpace) ? string.Empty : model.LineSpace,
                 Sections = sections,
-                ClientTimezone = model.ClientTimezone,
+                ClientTimezone = string.IsNullOrEmpty(model.ClientTimezone) ? string.Empty : model.ClientTimezone,
                 SortBy = model.SortBy,
                 GroupBy = model.GroupBy,
                 IsOutputZipped = model.GroupBy == (int)ExamExtractionGroupBy.Student && model.ExportOption == (int)ExportOption.OneDocumentPerStudent,
                 QuestionTypes = model.QuestionTypes.Where(x => x.IsSelected).Select(x => x.Name).ToList(),
                 SectionId = model.SectionId,
-                SectionName = model.SectionName,
+                SectionName = string.IsNullOrEmpty(model.SectionName) ? string.Empty : model.SectionName,
             };
             if (model.AdditionalExportOptions == 1 && _constants.EnableGPTZeroOption)
                 GptZeroInsertAuditLog(CourseId, UserInfo.UserId);
@@ -369,7 +369,7 @@ namespace eLearnApps.Controllers
             }
             LogDebug("examextraction-getsectionsbycourseid: inspect classlist returned by WS", $"{JsonSerializer.Serialize(classlist)}");
 
-            List<ViewModel.Valence.SectionData> result = null;
+            List<ViewModel.Valence.SectionData>? result = null;
 
             var students = classlist
                             .Where(q => string.Equals(q.Role.Name, "Student", StringComparison.OrdinalIgnoreCase) || string.Equals(q.Role.Name, "Audit Student", StringComparison.OrdinalIgnoreCase))
@@ -554,7 +554,7 @@ namespace eLearnApps.Controllers
                     new SectionData
                     {
                         Classlist = new List<OrgUnitUser>{ student },
-                        Name = section.Name,
+                        Name = string.IsNullOrEmpty(section.Name) ? string.Empty : section.Name,
                         SectionId = section.SectionId
                     }
                 };
@@ -637,7 +637,7 @@ namespace eLearnApps.Controllers
                 {
                     UserId = 0,
                     OrgUnitId = 0,
-                    IpAddress = ipAddress,
+                    IpAddress = string.IsNullOrEmpty(ipAddress) ? string.Empty : ipAddress,
                     ToolId = "elearnapps",
                     ToolAccessRoleId = 0,
                     ActionCategory = actioncategory,
@@ -657,7 +657,7 @@ namespace eLearnApps.Controllers
         private async Task<GPTZeroModel> RequestGptZero(Dictionary<int, string> studentAnswers)
         {
             log.Info($"RequestGptZero POST answers: {JsonSerializer.Serialize(studentAnswers)}");
-            GPTZeroModel results = null;
+            GPTZeroModel? results = null;
             var batches = studentAnswers
                 .Select((entry, index) => new { entry, index })
                 .GroupBy(x => x.index / _constants.GPTZeroMaxItemPerRequest)
@@ -692,7 +692,10 @@ namespace eLearnApps.Controllers
                             else
                             {
                                 var tempResult = JsonSerializer.Deserialize<GPTZeroModel>(finalResult);
-                                results.Documents.AddRange(tempResult.Documents);
+                                if (tempResult != null)
+                                {
+                                    results.Documents.AddRange(tempResult.Documents);
+                                }    
                             }
                         }
                         catch (Exception e)
