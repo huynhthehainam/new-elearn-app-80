@@ -8,7 +8,7 @@ namespace eLearnApps.ViewModel.ISIS
 {
     public class ClassScheduleViewModel
     {
-        public ICollection<DayOfWeek>? SelectedDays { get; set; }
+        public ICollection<DayOfWeek> SelectedDays { get; set; }
         public TimeSpan Start { get; set; }
         public TimeSpan End { get; set; }
     }
