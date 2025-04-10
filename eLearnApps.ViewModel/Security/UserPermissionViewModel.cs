@@ -17,10 +17,10 @@ namespace eLearnApps.ViewModel.Security
     {
         public int RoleId { get; set; }
         public int Id { get; set; }
-        public string PermissionName { get; set; }
-        public string PermissionSystemName { get; set; }
-        public string PermissionUrl { get; set; }
-        public string PermissionCategory { get; set; }
+        public string? PermissionName { get; set; }
+        public string? PermissionSystemName { get; set; }
+        public string? PermissionUrl { get; set; }
+        public string? PermissionCategory { get; set; }
         public int PermissionOrder { get; set; }
     }
 }

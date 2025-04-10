@@ -510,7 +510,7 @@ namespace eLearnApps.Business
                         AttendanceSessionId = p.AttendanceSessionId,
                         AttendanceDataId = p.AttendanceDataId,
                         Percentage = p.Percentage,
-                        Remarks = p.Remarks,
+                        Remarks = string.IsNullOrEmpty(p.Remarks) ? string.Empty : p.Remarks,
                         Participation = p.Participation,
                         IsDeleted = p.IsDeleted,
                         Excused = p.Excused
