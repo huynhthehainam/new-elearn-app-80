@@ -1,0 +1,322 @@
+﻿@model eLearnApps.ViewModel.PeerFeedback.PeerFeedbackListModel
+@{
+    ViewBag.Title = "Peer and Self Feedback";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+}
+@{
+    var openSessions = Model.PeerFeedbacks.Where(t => t.EntryStartTime <= DateTime.UtcNow && t.EntryCloseTime > DateTime.UtcNow).OrderBy(t => t.EntryStartTime).ToList();
+    var closedSessions = Model.PeerFeedbacks.Where(t => t.EntryCloseTime < DateTime.UtcNow).OrderByDescending(t => t.EntryStartTime).ToList();
+    var futureSessions = Model.PeerFeedbacks.Where(t => t.EntryStartTime > DateTime.UtcNow).OrderByDescending(t => t.EntryStartTime).ToList();
+}
+<style>
+    .card:hover {
+        -moz-box-shadow: 0px 5px 24px #CCCCCC;
+        -ms-box-shadow: 0px 5px 24px #CCCCCC;
+        -o-box-shadow: 0px 5px 24px #CCCCCC;
+        -webkit-box-shadow: 0px 5px 24px #CCCCCC;
+        box-shadow: 0px 5px 24px #CCCCCC;
+        top: -3px;
+    }
+
+    .card-ongoing {
+        background-color: orange !important;
+        color: white !important;
+    }
+
+    .card-closed {
+        background-color: green !important;
+        color: white !important;
+    }
+
+    .card-future {
+        background-color: darkgrey !important;
+        color: white !important;
+    }
+
+    .k-dialog-title {
+        font-size: 15px;
+    }
+
+    .card {
+        margin-bottom: 0;
+    }
+
+    .modal {
+        z-index: -1;
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-open .modal {
+        z-index: 1050;
+    }
+
+    .fade:not(.show) {
+        opacity: 0;
+        z-index: -1;
+    }
+
+    .modal-dialog {
+        max-width: 80%;
+        width: auto !important;
+        display: inline-block;
+        max-height: 80%;
+        height: auto !important;
+    }
+
+    body {
+        overflow: auto;
+    }
+
+    .row.mt-3 > span {
+        padding-left: 1rem;
+    }
+
+    .card-body h5 {
+        padding-left: 0;
+    }
+</style>
+<div class="row">
+    <h5>Ongoing</h5>
+</div>
+<div class="row mt-3">
+    @if (openSessions.Any())
+    {
+        foreach (var openItem in openSessions)
+        {
+            <div class="col-md-4" style="margin-bottom: 10px;">
+                <div class="card h-100"
+                     style="cursor: pointer"
+                     data-progress="@openItem.Progress"
+                     data-peerFeedBack="@openItem.PeerFeedBackId"
+                     data-session="@openItem.PeerFeedBackSessionId"
+                     data-pairing="@openItem.PeerFeedBackPairingId"
+                     data-group="@openItem.PeerFeedBackGroupId"
+                     data-class="card-ongoing"
+                     data-closed="false"
+                     data-key="@openItem.PeerFeedBackKey"
+                     data-item-name="@openItem.Name"
+                     data-utc-enddate="@openItem.EntryCloseTime.ToString("dd MMM yyyy HH:mm:ss")"
+                     data-utc-startdate="@openItem.EntryStartTime.ToString("dd MMM yyyy HH:mm:ss")"
+                     data-url="@Url.Action("PeerFeedbackResponse", "PeerFeedback")"
+                     onclick="RedirectToDetail(this);">
+                    <div class="card-header card-ongoing">
+                        <i class="fa fa-unlock-alt fa-lg"></i>@openItem.Name
+                    </div>
+                    <div class="card-body">
+                        <h5>@openItem.Label</h5>
+
+                        <small class="text-muted">Session</small>
+                        <h6>@openItem.SessionName</h6>
+
+                        <small class="text-muted">From</small>
+                        <h6 data-utcdate="@openItem.EntryStartTime.ToString("dd MMM yyyy HH:mm:ss")"></h6>
+
+                        <small class="text-muted">Until</small>
+                        <h6 data-utcdate="@openItem.EntryCloseTime.ToString("dd MMM yyyy HH:mm:ss")"></h6>
+
+                        <small class="text-muted">Your Progress</small>
+                        <h6>@openItem.Progress.ToString("N2") %</h6>
+
+                        <small class="text-muted">Group Progress</small>
+                        <h6>@openItem.GroupCountComplete out of @openItem.TotalUserCountInGroup members @(openItem.GroupCountComplete == 1 ? "has" : "have") completed evaluation</h6>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <span>There is no record(s) for Ongoing Session.</span>
+    }
+</div>
+<div class="row mt-5">
+    <h5>Closed</h5>
+</div>
+<div class="row mt-3">
+    @if (closedSessions.Any())
+    {
+        foreach (var closeItem in closedSessions)
+        {
+            <div class="col-md-4" style="margin-bottom: 10px;">
+                <div class="card h-100"
+                     style="cursor: pointer"
+                     data-progress="@closeItem.Progress"
+                     data-peerFeedBack="@closeItem.PeerFeedBackId"
+                     data-session="@closeItem.PeerFeedBackSessionId"
+                     data-pairing="@closeItem.PeerFeedBackPairingId"
+                     data-group="@closeItem.PeerFeedBackGroupId"
+                     data-class="card-closed"
+                     data-closed="true"
+                     data-key="@closeItem.PeerFeedBackKey"
+                     data-item-name="@closeItem.Name"
+                     data-utc-enddate="@closeItem.EntryCloseTime.ToString("dd MMM yyyy HH:mm:ss")"
+                     data-utc-startdate="@closeItem.EntryStartTime.ToString("dd MMM yyyy HH:mm:ss")"
+                     data-url="@Url.Action("PeerFeedbackResponse", "PeerFeedback")"
+                     onclick="RedirectToResult(this);">
+                    <div class="card-header card-closed">
+                        <i class="fa fa-lock fa-lg"></i>@closeItem.Name
+                    </div>
+                    <div class="card-body">
+                        <h5>@closeItem.Label</h5>
+
+                        <small class="text-muted">Session</small>
+                        <h6>@closeItem.SessionName</h6>
+
+                        <small class="text-muted">From</small>
+                        <h6 data-utcdate="@closeItem.EntryStartTime.ToString("dd MMM yyyy HH:mm:ss")"></h6>
+
+                        <small class="text-muted">Until</small>
+                        <h6 data-utcdate="@closeItem.EntryCloseTime.ToString("dd MMM yyyy HH:mm:ss")"></h6>
+
+                        <small class="text-muted">Your Progress</small>
+                        <h6>@closeItem.Progress.ToString("N2") %</h6>
+
+                        <small class="text-muted">Group Progress</small>
+                        <h6>@closeItem.GroupCountComplete out of @closeItem.TotalUserCountInGroup members @(closeItem.GroupCountComplete == 1 ? "has" : "have") completed evaluation</h6>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <span>There is no record(s) for Closed Session.</span>
+    }
+</div>
+<div class="row mt-5">
+    <h5>Future</h5>
+</div>
+<div class="row mt-3">
+    @if (futureSessions.Any())
+    {
+        foreach (var futureSession in futureSessions)
+        {
+            <div class="col-md-4" style="margin-bottom: 10px;">
+                <div class="card h-100"
+                     style="cursor: pointer"
+                     data-progress="@futureSession.Progress"
+                     data-peerFeedBack="@futureSession.PeerFeedBackId"
+                     data-session="@futureSession.PeerFeedBackSessionId"
+                     data-pairing="@futureSession.PeerFeedBackPairingId"
+                     data-group="@futureSession.PeerFeedBackGroupId"
+                     data-class="card-future"
+                     data-closed="true"
+                     data-key="@futureSession.PeerFeedBackKey"
+                     data-item-name="@futureSession.Name"
+                     data-utc-enddate="@futureSession.EntryCloseTime.ToString("dd MMM yyyy HH:mm:ss")"
+                     data-utc-startdate="@futureSession.EntryStartTime.ToString("dd MMM yyyy HH:mm:ss")"
+                     data-url="@Url.Action("PeerFeedbackResponse", "PeerFeedback")">
+                    <div class="card-header card-future">
+                        <i class="fa fa-lock fa-lg"></i>@futureSession.Name
+                    </div>
+                    <div class="card-body">
+                        <h5>@futureSession.Label</h5>
+
+                        <small class="text-muted">Session</small>
+                        <h6>@futureSession.SessionName</h6>
+
+                        <small class="text-muted">From</small>
+                        <h6 data-utcdate="@futureSession.EntryStartTime.ToString("dd MMM yyyy HH:mm:ss")"></h6>
+
+                        <small class="text-muted">Until</small>
+                        <h6 data-utcdate="@futureSession.EntryCloseTime.ToString("dd MMM yyyy HH:mm:ss")"></h6>
+
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <span>There is no record(s) for Future Session.</span>
+    }
+</div>
+<!-- Modal -->
+<div class="modal fade" id="targetDialogModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">
+                <div class="row" style="width:100%">
+                    <div class="col-8">
+                        <h5 class="modal-title" id="modalTitle"></h5>
+                    </div>
+                    <div class="col-4">
+                        <div class="row float-right">
+                            <div class="col-auto">
+                                <button type="submit" class="k-button" id="btnOpenEvaluation" onclick="openEvaluation();"><span class="k-icon k-i-folder-open"></span>&nbsp;&nbsp;Open</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+</div>
+<div id="targetDialog">
+    <div id="targets"></div>
+</div>
+<script>
+    const truncate = (str, max, suffix) => str.length < max ? str : `${str.substr(0, str.substr(0, max - suffix.length).lastIndexOf(' '))}${suffix}`;
+
+    function RedirectToDetail(element) {
+        const url = $(element).data('url');
+        const peerFeedBackSessionId = $(element).data("session");
+        const peerFeedBackGroupId = $(element).data("group");
+        const peerFeedBackPairingId = $(element).data("pairing");
+        const peerFeedBackId = $(element).data("peerfeedback");
+        const progress = $(element).data("progress");
+        const closed = $(element).data("closed");
+        const peerFeedBackKey = $(element).data("key");
+        const param = {
+            peerFeedBackSessionId: peerFeedBackSessionId,
+            peerFeedBackGroupId: peerFeedBackGroupId,
+            peerFeedBackPairingId: peerFeedBackPairingId,
+            peerFeedBackId: peerFeedBackId,
+            progress: progress,
+            closed: closed,
+            peerFeedBackKey: peerFeedBackKey
+        };
+        window.kendo.ui.progress($('#main'), true);
+        createPostRequest(url, param).then(function (response) {
+            window.kendo.ui.progress($('#main'), false);
+            $('#main').html(response);
+        });
+    }
+
+    function ShowInfo(element) {
+        var msg = `This is future session, you can not open it!`;
+        kendo.alert(msg);
+    }
+
+    $(function () {
+        $('[data-utcdate]').each(function () {
+            var d = moment($(this).attr('data-utcdate')).tz(window.TimeZone)._d;
+            $(this).html(moment(d).format("DD MMM YYYY hh:mm A"));
+        });
+    });
+
+     function RedirectToResult(element) {
+         window.kendo.ui.progress($('#main'), true);
+         const peerFeedBackGroupId = $(element).data("group");
+         const peerFeedBackId = $(element).data("peerfeedback");
+         const peerFeedBackSessionId = $(element).data("session");
+         const url = '@Url.Action("PeerFeedbackResult", "PeerFeedback")';
+         createPostRequest(url,
+             {
+                 defaultActiveId: peerFeedBackId,
+                 defaultGroupId: peerFeedBackGroupId,
+                 defaultSessionId: peerFeedBackSessionId
+             }).then(function (response) {
+            window.kendo.ui.progress($('#main'), false);
+             $('#main').html(response);
+         });
+    }
+</script>

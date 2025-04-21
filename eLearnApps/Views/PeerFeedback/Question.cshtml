@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "Peer and Self Feedback";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+}
+<form>
+    @Html.AntiForgeryToken()
+    <div class="row justify-content-center">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="d-inline">
+                        <i class="icon-note"></i> Question
+                    </h5>
+                    <div class="card-header-actions">
+                        <button id="btnAddNew" class="k-button"><span class="k-icon k-i-plus"></span>Add new</button>
+                        <button id="btnSeed" class="k-button">
+                            <span class="k-icon k-i-export"></span>Generate Seed
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="gridQuestion"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div id="frmForm"></div>
+<script>
+    let dataSource;
+    const handleQuestion = (url, options, refresh = true) => {
+        const data = addAntiForgeryToken(options.data);
+        $.ajax({
+            data: data,
+            url: url,
+            method: 'POST',
+            success: function(result) {
+                if (refresh)
+                    dataSource.read();
+                else
+                    options.success(result.Data);
+            },
+            error: function(result) {
+                options.error(result);
+            }
+        });
+    };
+    const createGridQuestion = () => {
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: function(options) {
+                    const readUrl = '@Url.Action("PeerFeedbackQuestionList", "PeerFeedback")';
+                    handleQuestion(readUrl, options, false);
+                },
+                destroy: function(options) {
+                    const deleteUrl = '@Url.Action("PeerFeedbackQuestionDelete", "PeerFeedback")';
+                    handleQuestion(deleteUrl, options);
+                }
+            },
+            batch: false,
+            pageSize: 10
+        });
+
+        $("#gridQuestion").kendoGrid({
+            dataSource: dataSource,
+            pageable: true,
+            height: 550,
+            columns: [
+                { field: "Title", title: "Question" },
+                { field: "Description", title: "Description" },
+                {
+                    command: [
+                        {
+                            name: "edit",
+                            click: function(e) {
+                                e.preventDefault();
+                                const dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                                OpenForm(dataItem.Id);
+                            }
+                        },
+                        { name: "destroy" },
+                    ],
+                    title: "&nbsp;", width: "250px"
+                }
+            ]
+        });
+    };
+    $(document).ready(function() {
+        createGridQuestion();
+        $('#btnAddNew').click(function() {
+            OpenForm();
+            return false;
+        });
+        $('#btnSeed').click(function () {
+            window.kendo.ui.progress($('#main'), true);
+           const url = '@Url.Action("SeedData", "PeerFeedback")';
+            createPostRequest(url).then(function() {
+                alert('Generate done!');
+                window.kendo.ui.progress($('#main'), false);
+            });
+        });
+    });
+
+    function OpenForm(id = undefined) {
+        const url = '@Url.Action("CreateOrUpdateQuestion", "PeerFeedback")';
+        $("#main").html('');
+        createPostRequest(url, { questionId: id }).then(function(response) {
+            $("#main").html(response);
+        });
+    }
+</script>

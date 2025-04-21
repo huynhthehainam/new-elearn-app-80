@@ -1,0 +1,46 @@
+﻿@model eLearnApps.ViewModel.PeerFeedback.SelfDirectedLearningResourcesModel
+<div class="modal fade" id="staticBackdrop-@Model.ResourceId" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel-@Model.ResourceId">
+                    Thank you for completing the peer evaluation.
+                    We have identified a list of relevant resources for your consideration under the criteria of <u>@Model.QuestionName</u>
+                    to better prepare you for future group projects.
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    @foreach (var item in Model.ItemTemplates)
+                    {
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><span class="badge badge-dark">@item.Title</span></h5>
+                            </div>
+                            @if (!string.IsNullOrEmpty(item.Label))
+                            {
+                                <p class="mb-1">
+                                    @item.Label
+                                </p>
+                            }
+                            @foreach (var hyperLink in item.SelfDirectedLearningResourceLink)
+                            {
+                                <p class="mb-1">
+                                    <a target="_blank" href="@hyperLink.Href">
+                                        @hyperLink.Text
+                                    </a>
+                                </p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

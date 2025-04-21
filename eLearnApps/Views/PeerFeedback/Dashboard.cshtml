@@ -1,0 +1,234 @@
+﻿@using eLearnApps.Core.Extension
+@{
+    ViewBag.Title = "Peer and Self Feedback Dashboard";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+    var httpContextBase = new HttpContextWrapper(HttpContext.Current) as HttpContextBase;
+    var loggedUserInfo = httpContextBase.GetLoggedInUserInfo();
+}
+<style>
+    .card {
+        /*background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);*/
+        display: block;
+        line-height: 1.42857143;
+        margin-bottom: 20px;
+        margin-bottom: 0.3rem;
+        /*transition: box-shadow .25s;*/
+    }
+
+    .k-list {
+        white-space: nowrap;
+    }
+
+    .unset-text-transform {
+        text-transform: unset !important;
+    }
+
+    .error-msg {
+        width: 100%;
+        height: 71px;
+    }
+
+    /* Success template */
+    .success-msg {
+        width: 100%;
+        height: 71px;
+    }
+
+    .k-notification h3 {
+        padding: 25px 10px 5px;
+        font-size: 1em;
+        line-height: normal;
+        margin-bottom: 0 !important;
+    }
+
+    .k-dialog-titlebar {
+        background-color: #0e2669 !important;
+    }
+</style>
+<script>
+    var reportType = {
+        overallResponseRate: 0,
+        overallDescriptorResult: 1,
+        overallMeanScoreResult: 2,
+        individualStudentResult: 3
+    };
+</script>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                @if (loggedUserInfo.RoleName.Contains("Admin") || loggedUserInfo.RoleName.Contains("Administrator"))
+                {
+                    <h5>
+                        Admin Dashboard
+                    </h5>
+                }
+                else if (loggedUserInfo.RoleName.Contains("Instructor"))
+                {
+                    <h5>
+                        Instructor Dashboard
+                    </h5>
+                }
+                else
+                {
+                    <h5>
+                        Dashboard
+                    </h5>
+                }
+            </div>
+            <div class="card-body">
+                <form class="form-inline k-widget k-form fieldlist">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6>Generate Admin Reports</h6>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text unset-text-transform" for="ddlSession">PSFS Sessions</label>
+                                        </div>
+                                        <select id="ddlSession" data-placeholder="Please select session(s) and data grouping..." style="width: 80%"></select>
+                                    </div>
+                                    <div class="input-group mt-3">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="groupBy" id="chkCourseSection" value="0" checked>
+                                            <label class="form-check-label unset-text-transform" for="chkCourseSection">Group by Course/Section</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="groupBy" id="chkStudentSchool" value="1">
+                                            <label class="form-check-label unset-text-transform" for="chkStudentSchool">Group by School of Student and Year of Intake</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <button type="submit" class="k-button k-primary unset-text-transform" onclick="download(reportType.overallResponseRate)"><span class="k-icon k-i-download"></span>&nbsp;Overall Response Rate</button>
+                                    <button type="submit" class="k-button k-primary unset-text-transform" onclick="download(reportType.overallDescriptorResult)"><span class="k-icon k-i-download"></span>&nbsp;Overall Descriptor Result</button>
+                                    <button type="submit" class="k-button k-primary unset-text-transform" onclick="download(reportType.overallMeanScoreResult)"><span class="k-icon k-i-download"></span>&nbsp;Overall Mean Score Result</button>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h6>Generate Students Results</h6>
+                                    <button type="submit" class="k-button k-primary unset-text-transform" onclick="download(reportType.individualStudentResult)"><span class="k-icon k-i-download"></span>&nbsp;Individual Student Result</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <span id="notification" style="display: none;"></span>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="errorTemplate" type="text/x-kendo-template">
+    <div class="error-msg">
+        @*<div style="cursor:pointer;" onclick="notification.hide();"><span class="k-icon k-i-close mr-1 float-right" title="success"></div>*@
+        <div>
+            <h3><span class="k-icon k-i-error mr-1" title="error"></span>#= title #</h3>
+            <p style="margin-left:5px;">#= message #</p>
+        </div>
+    </div>
+</script>
+<script id="successTemplate" type="text/x-kendo-template">
+    <div class="success-msg">
+        @*<div style="cursor:pointer;" onclick="notification.hide();"><span class="k-icon k-i-close mr-1 float-right" title="success"></div>*@
+        <div><h3><span class="k-icon k-i-success mr-1" title="success"></span>#= message #</h3></div>
+    </div>
+</script>
+
+<script>
+    var data = [], cboSession, notification;
+
+    $(document).ready(function () {
+        var checkInputs = function (elements) {
+            elements.each(function () {
+                var element = $(this);
+                var input = element.children("input");
+                input.prop("checked", element.hasClass("k-state-selected"));
+            });
+        };
+        cboSession = $("#ddlSession").kendoMultiSelect({
+            itemTemplate: "<input type='checkbox' class='k-checkbox'/> #:data.displayText#",
+            autoClose: false,
+            clearButton: true,
+            autoWidth: true,
+            filter: "contains",
+            dataTextField: "displayText",
+            dataValueField: "sessionId",
+            dataBound: function () {
+                var items = this.ul.find("li");
+                setTimeout(function () {
+                    checkInputs(items);
+                });
+            },
+            change: function () {
+                var items = this.ul.find("li");
+                checkInputs(items);
+            },
+        }).data("kendoMultiSelect");
+        getSessions();
+        notification = $("#notification").kendoNotification().data("kendoNotification");
+    });
+    function adjustDropDownWidth(e) {
+        var listContainer = e.sender.list.closest(".k-list-container");
+        listContainer.width(listContainer.width() + kendo.support.scrollbar());
+    }
+    function getSessions() {
+        const url = `@Url.Action("GetReportFilterSession", "PeerFeedback")`;
+        createPostRequest(url).then(function (response) {
+            let result = response.map(item => {
+                const startTime = moment.utc(item.EntryStartTime).local().format("DD MMM YYYY");
+                const closeTime = moment.utc(item.EntryCloseTime).local().format("DD MMM YYYY");
+                const displayText = `(${item.PeerFeedBackName}) ${item.Label} (${startTime} to ${closeTime})`;
+                return { displayText: displayText, sessionId: item.Id, peerFeedBackId: item.PeerFeedBackId }
+            });
+            var ds = new kendo.data.DataSource({
+                data: result
+            });
+            ds.fetch(function () {
+                cboSession.setDataSource(ds);
+            });
+        });
+    }
+    async function download(rptType) {
+        window.event.preventDefault();
+        window.kendo.ui.progress($('#main'), false);
+        const url = `@Url.Action("ExportPeerFeedBackToExcel", "PeerFeedback")`;
+        var sessions = cboSession.dataItems();
+        var selectedTexts = sessions.map(function(item) {
+            return item.displayText;
+        });
+        var sessionNames = selectedTexts.join(", ");
+        if (sessions === null | sessions === undefined || sessions.length === 0) {
+            notification.show("Please select PSFS Sessions", "error");
+            return false;
+        }
+        
+        const params = {
+            Sessions: cboSession.value(),
+            sessionNames: sessionNames,
+            reportType: rptType,
+            timeZone: window.TimeZone,
+            groupBy: $(`input[name='groupBy']:checked`).val(),
+        };
+        createPostRequest(url, params).then(function (response) {
+            window.kendo.ui.progress($('#main'), false);
+            notification.show(`Your request has been processed. Reference ID ${response}`, "success");
+        }).catch(err => {
+            window.kendo.ui.progress($('#main'), false);
+            notification.show(`eLearnApps encountered problem! You may contact eLearn support (<a href="mailto:eLearn@smu.edu.sg">elearn@smu.edu.sg</a>)`
+            , "error");
+        });
+        return true;
+    }
+</script>

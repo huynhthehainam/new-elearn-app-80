@@ -1,0 +1,93 @@
+﻿@model eLearnApps.ViewModel.PeerFeedback.ManagePeerFeedbackModel
+<style>
+    .k-wizard-content { overflow: hidden; }
+
+    .k-wizard-step {
+        border: 1px solid #D4D4D4;
+        overflow: hidden;
+    }
+
+    .k-step-text { overflow: visible; }
+
+    .k-window-titlebar {
+        background-color: #0e2669 !important;
+        color: white;
+    }
+
+    .k-stepper .k-step-label .k-step-text { overflow: inherit; }
+</style>
+@Html.Partial("_PeerFeedback_CreateOrUpdateJs")
+<form id="wizardForm" class="tab-form">
+    @Html.AntiForgeryToken()
+    <div class="card page-layout">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="pl-2 mr-auto" id="cardHeaderTitle"> @(Model.Id.HasValue ? $"Edit - {Model.Name}" : "Add new")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="k-content">
+                <div id="wizard"></div>
+            </div>
+        </div>
+    </div>
+    <span id="notification"></span>
+</form>
+
+<script>
+
+    var evaluationId = 0,
+        evaluationTypeId = 0,
+        questionScoreCalculation = 0,
+        notification,
+        step = 0;
+    const urlStep = "@Url.Action("PeerFeedbackStep", "PeerFeedback")?peerFeedbackId=@Model.Id.GetValueOrDefault()";
+    const prevButton = { name: "previous", click: handleWizardSave };
+    const nextButton = {
+        name: "next",
+        primary: false,
+        click: function (e) {
+            wizard.enableStep(1, true);
+            var currentStep = wizard.activeStep();
+            if (currentStep.options.index === 0) {
+                if (!window.isValidForm()) {
+                    wizard.enableStep(1, false);
+                    e.preventDefault();
+                }
+            } else {
+                NavigateByTagName('Manage');
+            }
+        }
+    };
+    const steps = [
+        {
+            title: "Properties",
+            buttons: [nextButton],
+            contentUrl: `${urlStep}&step=0`
+        }, {
+            title: "Sessions",
+            buttons: [prevButton, nextButton],
+            contentUrl: `${urlStep}&step=3`
+        }
+    ];
+    var wizard = $("#wizard").kendoWizard({
+        loadOnDemand: true,
+        reloadOnSelect: true,
+        steps: steps,
+        pager: false,
+        activate: function (e) {
+            if (e.step.options.index === 1) {
+                if (window.isValidForm()) {
+                    $('button[data-action="save"]').click();
+                }
+                
+            }
+        }
+    }).data("kendoWizard");
+
+    $(document).ready(function() {
+        notification = $("#notification").kendoNotification().data("kendoNotification");
+    });
+</script>

@@ -1,0 +1,163 @@
+﻿@using System.Text
+@using eLearnApps.Extension
+@model eLearnApps.ViewModel.PeerFeedback.PeerFeedBackResultDetailViewModel
+<style>
+    .card {
+        /*background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);*/
+        display: block;
+        line-height: 1.42857143;
+        margin-bottom: 20px;
+        margin-bottom: 0.3rem;
+        /*transition: box-shadow .25s;*/
+    }
+
+    a[data-toggle="collapse"]:after {
+        content: "\f054";
+        float: left;
+        font-family: 'FontAwesome';
+        padding-right: 20px;
+    }
+
+    a[data-toggle="collapse"].collapsed:after {
+        content: "\f078";
+    }
+
+    a[aria-expanded="true"]:after {
+        content: "\f078";
+    }
+
+    a[aria-expanded="false"].collapsed:after {
+        content: "\f054";
+    }
+    .badge {
+        font-size: 100%;
+    }
+</style>
+<div class="row">
+    <div class="col-12">
+        <div class="card-body">
+            @if (Model == null || Model.Questions.Count == 0)
+            {
+                <h5>No items to display.</h5>
+            }
+            else if (Model.PeerFeedbackResultModelList.Count == 0)
+            {
+                <h5>There are no completed evaluation records. Therefore, no results can be displayed.</h5>
+            }
+            else
+            {
+                <h6>Overall result based on (@Model.PeerFeedbackResultModelList.Count) @(Model.PeerFeedbackResultModelList.Count > 1 ? "courses" : "course") which you completed evaluation:</h6>
+
+                <div class="form-check">
+                    <div class="form-check-label">
+                        @foreach (var item in Model.PeerFeedbackResultModelList)
+                        {
+                            var elementId = Guid.NewGuid().ToString();
+                            <div class="row">
+                                <div class="col-6">
+                                    <h6>
+                                        <a class="anchor" style="cursor:pointer;color:#20a8d8;text-decoration:none;"
+                                           data-group="@item.PeerFeedBackGroupId"
+                                           data-peerfeedback="@item.PeerFeedBackId"
+                                           data-session="@item.PeerFeedBackSessionId"
+                                           data-url="@Url.Action("PeerFeedbackResponse", "PeerFeedback")"
+                                           onclick="RedirectToResult(this);">
+                                            @item.CourseName - @item.Session.Term - @item.Name
+                                        </a>
+                                    </h6>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <hr />
+                <div class="accordion" style="border-bottom: 1px;" id="accordionQuestionStatistic">
+                    @foreach (var item in Model.Questions)
+                    {
+                        var collpaseId = $"{Guid.NewGuid().ToString()}";
+                        <div class="card" style="border: none;">
+                            <div class="card-header" id="heading_QuestionStatistic_@collpaseId" style="background-color: #f0f3f5 !important; color: inherit; ">
+                                <div class="row">
+                                    <div class="col-7">
+                                        <h6 class="mb-0">
+                                            <a data-toggle="collapse" style="cursor: pointer" data-target="#collapse_QuestionStatistic_@collpaseId" data-index="@collpaseId" aria-controls="collapse_QuestionStatistic_@collpaseId">
+                                                @item.Title
+                                            </a>
+                                        </h6>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="card-header-actions">
+                                            @if (item.MeanScore.ColorCode != null)
+                                            { 
+                                            <h6 class="mb-0 ml-5">
+                                                Mean Score is <span class="badge me-1 rounded-pill ml-1" style="background-color: @item.MeanScore.ColorCode !important;color:white;">@item.MeanScore.Text</span>
+                                            </h6>
+                                            }                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="collapse_QuestionStatistic_@collpaseId"
+                                 class="collapse statistic"
+                                 data-question="@item.Id"
+                                 data-index="@collpaseId"
+                                 aria-labelledby="heading_QuestionStatistic_@collpaseId"
+                                 data-parent="#accordionQuestionStatistic">
+                                <div class="card-body">
+                                    <div id="dvResultDetail@(collpaseId)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    </div>
+    <script>
+        var data = [];
+        $(document).ready(function() {
+            $('div[id*="collapse_QuestionStatistic_"]').on('show.bs.collapse',
+                function(e) {
+                    GetQuestionStatisticAllCourses($(e.target));
+                });
+            $('div[id*="collapse_QuestionStatistic_"]').on('hidden.bs.collapse',
+                function (e) {
+                    const element = $(e.target);
+                    const index = $(element).data('index');
+                    $(`#dvResultDetail${index}`).html('');
+                });
+        });
+
+        function GetQuestionStatisticAllCourses(element) {
+            const index = $(element).data('index');
+            const peerFeedBackQuestionId = $(element).data('question');
+             const param = {
+                peerFeedBackQuestionId: peerFeedBackQuestionId
+            };
+            const urlDetail = `@Url.Action("PeerFeedBackResultQuestionStatisticAllCourses", "PeerFeedback")`;
+            createPostRequest(urlDetail, param).then(function(response) {
+                $(`#dvResultDetail${index}`).html('');
+                $(`#dvResultDetail${index}`).html(response);
+            });
+        }
+
+        function RedirectToResult(element) {
+            window.kendo.ui.progress($('#main'), true);
+            const peerFeedBackGroupId = $(element).data("group");
+            const peerFeedbackId = $(element).data("peerfeedback");
+            const peerFeedBackSessionId = $(element).data("session");
+            const url = '@Url.Action("PeerFeedbackResult", "PeerFeedback")';
+            createPostRequest(url,
+                {
+                    defaultActiveId: peerFeedbackId,
+                    defaultGroupId: peerFeedBackGroupId,
+                    defaultSessionId: peerFeedBackSessionId
+                }).then(function (response) {
+            window.kendo.ui.progress($('#main'), false);
+                $('#main').html(response);
+            });
+        }
+    </script>

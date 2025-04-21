@@ -1,0 +1,400 @@
+﻿@model eLearnApps.ViewModel.PeerFeedback.PeerFeedbackQuestionViewModel
+
+<style>
+    .k-link-date { display: unset; }
+
+    .k-loading-image {
+        left: 50% !important;
+        position: fixed !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+
+    .k-dialog-titlebar {
+        background-color: #0e2669 !important;
+    }
+
+    .search-wrapper { width: 100%; }
+</style>
+
+
+<div class="row justify-content-center">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="d-inline">
+                    <i class="icon-note"></i> @(Model.Id.HasValue ? "Edit Question" : "Add new Question")
+                </h5>
+                <div class="card-header-actions">
+                    <div class="row mr-2">
+                        <button id="btnSave" class="k-primary mr-2" onclick="SaveQuestion();return false;"><i class="fa fa-save fa-lg"></i>&nbsp;&nbsp;Save</button>
+                        <button class="k-button mr-2" id="btnClose" onclick="NavigateByTagName('Question');return false;">
+                            <i class="fa fa-close fa-lg"></i>&nbsp;&nbsp;Cancel
+                        </button>
+                        @if (Model.Id.HasValue)
+                        {
+                            <button id="btnDelete" class="k-button"><i class="fa fa-trash-o fa-lg"></i>&nbsp;&nbsp;Delete</button>
+                        }
+
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        @using (Html.BeginForm(null, null, FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <ul id="editForm" class="fieldlist">
+                                <li>
+                                    <label for="txtTitle">Title:</label>
+                                    <input id="txtTitle" type="text" name="title" spellcheck="true" value="@(HttpUtility.HtmlDecode(Model.Title))" class="k-textbox" style="width: 100%;" maxlength="200"/>
+                                    <small>Please enter not more than 200 characters for title.</small><small class="float-right"><span id="wordCountTitle">0</span> / 200</small>
+                                </li>
+                                <li>
+                                    <label for="txtDescription">Description:</label>
+                                    <textarea id="txtDescription" rows="5" spellcheck="true" class="k-textbox" style="width: 100%;" maxlength="500">@Html.Raw(HttpUtility.HtmlDecode(Model.Description))</textarea>
+                                    <small>Please enter not more than 500 characters for description.</small><small class="float-right"><span id="wordCount">0</span> / 500</small>
+                                </li>
+
+
+                                <li>
+                                    <label>Rating setup:</label>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div id="gridRatingSetup"></div>
+                                        </div>
+                                    </div>
+
+                                </li>
+                                <li>
+                                    <hr/>
+
+                                </li>
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (Model.Id.HasValue)
+{
+    <text>
+        <div id="listOption"></div>
+        <div id="dialog"></div>
+        <script>
+            var questionId = @Model.Id.Value;
+            var dataSource, dataSourceAnswer;
+            var selectedOptions = [];
+            var defaultSelectedOptions = [];
+            var selectedRatingQuestionId = undefined;
+            var createGridOptions = () => {
+                selectedOptions.length = 0;
+                dataSourceAnswer = new kendo.data.DataSource({
+                    transport: {
+                        read: function(options) {
+                            const readUrl = '@Url.Action("RatingAnswerList", "PeerFeedback")';
+                            const data = addAntiForgeryToken(options.data);
+                            $.ajax({
+                                data: data,
+                                url: readUrl,
+                                method: 'POST',
+                                success: function(result) {
+                                    options.success(result.Data);
+                                },
+                                error: function(result) {
+                                    options.error(result);
+                                }
+                            });
+                        }
+                    },
+                    batch: false,
+                    pageSize: 10,
+                    schema: {
+                        model: {
+                            id: "Id"
+                        }
+                    }
+                });
+
+                $("#gridOptions").kendoGrid({
+                    dataSource: dataSourceAnswer,
+                    pageable: true,
+                    columns: [
+                        { selectable: true, width: "50px" },
+                        { field: "Name", title: "Option name" }
+                    ],
+
+                    dataBound: function(e) {
+                        var grid = this;
+                        const rows = grid.items();
+                        grid._selectedIds = {};
+                        grid.clearSelection();
+                        if (defaultSelectedOptions.length > 0) {
+                            $(rows).each(function(e) {
+                                const row = this;
+                                const dataItem = grid.dataItem(row);
+                                if (defaultSelectedOptions.includes(dataItem.Id)) {
+                                    grid.select(row);
+                                }
+                            });
+                            selectedOptions = defaultSelectedOptions;
+                        }
+                    },
+                });
+            };
+            var createGridRatingSetup = () => {
+                dataSource = new kendo.data.DataSource({
+                    transport: {
+                        read: function(options) {
+                            const readUrl = '@Url.Action("QuestionRatingList", "PeerFeedback")';
+                            const data = addAntiForgeryToken({ questionId: @Model.Id });
+                            $.ajax({
+                                data: data,
+                                url: readUrl,
+                                method: 'POST',
+                                success: function(result) {
+                                    options.success(result.Data);
+                                },
+                                error: function(result) {
+                                    options.error(result);
+                                }
+                            });
+                        }
+                    },
+                    pageSize: 10
+                });
+
+                $("#gridRatingSetup").kendoGrid({
+                    dataSource: dataSource,
+                    pageable: true,
+                    height: 550,
+                    columns: [
+                        { field: "Name", title: "Rating question" },
+                        {
+                            field: "Options",
+                            title: "Options",
+                            template: function(e) {
+                                if (e.Options) {
+                                    let msg = '';
+                                    for (let i = 0; i < e.Options.length; i++) {
+                                        const data = e.Options[i];
+                                        msg += `<span class="badge me-1 rounded-pill bg-danger">${i + 1}</span>&nbsp;<span class="badge me-1 bg-light text-dark">${data.OptionName}</span><br />`;
+                                    }
+                                    return msg;
+                                }
+                                return '';
+                            }
+                        },
+                        {
+                            command: {
+                                text: "Add options",
+                                click: function(e) {
+                                    e.preventDefault();
+                                    const dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                                    selectedRatingQuestionId = dataItem.Id;
+                                    defaultSelectedOptions = dataItem.Options.map(option => option.RatingOptionId);
+
+                                    const grid = $('#gridOptions').data("kendoGrid");
+                                    dataSourceAnswer.read();
+                                    grid.dataSource.query({
+                                        page: 1,
+                                        pageSize: 10
+                                    });
+                                    openDialog();
+                                }
+                            },
+                            title: " ",
+                            width: "180px"
+                        }
+                    ]
+                });
+            };
+
+            function initOpen(e) {
+                $("#gridOptions tbody").on("click",
+                    "tr",
+                    function (e) {
+
+                        const rowElement = this;
+                        var row = $(rowElement);
+                        var grid = $("#gridOptions").getKendoGrid();
+                        if (row.hasClass("k-state-selected")) {
+                            let selected = grid.select();
+                            selected = $.grep(selected,
+                                function (x) {
+                                    const itemToRemove = grid.dataItem(row);
+                                    const currentItem = grid.dataItem(x);
+                                    if (selectedOptions.includes(itemToRemove.Id)) {
+                                        const index = selectedOptions.indexOf(itemToRemove.Id);
+                                        selectedOptions.splice(index);
+                                    }
+                                    const isSelected = itemToRemove.Id !== currentItem.Id;
+                                    if (isSelected && !selectedOptions.includes(currentItem.Id)) {
+                                        selectedOptions.push(currentItem.Id);
+                                    }
+                                    return isSelected;
+                                });
+                            grid.clearSelection();
+                            grid.select(selected);
+                            e.stopPropagation();
+                        } else {
+                            const item = grid.dataItem(row);
+                            grid.select(row);
+                            if (!selectedOptions.includes(item.Id)) {
+                                selectedOptions.push(item.Id);
+                            }
+                            e.stopPropagation();
+                        }
+                    });
+            }
+
+            function openDialog(ratingQuestionId) {
+                $("#listOption").data("kendoDialog").open();
+            }
+
+            function actionOK(e) {
+                const url = '@Url.Action("PeerFeedbackQuestionRatingMapCreate", "PeerFeedback")';
+                const data = { questionId: questionId, ratingQuestionId: selectedRatingQuestionId, options: selectedOptions };
+                createPostRequest(url, data).then(function() {
+                    $("#listOption").data("kendoDialog").close();
+                    dataSource.read();
+                });
+            }
+
+            var resetState = () => {
+                selectedRatingQuestionId = undefined;
+                selectedOptions = [];
+                defaultSelectedOptions = [];
+                $('#txtOptionSearch').val('');
+                optionSearch();
+            };
+        </script>
+    </text>
+}
+<script>
+    $(document).ready(function() {
+        $("#btnSave").kendoButton();
+        $('#txtTitle').on('input',
+            function(e) {
+                const count = $(this).val().length;
+                $('#wordCountTitle').html(count);
+            });
+        $('#txtTitle').trigger('input');
+        $('#txtDescription').on('input',
+            function(e) {
+                const count = $(this).val().length;
+                $('#wordCount').html(count);
+            });
+        $('#txtDescription').trigger('input');
+        @if (Model.Id.HasValue)
+        {
+            <text>
+                $("#btnDelete").kendoButton({
+                    click: function(e) {
+                        e.preventDefault();
+                        $("#dialog").empty();
+                        kendo.confirm("Are you sure you want to proceed with the deletion of this question?")
+                            .then(function() {
+                                showLoading($('#questionForm'));
+                                const urlDelete = '@Url.Action("PeerFeedbackQuestionDelete", "PeerFeedback")';
+                                const param = { id: '@Model.Id' };
+                                createPostRequest(urlDelete, param).then(function(result) {
+                                    NavigateByTagName('Question');
+                                });
+                            });
+                    }
+                });
+                const dialog = $("#listOption").kendoDialog({
+                    width: "800px",
+                    visible: false,
+                    title: "Add Options",
+                    closable: true,
+                    modal: false,
+                    content: kendo.template($("#optionTemplate").html()),
+                    actions: [
+                        { text: 'Cancel' },
+                        { text: 'OK', primary: true, action: actionOK }
+                    ],
+                    initOpen: initOpen,
+                    close: function(e) {
+                        resetState();
+                    },
+                    hide: function() {
+                        resetState();
+                    }
+                });
+                createGridRatingSetup();
+                createGridOptions();
+                $('#lnkOptionSearch').click(function() {
+                    optionSearch();
+                    return false;
+                });
+                $('#txtOptionSearch').keyup(function() {
+                    optionSearch();
+                });
+
+                
+            </text>
+        }
+    });
+
+    async function SaveQuestion() {
+        var msg = '';
+        var countMany = 0;
+        const isAppend = false;
+        const btnSave = $("#btnSave").data('kendoButton');
+        btnSave.enable(false);
+
+        const txtTitle = $('#txtTitle').val();
+        if (txtTitle.trim().length === 0) {
+            msg += 'Title, ';
+            countMany ++;
+        }
+        if (msg.length > 0) {
+            msg = msg.trim().slice(0, -1);
+            msg = `${msg} ${(countMany > 1 ? 'are all' : 'is')} required to set up a journal.`;
+            msg = msg.toLowerCase();
+            window.kendo.alert(capitalize(msg));
+            btnSave.enable(true);
+        } else {
+            showLoading($('#questionForm'));
+            $("#dialog").empty();
+            const urlSave = '@Url.Action("PeerFeedbackQuestionSave", "PeerFeedback")';
+            const param = { id: '@Model.Id', title: $('#txtTitle').val(), description: $('#txtDescription').val() };
+            createPostRequest(urlSave, param).then(function (response) {
+                if (response.length > 0) {
+                    $("#main").html(response);
+                }
+                $("#btnSave").data('kendoButton').enable(true);
+
+            });
+        }
+    }
+
+    function optionSearch() {
+        const grid = $('#gridOptions').data("kendoGrid");
+        const txtOptionSearch = $.trim($('#txtOptionSearch').val()).toLowerCase();
+        const externalFilter = {
+            filters: [
+                { field: "Name", operator: "contains", value: txtOptionSearch }
+            ]
+        };
+        grid.dataSource.filter(externalFilter);
+    }
+</script>
+<script id="optionTemplate" type="text/x-kendo-template">
+    <div class="container" style="width:96%">
+        <div class="row mb-3">
+            <span class="k-textbox k-space-right" style="width: 100%;">
+                <input type="text" id="txtOptionSearch" placeholder="Enter option Name" />
+                <span class="k-icon k-i-search" id="lnkOptionSearch"></span>
+            </span>
+        </div>
+        <div class="row">
+            <div id='gridOptions'></div>
+        </div>
+    </div>
+</script>

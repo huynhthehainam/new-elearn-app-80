@@ -1,0 +1,186 @@
+﻿@{
+    ViewBag.Title = "Peer and Self Feedback";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+}
+<form>
+    @Html.AntiForgeryToken()
+    <div class="row justify-content-center">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-4">
+                            <i class="icon-note"></i> Rating/Q&A
+                        </div>
+                        <div class="col-8 float-right">
+                            <button type="button" class="btn btn-secondary float-right" id="undo">Import Option from Excel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div id="gridQuestion"></div>
+                        </div>
+                        <div class="col-6 float-right">
+                            <div id="gridAnswer"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    let dataSource, dataSourceAnswer;
+    const handleQuestion = (url, options, refresh = true) => {
+        const data = addAntiForgeryToken(options.data);
+        $.ajax({
+            data: data,
+            url: url,
+            method: 'POST',
+            success: function (result) {
+                if (refresh)
+                    dataSource.read();
+                else
+                    options.success(result.Data);
+            },
+            error: function(result) {
+                options.error(result);
+            }
+        });
+    }
+    const handleAnswer = (url, options, refresh = true) => {
+        const data = addAntiForgeryToken(options.data);
+        $.ajax({
+            data: data,
+            url: url,
+            method: 'POST',
+            success: function (result) {
+                if (refresh)
+                    dataSourceAnswer.read();
+                else
+                    options.success(result.Data);
+            },
+            error: function(result) {
+                options.error(result);
+            }
+        });
+    }
+    const createGridQuestion = () => {
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: function (options) {
+                    const readUrl = '@Url.Action("RatingQuestionList", "PeerFeedback")';
+                    handleQuestion(readUrl, options, false);
+                },
+                update: function (options) {
+                    const updateUrl = '@Url.Action("RatingQuestionUpdate", "PeerFeedback")';
+                    handleQuestion(updateUrl, options);
+                },
+                destroy:function (options) {
+                    const deleteUrl = '@Url.Action("RatingQuestionDelete", "PeerFeedback")';
+                    handleQuestion(deleteUrl, options);
+                },
+                create: function (options) {
+                    const createUrl = '@Url.Action("RatingQuestionCreate", "PeerFeedback")';
+                    handleQuestion(createUrl, options);
+                }
+            },
+            batch: false,
+            pageSize: 10,
+            schema: {
+                model: {
+                    id: "Id",
+                    fields: {
+                        Id: { editable: false, nullable: true },
+                        Name: { validation: { required: true } },
+                        DisplayOrder: { nullable: true }
+                    }
+                }
+            }
+        });
+
+        $("#gridQuestion").kendoGrid({
+            dataSource: dataSource,
+            pageable: true,
+            height: 550,
+            toolbar: [
+                { name: "create", text: "Add new rating Question" }
+            ],
+            columns: [
+                { field: "Name", title: "Question name" },
+                { field: "DisplayOrder", title: "Display order", width: "120px" },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+            editable: "inline"
+        });
+    }
+    const createGridAnswer = () => {
+        dataSourceAnswer = new kendo.data.DataSource({
+            transport: {
+                read: function (options) {
+                    const readUrl = '@Url.Action("RatingAnswerList", "PeerFeedback")';
+                    handleAnswer(readUrl, options, false);
+                },
+                update: function (options) {
+                    const updateUrl = '@Url.Action("RatingAnswerUpdate", "PeerFeedback")';
+                    handleAnswer(updateUrl, options);
+                },
+                destroy:function (options) {
+                    const deleteUrl = '@Url.Action("RatingAnswerDelete", "PeerFeedback")';
+                    handleAnswer(deleteUrl, options);
+                },
+                create: function (options) {
+                    const createUrl = '@Url.Action("RatingAnswerCreate", "PeerFeedback")';
+                    handleAnswer(createUrl, options);
+                }
+            },
+            batch: false,
+            pageSize: 100,
+            schema: {
+                model: {
+                    id: "Id",
+                    fields: {
+                        Id: { editable: false, nullable: true },
+                        Name: { validation: { required: true } }
+                    }
+                }
+            }
+        });
+
+        $("#gridAnswer").kendoGrid({
+            dataSource: dataSourceAnswer,
+            pageable: true,
+            height: 550,
+            toolbar: [
+                { name: "create", text: "Add new rating Answer" }
+            ],
+            columns: [
+                {
+                    field: "Name", title: "Answer name", filterable: {
+                        cell: {
+                            operator: "contains",
+                            suggestionOperator: "contains"
+                        }
+                    } },
+                {
+                    command: ["edit", "destroy"], title: "&nbsp;", width: "250px"
+                }],
+            editable: "inline",
+            filterable: {
+                mode: "row"
+            },
+            toolbar: ["excel"],
+            excel: {
+                fileName: "PeerFeedBackRatingOption-@(DateTime.Now.ToString("dd-MM-yyyy HH-mm")).xlsx",
+                filterable: true
+            },
+        });
+    }
+    $(document).ready(function () {
+        createGridQuestion();
+        createGridAnswer();
+    });
+   
+</script>

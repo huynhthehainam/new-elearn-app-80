@@ -1,0 +1,178 @@
+﻿@using Newtonsoft.Json
+@model List<eLearnApps.ViewModel.PET.DefaultViewModel>
+<form id="frmManage">
+    @Html.AntiForgeryToken()
+    <div class="card page-layout">
+        <div class="card-header d-flex">
+            <h3 class="pl-2 mr-auto">Group Readiness in eLearn</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-12">
+                            <h6><label for="strm">Generate Group Readiness Report</label></h6>
+                        </div>
+                        <div class="col-12">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text unset-text-transform" for="ddlTerm">Terms</label>
+                                </div>
+                                <select id="ddlTerm" data-placeholder="Please select term(s) and data grouping..." style="min-width: 300px"></select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-10 mt-3">
+                            <button id="downloadCSV" type="button" class="k-button k-primary unset-text-transform"><span class="k-icon k-i-download"></span>&nbsp;Group Readiness</button>&nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3" id="grid">
+            </div>
+        </div>
+    </div>
+    <span id="notification" style="display: none;"></span>
+</form>
+
+<style>
+    .unset-text-transform {
+        text-transform: unset !important;
+    }
+    .k-item {
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+<script>
+    var cboTerm, required, notification;
+    function setOptions(options) {
+    var params = addAntiForgeryToken(options.data);
+        $.ajax({
+            data: params,
+            method: "POST",
+            dataType: "json",
+            url: `@Url.Action("GetTerms", "PeerFeedback")`,
+            success: function (result) {
+                options.success(result);
+            }
+        });
+    }
+    $(document).ready(function () {
+        const datasource = new kendo.data.DataSource({
+            transport: {
+                read: function (options) {
+                    setOptions(options);
+                },
+                cache: false
+            },
+            page:1,
+            pageSize: 30,
+            serverPaging: true,
+            serverFiltering: true,
+            schema: {
+                data: function (response) {
+                    return response.data;
+                }, total: function (response) {
+                    return response.total;
+                },
+                fields: {
+                    Text: { type: "string" },
+                    Value: { type: "string" }
+                }
+            }
+        });
+
+        $('#downloadCSV').click(async function (e) {
+            e.preventDefault();
+
+            var terms = cboTerm.value();
+            if (terms === null | terms === undefined || terms.length === 0) {
+                window.notification.show("Please select Terms", "error");
+                return false;
+            }
+            let params = {
+                model: {
+                    Terms: terms,
+                    timeZone: window.TimeZone,
+                }
+            }
+            const url = `@Url.Action("ExportGroupReadinessReport", "PeerFeedback")`
+            try{
+                window.kendo.ui.progress($('#main'), true);
+                const response = await getBlobAsync(url, params);
+                if (response !== null && response !== undefined) {
+                    var fileName = response.headers["content-disposition"];
+                    fileName = fileName.replace('attachment; filename=', '');
+                    const data = await response.data;
+                    if (data !== null && data !== undefined) {
+                        var blob = new Blob([data], { type: "text/csv" });
+                        kendo.saveAs({
+                            dataURI: blob,
+                            fileName: fileName
+                        });
+                    }
+                } else {
+                    kendo.alert('Something went wrong!')
+                }
+            } catch {
+                kendo.alert('Something went wrong!')
+            } finally {
+                window.kendo.ui.progress($('#main'), false);
+            }
+        });
+
+        // -----------------------------------------------------
+
+        var checkInputs = function (elements) {
+            elements.each(function () {
+                var element = $(this);
+                var input = element.children("input");
+                input.prop("checked", element.hasClass("k-state-selected"));
+            });
+        };
+        // create MultiSelect from select HTML element
+        cboTerm = $("#ddlTerm").kendoMultiSelect({
+            itemTemplate: "<input type='checkbox' class='k-checkbox' style='margin-right:5px;'/>#:data.Text#",
+            autoClose: false,
+            clearButton: true,
+            autoWidth: true,
+            filter: "contains",
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataBound: function () {
+                var items = this.ul.find("li");
+                setTimeout(function () {
+                    checkInputs(items);
+                });
+            },
+            change: function () {
+                var items = this.ul.find("li");
+                checkInputs(items);
+            },
+            virtual: {
+                itemHeight: 26
+            },
+            dataSource: datasource
+        }).data("kendoMultiSelect");
+        notification = $("#notification").kendoNotification().data("kendoNotification");
+    })
+    function getTerms() {
+        const url = `@Url.Action("GetTerms", "PeerFeedback")`;
+        createPostRequest(url).then(function (response) {
+            let result = response.Data.map(item => {
+                /*const displayText = `(${item.PeerFeedBackName}) ${item.Label} (${startTime} to ${closeTime})`;*/
+                return { displayText: item.Text, termId: item.Value }
+            });
+            var ds = new kendo.data.DataSource({
+                data: result
+            });
+            ds.fetch(function () {
+                cboTerm.setDataSource(ds);
+            });
+        });
+    }
+</script>

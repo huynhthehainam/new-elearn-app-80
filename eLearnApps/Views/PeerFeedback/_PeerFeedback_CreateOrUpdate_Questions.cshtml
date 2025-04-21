@@ -1,0 +1,260 @@
+﻿@model eLearnApps.ViewModel.PeerFeedback.ManagePeerFeedbackModel
+<form>
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-12">
+            <div id="gridQuestion"></div>
+        </div>
+    </div>
+</form>
+<div id="frmForm"></div>
+<div id="dialogQuestionModal"></div>
+<script>
+    var peerFeedbackId = @Model.Id;
+    let dataSource;
+    var selectedOptions = [];
+    var defaultSelectedOptions = [];
+    const handleQuestion = (url, options, refresh = true) => {
+        const data = addAntiForgeryToken(options.data);
+        $.ajax({
+            data: data,
+            url: url,
+            method: 'POST',
+            success: function(result) {
+                if (refresh)
+                    dataSource.read();
+                else
+                    options.success(result.Data);
+                defaultSelectedOptions = result.Data.map(function(item) {
+                    return item.Id;
+                });
+            },
+            error: function(result) {
+                options.error(result);
+            }
+        });
+    };
+    const createGridQuestion = () => {
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: function (options) {
+                    const readUrl = `@Url.Action("PeerFeedbackQuestionMapList", "PeerFeedback")?peerFeedbackId=@Model.Id`;
+                    handleQuestion(readUrl, options, false);
+                }
+            },
+            pageSize: 10
+        });
+
+        $("#gridQuestion").kendoGrid({
+            dataSource: dataSource,
+            autoHeight: true,
+            width: '96%',
+            toolbar: "<button class='k-button' onclick='openDialog();'>Add new Question</button>",
+            columns: [
+                { field: "Title", title: "Question", width: 300 },
+                { field: "Description", title: "Description", width: 300 },
+                {
+                    command: [
+                        {
+                            name: "view",
+                            click: function(e) {
+                                e.preventDefault();
+                                const dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                                OpenForm(dataItem.Id);
+                            }
+                        },
+                        {
+                            name: "delete",
+                            click: function(e) {
+                                e.preventDefault();
+                                const dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                                const deleteUrl = '@Url.Action("PeerFeedbackQuestionMapDelete", "PeerFeedback")';
+                                createPostRequest(deleteUrl, { id: dataItem.Id }).then(function() {
+                                    dataSource.read();
+                                });
+                            }
+                        }
+                    ],
+                    title: "&nbsp;",
+                    width: 150
+                }
+            ],
+            noRecords: true,
+            pageable: {
+                refresh: true,
+                messages: {
+                    empty: "No item to display"
+                }
+            }
+        });
+    };
+    $(document).ready(function() {
+        createGridQuestion();
+
+        $('#btnAddNew').click(function() {
+            OpenForm();
+            return false;
+        });
+        dialogQuestion();
+        createGridQuestionDialog();
+    });
+
+    function openDialog() {
+        event.preventDefault();
+        $("#dialogQuestionModal").data("kendoDialog").open();
+    }
+
+    function dialogQuestion() {
+        $("#dialogQuestionModal").kendoDialog({
+            width: "800px",
+            visible: false,
+            title: "Add Questions",
+            closable: true,
+            modal: true,
+            content: kendo.template($("#optionTemplate").html()),
+            actions: [
+                { text: 'Cancel' },
+                { text: 'OK', primary: true, action: actionOK }
+            ],
+            initOpen: initOpen,
+            close: function(e) {
+            },
+            hide: function() {
+            }
+        });
+    }
+
+    function actionOK() {
+        selectedOptions.concat(defaultSelectedOptions.filter((item) => selectedOptions.indexOf(item) < 0));
+        const url = '@Url.Action("PeerFeedbackQuestionMapCreate", "PeerFeedback")';
+        const data = { peerFeedbackId: peerFeedbackId, questions: selectedOptions };
+        createPostRequest(url, data).then(function() {
+            $("#dialogQuestionModal").data("kendoDialog").close();
+            dataSource.read();
+        });
+    };
+
+    function OpenForm(id = undefined) {
+        const url = '@Url.Action("CreateOrUpdateQuestion", "PeerFeedback")';
+        $("#main").html('');
+        createPostRequest(url, { questionId: id }).then(function(response) {
+            $("#main").html(response);
+        });
+    }
+    var resetState = () => {
+        //selectedRatingQuestionId = undefined;
+        selectedOptions = [];
+        defaultSelectedOptions = [];
+        $('#txtOptionSearch').val('');
+        //optionSearch();
+    };
+    function onChange(arg) {
+        var grid = $("#gridQuestionDialog").data("kendoGrid");
+        selectedOptions = grid.selectedKeyNames();
+    }
+    function createGridQuestionDialog() {
+        selectedOptions.length = 0;
+        const ds = new kendo.data.DataSource({
+            transport: {
+                read: function(options) {
+                    const readUrl = '@Url.Action("PeerFeedbackQuestionList", "PeerFeedback")';
+                    handleQuestion(readUrl, options, false);
+                },
+                destroy: function(options) {
+                    const deleteUrl = '@Url.Action("PeerFeedbackQuestionDelete", "PeerFeedback")';
+                    handleQuestion(deleteUrl, options);
+                }
+            },
+            schema: {
+                model: {
+                    id: "Id"
+                }
+            },
+            pageSize: 10
+        });
+       
+
+        $("#gridQuestionDialog").kendoGrid({
+            dataSource: ds,
+            pageable: {
+                refresh: true,
+                messages: {
+                    empty: "No item to display"
+                }
+            },
+
+            noRecords: true,
+            columns: [
+                { selectable: true, width: "50px" },
+                { field: "Title", title: "Question" },
+                { field: "Description", title: "Description" }
+            ],
+            change: onChange,
+            dataBound: function(e) {
+                const grid = this;
+                const rows = grid.items();
+                grid._selectedIds = {};
+                grid.clearSelection();
+                if (defaultSelectedOptions.length > 0) {
+                    $(rows).each(function(e) {
+                        const row = this;
+                        const dataItem = grid.dataItem(row);
+                        if (defaultSelectedOptions.includes(dataItem.Id)) {
+                            grid.select(row);
+                        }
+                    });
+                }
+            },
+            persistSelection: true
+        });
+    };
+    function initOpen(e) {
+        //$("#gridQuestionDialog tbody").on("click",
+        //    "tr",
+        //    function (e) {
+        //        const rowElement = this;
+        //        var row = $(rowElement);
+        //        var grid = $("#gridQuestionDialog").getKendoGrid();
+        //        if (row.hasClass("k-state-selected")) {
+        //            let selected = grid.select();
+        //            selected = $.grep(selected,
+        //                function (x) {
+        //                    const itemToRemove = grid.dataItem(row);
+        //                    const currentItem = grid.dataItem(x);
+        //                    if (selectedOptions.includes(itemToRemove.Id)) {
+        //                        const index = selectedOptions.indexOf(itemToRemove.Id);
+        //                        selectedOptions.splice(index);
+        //                    }
+        //                    const isSelected = itemToRemove.Id !== currentItem.Id;
+        //                    if (isSelected && !selectedOptions.includes(currentItem.Id)) {
+        //                        selectedOptions.push(currentItem.Id);
+        //                    }
+        //                    return isSelected;
+        //                });
+        //            grid.clearSelection();
+        //            grid.select(selected);
+        //            e.stopPropagation();
+        //        } else {
+        //            const item = grid.dataItem(row);
+        //            grid.select(row);
+        //            if (!selectedOptions.includes(item.Id)) {
+        //                selectedOptions.push(item.Id);
+        //            }
+        //            e.stopPropagation();
+        //        }
+        //    });
+    }
+</script>
+<script id="optionTemplate" type="text/x-kendo-template">
+    <div class="container" style="width:96%">
+        <div class="row mb-3">
+            <span class="k-textbox k-space-right" style="width: 100%;">
+                <input type="text" id="txtOptionSearch" placeholder="Enter question title" />
+                <span class="k-icon k-i-search" id="lnkOptionSearch"></span>
+            </span>
+        </div>
+        <div class="row">
+            <div id='gridQuestionDialog'></div>
+        </div>
+    </div>
+</script>

@@ -1,0 +1,178 @@
+﻿@{
+    ViewBag.Title = "Peer and Self Feedback Tool";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+}
+<style>
+    .k-grid tbody .k-grid-delete {
+        min-width: 0;
+    }
+
+        .k-grid tbody .k-grid-delete .k-icon {
+            margin: 0;
+        }
+
+    #grid .k-grid-header .k-link {
+        color: white !important;
+    }
+
+    .k-window-titlebar {
+        background-color: #0e2669 !important;
+        color: white;
+    }
+</style>
+<div>
+    <form id="frmManage">
+        @Html.AntiForgeryToken()
+        <div class="card page-layout">
+            <div class="card-header d-flex">
+                <h3 class="pl-2 mr-auto">Peer and Self Feedback</h3>
+                <button type="button" id="btnAdd" class="k-button k-primary ml-2" onclick="addOrEditPeerFeedback()"><span class="fa fa-plus-circle"></span>&nbsp;Add</button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8"></div>
+                    <div class="col-4">
+                        <span class="k-textbox k-space-left" style="width: 100%;">
+                            <input id="txtSearch" type="text" class="icon-left" placeholder="Search condition">
+                            <a href="#" class="k-icon k-i-search" id="lnkSearch"></a>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-3" id="grid">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    function SearchPeerFeedback() {
+        const grid = $("#grid").data("kendoGrid");
+        let dataSource = grid.dataSource;
+        dataSource.filter({ field: "Name", operator: "contains", value: $("#txtSearch").val() });
+        grid.setDataSource(dataSource);
+    }
+
+    function setupInit() {
+        $('#lnkSearch').click(function (e) {
+            e.preventDefault();
+            SearchPeerFeedback();
+            return false;
+        });
+        $('#frmManage').on('keyup keypress',
+            function(e) {
+                var keyCode = e.keyCode || e.which;
+                const target = e.target;
+                if (keyCode === 13 && target.id === 'txtSearch') {
+                    e.preventDefault();
+                    SearchPeerFeedback();
+                    return false;
+                }
+            });
+    }
+    const getDatasource = () => {
+        const url = "@Url.Action("PeerFeedbackGetList", "PeerFeedback")";
+        window.kendo.ui.progress($('#grid'), true);
+        return createPostRequest(url).then(function (response) {
+            window.kendo.ui.progress($('#grid'), false);
+            return response;
+        });
+    }
+    const bindGridView = () => {
+        getDatasource().then(function (response) {
+            const grid = $("#grid").data("kendoGrid");
+            if (response && response.Data) {
+                const source = new window.kendo.data.DataSource({
+                    schema: {
+                        data: () => response.Data, total: () => response.Total, errors: () => response.Errors
+                    },
+                    pageSize: @(Constants.PageSize),
+                    serverSorting: false
+                });
+                grid.setDataSource(source);
+            }
+        });
+    }
+    $(document).ready(function () {
+        $("#grid").kendoGrid({
+            sortable: {
+                mode: "single",
+                allowUnsort: false
+            },
+            noRecords: true,
+            pageable: {
+                refresh: true,
+                messages: {
+                    empty: "No item to display"
+                }
+            },
+            scrollable: true,
+            columns: [
+                {
+                    field: "Name",
+                    title: "Title",
+                    sortable: {
+                        initialDirection: "desc"
+                    },
+                    width: 400
+                }, {
+                    field: "Description",
+                    width: 400
+                }, {
+                    command: [
+                        { text: "Edit", click: editPeerFeedback }, { text: "Delete", click: deletePeerFeedback }
+                    ],
+                    title: "Action",
+                    width: 300
+                }
+            ]
+        });
+        bindGridView();
+        setupInit();
+        $('.k-pager-refresh').click(function (e) {
+            SearchPeerFeedback();
+        });
+    });
+
+    function editPeerFeedback(e) {
+        e.preventDefault();
+        const dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        addOrEditPeerFeedback(dataItem.Id);
+        return false;
+    }
+
+    function deletePeerFeedback(e) {
+        const tr = $(e.target).closest("tr"); //get the row for deletion
+        var data = this.dataItem(tr); //get the row data so it can be referred later
+        e.preventDefault();
+        window.kendo.confirm("Are you sure you want to delete the selected?").then(function() {
+            const url = `@Url.Action("PeerFeedbackDelete", "PeerFeedback")`;
+            const param = { peerFeedbackId: data.Id };
+            createPostRequest(url, param).then(function(response) {
+                $("#grid").data("kendoGrid").removeRow(tr);
+                window.kendo.ui.progress($('#grid'), false);
+            });
+        });
+    }
+    function addOrEditPeerFeedback(peerFeedbackId) {
+        window.kendo.ui.progress($('#grid'), true);
+        const url = '@Url.Action("PeerFeedbackCreateOrUpdate", "PeerFeedback")';
+        const param = { peerFeedbackId: peerFeedbackId };
+        addAntiForgeryToken(param);
+        const formData = new FormData();
+        buildFormData(formData, param);
+        const options = {
+            method: 'POST',
+            data: formData,
+            url: url
+        };
+        window.axios(options)
+            .then(function(result) {
+                const response = result.data;
+                $("#main").html(response);
+                window.kendo.ui.progress($('#grid'), false);
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    }
+</script>

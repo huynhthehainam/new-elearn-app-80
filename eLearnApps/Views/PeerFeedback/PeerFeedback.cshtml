@@ -1,0 +1,374 @@
+﻿@{
+    ViewBag.Title = "Peer and Self Feedback";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+}
+@model eLearnApps.Models.PeerFeedback.StudentPeerFeedbackViewModel
+<style>
+    .g-emoji {
+        display: inline-block;
+        min-width: 1ch;
+        font-family: "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+        font-size: 1em;
+        font-style: normal !important;
+        font-weight: 400;
+        line-height: 1;
+        vertical-align: -0.075em;
+    }
+
+    .my-custom-icon-class:before {
+        content: "https://github.githubassets.com/images/icons/emoji/unicode/1f3c6.png"; /* Adds a glyph using the Unicode character number */
+    }
+
+    h3, h5, p {
+        padding-left:1rem;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+    }
+
+    th.title {
+        text-align: center;
+        color: #ffffff;
+        border: 1px solid #ffffff;
+    }
+
+    th {
+        background-color: #bdd6ee;
+        text-align: left;
+        padding: 8px;
+        border: 1px solid #ffffff;
+    }
+
+    td {
+        background-color: #deeaf6;
+        border-right: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        padding: 8px;
+    }
+
+    .blue th.title {
+        background-color: #5996cc;
+    }
+    .blue th {
+        background-color: #bdd6ee;
+    }
+    .blue td {
+        background-color: #deeaf6;
+    }
+
+    .orange th.title {
+        background-color: #f69546;
+    }
+
+    .orange th {
+        background-color: #fde6d2;
+    }
+
+    .orange td {
+        background-color: #fcefe9;
+    }
+
+    .purple th.title {
+        background-color: #792a79;
+    }
+
+    .purple th {
+        background-color: #aa7aaa;
+    }
+
+    .purple td {
+        background-color: #eae8eb;
+    }
+
+    li .question-info {
+        display: none;
+        top: 50%;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 50rem;
+        /* Position the tooltip */
+        position: absolute;
+        z-index: 2;
+        background-color: transparent;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    }
+
+    li {
+        cursor: pointer;
+    }
+
+    #overlay {
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: black;
+        opacity: 0.5;
+        display: none;
+    }
+    #dvPeerFeedback{
+        padding-bottom: 2rem;
+    }
+</style>
+
+<div class="container" id="dvPeerFeedback">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card bg-white">
+                <div class="card-body">
+                    <div class="row">
+                        <h3>Peer and Self Feedback</h3>
+                    </div>
+                    <div class="row mt-3">
+                        <h5>Hi @Model.UserInfo.UserName</h5>
+                    </div>
+                    <div class="row mt-3">
+                        <p>
+                            Group projects are a key feature of the SMU learning experience,
+                            helping you learn through the application of knowledge in a collaborative environment.
+                            Having worked in a group project, you are in a good position to provide constructive feedback to your team members on their interpersonal skills of teamwork and collaboration.
+                        </p>
+
+                        <p style="font-weight:bold">How will this benefit me and my team members?</p>
+                        <p>
+                            Developing effective interpersonal skills is a key component of the
+                            <a href="https://oasis.smu.edu.sg/Pages/PVO/SMU-Graduate-Learning-Outcomes.aspx" target="_blank" class="">SMU Graduate Learning Outcomes</a>, which will give you the distinctive SMU-edge to be confident and future-ready to take on opportunities and challenges ahead.
+                            The objective of this exercise is to help you and your team members improve and track your progress of the skills of collaboration and leadership over the course of your study at SMU.
+                        </p>
+                        <p style="font-weight:bold">What will I be rating my team members and myself on?</p>
+                        <p>
+                        In the next page, you will rate your team members and yourself on the following three criteria and select relevant descriptors observed during your group project.
+                        </p>
+                        <div>
+                            <h5>Criteria:</h5>
+                            <ul>
+                                <li>
+                                    <g-emoji class="g-emoji"
+                                             alias="purple_heart"
+                                             fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f49c.png">
+                                        💜 <u><a><strong>Responsibility and Commitment</strong></a></u>
+                                    </g-emoji>
+                                    <div class="question-info">
+                                        <table class="blue">
+                                            <tr>
+                                                <th class="title" colspan="3">Ratings and descriptors for Responsibility and Commitment</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Rating:  Yet to meet expectations</th>
+                                                <th>Rating:  Meets expectations</th>
+                                                <th>Rating:  Exceeds expectations</th>
+                                            </tr>
+                                            <tr>
+                                                <td> Unresponsive to messages and emails from teammates</td>
+                                                <td> Responsive to messages and emails from teammates</td>
+                                                <td> Initiated meetings and agenda</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Often missed group meetings and/ or late</td>
+                                                <td> Attended group meetings regularly and punctually</td>
+                                                <td> Demonstrated effective delegation of work</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Did not complete assigned tasks on time</td>
+                                                <td> Completed assigned tasks on time</td>
+                                                <td> Steered team to be on-task and on time when necessary</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Did not prepare for meetings and discussions</td>
+                                                <td> Prepared well for meetings and discussions</td>
+                                                <td> Regularly assessed team’s progress to ensure that it is on track</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Did not contribute to the planning and organisation of work</td>
+                                                <td> Contributed to the planning and organisation of the work</td>
+                                                <td></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </li>
+
+                                <li class="mt-2">
+                                    <g-emoji class="g-emoji"
+                                             alias="trophy"
+                                             fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3c6.png">
+                                        🏆 <u><a><strong>Contribution towards Team Effectiveness</strong></a></u>
+                                    </g-emoji>
+                                    <div class="question-info">
+                                        <table class="purple">
+                                            <tr>
+                                                <th class="title" colspan="3">Ratings and descriptors for Team Effectiveness</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Rating:  Yet to meet expectations</th>
+                                                <th>Rating:  Meets expectations</th>
+                                                <th>Rating:  Exceeds expectations</th>
+                                            </tr>
+                                            <tr>
+                                                <td> Demonstrated uncooperative and negative attitude</td>
+                                                <td> Showed cooperative and positive attitude</td>
+                                                <td> Demonstrated willingness to lead and also willingness to follow</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Not receptive to ideas and feedback</td>
+                                                <td> Demonstrated active listening</td>
+                                                <td> Took initiative to facilitate discussions</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Lack of active listening</td>
+                                                <td> Receptive to ideas and feedback</td>
+                                                <td> Encouraged open communication in the team</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Demonstrated disrespect in communicating, e.g., when disagreeing</td>
+                                                <td> Respectful in communicating, even when disagreeing</td>
+                                                <td> Facilitated effective conflict resolution</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Withheld relevant work-related information from teammates</td>
+                                                <td> Shared relevant work-related information with teammates in a timely manner</td>
+                                                <td></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </li>
+                                <li class="mt-2">
+                                    <g-emoji class="g-emoji"
+                                             alias="clap"
+                                             fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44f.png">
+                                        👏 <u><a><strong>Contribution towards Team Deliverables</strong></a></u>
+                                    </g-emoji>
+                                    <div class="question-info">
+                                        <table class="orange">
+                                            <tr>
+                                                <th class="title" colspan="3">Ratings and descriptors for towards Team Deliverables (Quality and quantity of work)</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Rating:  Yet to meet expectations</th>
+                                                <th>Rating:  Meets expectations</th>
+                                                <th>Rating:  Exceeds expectations</th>
+                                            </tr>
+                                            <tr>
+                                                <td> Contributed poor quality work with errors and/ or omissions</td>
+                                                <td> Contributed good quality and accurate work</td>
+                                                <td> Contributed very high-quality work</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Did less than fair share of work</td>
+                                                <td> Did fair share of work</td>
+                                                <td> Did more than fair share of work</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Contributed very minimally to the project deliverables</td>
+                                                <td> Provided effective and timely feedback that enhanced quality of team deliverable</td>
+                                                <td> Contributed in integrating and enhancing final team product</td>
+                                            </tr>
+                                            <tr>
+                                                <td> Did not pull one’s weight at all</td>
+                                                <td> Contributed significantly to the project deliverables</td>
+                                                <td> Contributed very significantly to the project deliverables</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p>
+                            Your feedback will be aggregated anonymously, ensuring confidentiality among your peers and instructors. Your instructor will explain if and how the peer evaluations may impact the overall grading of the group project.
+                        </p>
+                        <p>
+                            If there are any questions regarding this peer and self-feedback form, please contact elearn@smu.edu.sg.
+                        </p>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="row ml-4">
+                                <button type="button"
+                                        id="startEvaluation"
+                                        class="k-primary k-button"
+                                        data-role="button"
+                                        role="button"
+                                        aria-disabled="false"
+                                        tabindex="0">
+                                    <span class="k-icon k-i-play"></span>&nbsp;&nbsp;Start Evaluation
+                                </button>
+                                &nbsp;
+                                <button type="button"
+                                        id="viewResults"
+                                        class="k-primary k-button"
+                                        data-role="button"
+                                        role="button"
+                                        aria-disabled="false"
+                                        tabindex="0">
+                                    <span class="fa fa-graduation-cap"></span>&nbsp;&nbsp;View Results
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="overlay"></div>
+<script>
+    const startEvaluation = () => {
+        window.kendo.ui.progress($('#main'), true);
+        const url = '@Url.Action("PeerFeedbackList", "PeerFeedback")';
+        createPostRequest(url).then(function(response) {
+            $("#dvPeerFeedback").html(response);
+            window.kendo.ui.progress($('#main'), false);
+        });
+    }
+    $(document).ready(function() {
+        $("#startEvaluation").kendoButton({
+            click: function() {
+                startEvaluation();
+            }
+        });
+        $("#viewResults").kendoButton({
+            click: function () {
+                $("#studentResultPage").trigger("click");
+            }
+        });
+        @if (Model.HasClosedSession)
+        {
+            if (Model.IsInitialLanding) {
+                <text>
+                $("#studentResultPage").trigger("click");
+                </text>
+            }
+            else {
+                <text>
+                $("#viewResults").show();
+                </text>
+            }
+        }
+        else
+        {
+            <text>
+            $("#viewResults").hide();
+            </text>
+        }
+        $("li").click(
+            function () {
+                $("#overlay").css("display", "flex");
+                $(this).find('.question-info').css("display", "flex");
+            }
+        );
+
+        $("#overlay").click(
+            function () {
+                $("#overlay").css("display", "none");
+                $('.question-info').css("display", "none");
+            }
+        );
+    });
+</script>
