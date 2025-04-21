@@ -9,7 +9,6 @@ using eLearnApps.Entity.LmsIsis.Dto;
 using eLearnApps.Entity.LmsTools;
 using eLearnApps.Entity.LmsTools.Dto;
 using eLearnApps.ViewModel.RPT;
-using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -75,7 +74,9 @@ namespace eLearnApps.Business
             IRepository<UserGroup> repositoryUserGroup,
             IRepository<PeerFeedBackResponses> repositoryPeerFeedBackResponses,
             IRepository<PeerFeedBackResponseRemarks> repositoryPeerFeedBackResponseRemarks,
-            IRepository<Role> repositoryRoles
+            IRepository<Role> repositoryRoles,
+               IDaoFactory factory,
+                 LMSIsisContext isisContext
         )
         {
             _repositoryPeerFeedbackRatingQuestion = repositoryPeerFeedbackRatingQuestion;
@@ -102,12 +103,11 @@ namespace eLearnApps.Business
             _repositoryRoles = repositoryRoles;
             _context = context;
 
-            _isisContext = new LMSIsisContext();
+            _isisContext = isisContext;
             _repositoryTlCourseOfferings = new Repository<TL_CourseOfferings>(_isisContext);
             _repositoryCourse = repositoryCourse;
             _repositoryPS_SIS_LMS_CLASS_V = new Repository<PS_SIS_LMS_CLASS_V>(_isisContext);
 
-            IDaoFactory factory = new DaoFactory();
             _peerFeedBackResponsesDao = factory.PeerFeedBackResponsesDao;
             _peerFeedBackResponseRemarksDao = factory.PeerFeedBackResponseRemarksDao;
             _tLCourseOfferingDao = factory.TLCourseOfferingDao;

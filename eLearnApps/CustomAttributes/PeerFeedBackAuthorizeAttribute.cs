@@ -1,40 +1,74 @@
 ﻿using eLearnApps.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System;
+using System.Text.Json;
 using System.Web;
 namespace eLearnApps.CustomAttribute
 {
-    public class PeerFeedBackAuthorizeAttribute : AuthorizeAttribute
+    public class PeerFeedBackAuthorizeAttribute : Attribute, IAuthorizationFilter
     {
         public string Role { get; set; }
 
-        protected override bool AuthorizeCore(HttpContextBase httpContext)
+        public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (string.IsNullOrEmpty(Role)) return false;
-
-            var isAuthorized = base.AuthorizeCore(httpContext);
-            if (!isAuthorized) return false;
-            var user = (UserModel)httpContext.Session[Constants.SessionUserKey];
-            if (user == null) return false;
-
-            if (Role.IndexOf(Constants.PeerFeedBackRoleNameAdmin, StringComparison.OrdinalIgnoreCase) > -1 || Role.IndexOf(Constants.PeerFeedBackRoleNameInstructor, StringComparison.OrdinalIgnoreCase) > -1)
+            var httpContext = context.HttpContext;
+            var configuration = httpContext.RequestServices.GetRequiredService<IConfiguration>();
+            var constants = new Constants(configuration);
+            if (string.IsNullOrEmpty(Role))
             {
-                return user.HasAdmin ? user.HasAdmin : user.IsInstructor;
+                context.Result = new RedirectToRouteResult(new RouteValueDictionary
+                {
+                    { "controller", "Error" },
+                    { "action", "AccessDenied" }
+                });
+                return;
             }
-            if (Constants.PeerFeedBackRoleNameStudent.Equals(Role, StringComparison.OrdinalIgnoreCase))
-                return user.IsStudent;
-            return false;
-        }
-        protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
-        {
-            filterContext.Result = new RedirectToRouteResult(
-                new RouteValueDictionary(
-                    new
-                    {
-                        controller = "Error",
-                        action = "AccessDenied"
-                    })
-            );
+
+            var sessionData = httpContext.Session.GetString(constants.SessionUserKey);
+            if (string.IsNullOrEmpty(sessionData))
+            {
+                context.Result = new RedirectToRouteResult(new RouteValueDictionary
+                {
+                    { "controller", "Error" },
+                    { "action", "AccessDenied" }
+                });
+                return;
+            }
+
+            var user = JsonSerializer.Deserialize<UserModel>(sessionData);
+
+            if (user == null)
+            {
+                context.Result = new RedirectToRouteResult(new RouteValueDictionary
+                {
+                    { "controller", "Error" },
+                    { "action", "AccessDenied" }
+                });
+                return;
+            }
+
+            bool isAuthorized = false;
+
+            if (Role.Contains(constants.PeerFeedBackRoleNameAdmin, StringComparison.OrdinalIgnoreCase) ||
+                Role.Contains(constants.PeerFeedBackRoleNameInstructor, StringComparison.OrdinalIgnoreCase))
+            {
+                isAuthorized = user.HasAdmin || user.IsInstructor;
+            }
+            else if (Role.Equals(constants.PeerFeedBackRoleNameStudent, StringComparison.OrdinalIgnoreCase))
+            {
+                isAuthorized = user.IsStudent;
+            }
+
+            if (!isAuthorized)
+            {
+                context.Result = new RedirectToRouteResult(new RouteValueDictionary
+                {
+                    { "controller", "Error" },
+                    { "action", "AccessDenied" }
+                });
+            }
         }
     }
 }

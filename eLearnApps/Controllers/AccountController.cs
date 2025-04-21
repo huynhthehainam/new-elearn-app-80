@@ -32,8 +32,9 @@ namespace eLearnApps.Controllers
         private readonly IServiceProvider _serviewProvider;
         private readonly ILoggingService _loggingService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IPeerFeedbackService _peerFeedbackService;
         private readonly WebHelper _webHelper;
-        public AccountController(IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor, IServiceProvider serviewProvider, ILoggingService loggingService)
+        public AccountController(IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor, IServiceProvider serviewProvider, ILoggingService loggingService, IPeerFeedbackService peerFeedbackService)
         {
             _appSettingService = appSettingService;
             _configuration = configuration;
@@ -44,6 +45,7 @@ namespace eLearnApps.Controllers
             _webHelper = new WebHelper(httpContextAccessor);
             _serviewProvider = serviewProvider;
             _loggingService = loggingService;
+            _peerFeedbackService = peerFeedbackService;
         }
         [AllowAnonymous]
         public IActionResult LtiView()

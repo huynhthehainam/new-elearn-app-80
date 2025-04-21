@@ -14,8 +14,8 @@ using eLearnApps.ViewModel.KendoUI;
 using eLearnApps.ViewModel.PeerFeedback;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
-using Newtonsoft.Json;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
@@ -93,9 +94,9 @@ namespace eLearnApps.Controllers
         {
             log.Info("**************** START PeerFeedback ****************");
             // after reading this var, then set it to false
-            bool isInitialLanding = (bool)Session["IsInitialLanding"];
+            var isInitialLanding = JsonSerializer.Deserialize<bool>(HttpContext.Session.GetString("IsInitialLanding"));
             log.Info($"IsIsInitialLanding: {isInitialLanding.ToJson()}");
-            Session["IsInitialLanding"] = false;
+            HttpContext.Session.SetString("IsInitialLanding", "false");
 
             log.Info("------ start PeerFeedBackEvaluationList ------");
             log.Info($"param: UserId = {UserInfo.UserId}");
@@ -813,7 +814,7 @@ namespace eLearnApps.Controllers
         public ActionResult PeerFeedbackResponseSave(PeerFeedBackResponseUserModel response)
         {
             log.Info("**************** START PeerFeedbackResponseSave ****************");
-            var jsonParam = JsonConvert.SerializeObject(response);
+            var jsonParam = JsonSerializer.Serialize(response);
             log.Info($"Event Name = PeerFeedbackResponseSave and Event Param = {jsonParam}");
             if (string.IsNullOrEmpty(response.PeerFeedBackKey))
             {
@@ -822,10 +823,10 @@ namespace eLearnApps.Controllers
             }
             log.Info($"param.PeerFeedBackId = {response.PeerFeedBackId}");
             var peerFeedBack = _peerFeedbackService.PeerFeedbackGetById(response.PeerFeedBackId);
-            log.Debug($"PeerFeedbackGetById OK response = {JsonConvert.SerializeObject(peerFeedBack)}");
+            log.Debug($"PeerFeedbackGetById OK response = {JsonSerializer.Serialize(peerFeedBack)}");
             log.Info($"param.PeerFeedBackSessionId = {response.PeerFeedBackSessionId}");
             var session = _peerFeedbackService.PeerFeedbackSessionsGetById(response.PeerFeedBackSessionId);
-            log.Debug($"PeerFeedbackSessionsGetById OK response = = {JsonConvert.SerializeObject(session)}");
+            log.Debug($"PeerFeedbackSessionsGetById OK response = = {JsonSerializer.Serialize(session)}");
             if (peerFeedBack == null || session == null)
             {
                 log.Warn($"peerFeedBack == null || session == null - issue with param.PeerFeedBackId = {response.PeerFeedBackId}, param.PeerFeedBackSessionId = {response.PeerFeedBackSessionId}");
@@ -982,7 +983,7 @@ namespace eLearnApps.Controllers
             };
             var model = new PeerFeedBackResultDetailQuestionStatisticViewModel
             {
-                ChartData = JsonConvert.SerializeObject(chartItem),
+                ChartData = JsonSerializer.Serialize(chartItem),
                 ChartId = Guid.NewGuid().ToString(),
                 TotalUserInGroup = totalCountUser,
                 RatingResponse = new List<PeerFeedbackRatingOptionModel>(),
@@ -1023,7 +1024,7 @@ namespace eLearnApps.Controllers
                     chartItem.Data.Add(ratingCount);
                 }
                 var ratingQuestionsModel = new List<PeerFeedbackRatingQuestionModel>();
-                model.ChartData = JsonConvert.SerializeObject(chartItem);
+                model.ChartData = JsonSerializer.Serialize(chartItem);
                 log.Info("Add chart data");
                 foreach (var ratingQuestion in ratingQuestions)
                 {
@@ -1234,7 +1235,7 @@ namespace eLearnApps.Controllers
             var model = new PeerFeedBackResultDetailQuestionStatisticViewModel
             {
                 QuestionTitle = question.Title,
-                ChartData = JsonConvert.SerializeObject(chartItem),
+                ChartData = JsonSerializer.Serialize(chartItem),
                 ChartId = DateTime.UtcNow.Ticks.ToString(),
                 TotalUserInGroup = usersInGroup.Count,
                 CountUserComplete = countUserComplete,
@@ -1429,7 +1430,7 @@ namespace eLearnApps.Controllers
             var model = new PeerFeedBackResultDetailQuestionStatisticViewModel
             {
                 QuestionTitle = question.Title,
-                ChartData = JsonConvert.SerializeObject(chartItem),
+                ChartData = JsonSerializer.Serialize(chartItem),
                 ChartId = DateTime.UtcNow.Ticks.ToString(),
                 ResourceId = Guid.NewGuid().ToString(),
                 TotalUserInGroup = users.Count,
@@ -1504,7 +1505,7 @@ namespace eLearnApps.Controllers
             if (!string.IsNullOrEmpty(content))
             {
                 log.Info("json convert to List<SelfDirectedLearningResourcesModel>");
-                var items = JsonConvert.DeserializeObject<List<SelfDirectedLearningResourcesModel>>(content);
+                var items = JsonSerializer.Deserialize<List<SelfDirectedLearningResourcesModel>>(content);
                 if (string.Compare(questionTitle, _constants.ResponsibilityQuestionText, true) == 0)
                 {
                     model = items.First(x => x.ItemType == 1);
@@ -1825,7 +1826,7 @@ namespace eLearnApps.Controllers
         [PeerFeedBackAuthorize(Role = "admin")]
         public ActionResult RatingQuestionCreate(RatingQuestionModel model)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var rationQuestion = new PeerFeedbackRatingQuestion
                 {
@@ -1862,7 +1863,7 @@ namespace eLearnApps.Controllers
         [PeerFeedBackAuthorize(Role = "admin")]
         public ActionResult RatingQuestionDelete([Required] int id)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var ratingQuestion = _peerFeedbackService.GetPeerFeedbackRatingQuestionById(id);
                 if (ratingQuestion == null) return Json("not found");
@@ -1978,7 +1979,7 @@ namespace eLearnApps.Controllers
 
             return PartialView("_CreateOrUpdateQuestion", model);
         }
-            
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
@@ -2115,7 +2116,7 @@ namespace eLearnApps.Controllers
             log.Info("**************** START PeerFeedbackDelete ****************");
             log.Info($"PeerFeedbackGetById peerFeedbackId = {peerFeedbackId}");
             var peerFeedBack = _peerFeedbackService.PeerFeedbackGetById(peerFeedbackId);
-            log.Info($"PeerFeedbackGetById Ok response = {JsonConvert.SerializeObject(peerFeedBack)}");
+            log.Info($"PeerFeedbackGetById Ok response = {JsonSerializer.Serialize(peerFeedBack)}");
             if (peerFeedBack == null)
             {
                 log.Warn($"peerFeedBack == null, peerFeedbackId = {peerFeedbackId} not found.");
@@ -2139,7 +2140,7 @@ namespace eLearnApps.Controllers
             {
                 log.Info($"PeerFeedbackGetById peerFeedbackId = {peerFeedbackId.Value}");
                 var peerFeedBack = _peerFeedbackService.PeerFeedbackGetById(peerFeedbackId.Value);
-                log.Info($"PeerFeedbackGetById Ok response = {JsonConvert.SerializeObject(peerFeedBack)}");
+                log.Info($"PeerFeedbackGetById Ok response = {JsonSerializer.Serialize(peerFeedBack)}");
                 if (peerFeedBack == null)
                 {
                     log.Warn($"peerFeedBack == null, peerFeedbackId = {peerFeedbackId} not found.");
@@ -2161,7 +2162,7 @@ namespace eLearnApps.Controllers
             {
                 log.Info($"PeerFeedbackGetById peerFeedbackId = {peerFeedbackId.Value}");
                 var peerFeedBack = _peerFeedbackService.PeerFeedbackGetById(peerFeedbackId.Value);
-                log.Info($"PeerFeedbackGetById Ok response = {JsonConvert.SerializeObject(peerFeedBack)}");
+                log.Info($"PeerFeedbackGetById Ok response = {JsonSerializer.Serialize(peerFeedBack)}");
                 if (peerFeedBack == null)
                 {
                     log.Warn($"peerFeedBack == null, peerFeedbackId = {peerFeedbackId} not found.");
@@ -2204,7 +2205,7 @@ namespace eLearnApps.Controllers
                     log.Info($"update peerfeedBackId = {model.Id}");
                     log.Info($"PeerFeedbackGetById peerFeedbackId = {model.Id}");
                     peerFeedback = _peerFeedbackService.PeerFeedbackGetById(model.Id.Value);
-                    log.Info($"PeerFeedbackGetById Ok response = {JsonConvert.SerializeObject(peerFeedback)}");
+                    log.Info($"PeerFeedbackGetById Ok response = {JsonSerializer.Serialize(peerFeedback)}");
                     if (peerFeedback == null)
                     {
                         log.Warn($"peerFeedBack == null, peerFeedbackId = {model.Id} not found.");
@@ -2225,14 +2226,14 @@ namespace eLearnApps.Controllers
                 peerFeedback.Name = model.Name;
                 if (peerFeedback.Id > 0)
                 {
-                    log.Info($"PeerFeedbackUpdate with paramters = {JsonConvert.SerializeObject(peerFeedback)}");
+                    log.Info($"PeerFeedbackUpdate with paramters = {JsonSerializer.Serialize(peerFeedback)}");
                     _peerFeedbackService.PeerFeedbackUpdate(peerFeedback);
                     log.Info($"PeerFeedbackUpdate OK.");
                 }
                 else
                 {
                     log.Info("------ start PeerFeedbackInsert ------");
-                    log.Info($"PeerFeedbackInsert with paramters = {JsonConvert.SerializeObject(peerFeedback)}");
+                    log.Info($"PeerFeedbackInsert with paramters = {JsonSerializer.Serialize(peerFeedback)}");
                     _peerFeedbackService.PeerFeedbackInsert(peerFeedback);
                     log.Info($"PeerFeedbackInsert OK.");
                     log.Info("------ end PeerFeedbackInsert ------");
@@ -2244,7 +2245,7 @@ namespace eLearnApps.Controllers
                     log.Info("------ end PeerFeedbackQuestionMapDeleteByPeerFeedBackId ------");
 
                     var questions = _peerFeedbackService.GetListPeerFeedbackQuestions();
-                    log.Info($"GetListPeerFeedbackQuestions OK response = {JsonConvert.SerializeObject(questions)}");
+                    log.Info($"GetListPeerFeedbackQuestions OK response = {JsonSerializer.Serialize(questions)}");
                     if (questions != null)
                         foreach (var question in questions)
                         {
@@ -2257,8 +2258,8 @@ namespace eLearnApps.Controllers
                             _peerFeedbackService.PeerFeedbackQuestionMapInsert(peerFeedbackQuestionMap);
                             log.Info("------ end PeerFeedbackQuestionMapInsert ------");
                         }
-                    }
                 }
+            }
             log.Info("**************** END PeerFeedbackSave ****************");
             return Json(peerFeedback);
         }
@@ -2367,7 +2368,7 @@ namespace eLearnApps.Controllers
                         sbTarget.Append("\"GroupId\":").Append($"{group.First().GroupId}").Append(",");
                         sbTarget.Append("\"GroupName\":")
                             .Append(
-                                $"{JsonConvert.SerializeObject(WebUtility.HtmlEncode(group.First().DisplayName))}")
+                                $"{JsonSerializer.Serialize(WebUtility.HtmlEncode(group.First().DisplayName))}")
                             .Append(",");
                         sbTarget.Append("\"Target\": [");
                         foreach (var item in group)
@@ -2379,7 +2380,7 @@ namespace eLearnApps.Controllers
                             sbTarget.Append("{");
                             sbTarget.Append($"\"{nameof(item.Id)}\":").Append($"{item.Id}").Append(",");
                             sbTarget.Append($"\"{nameof(item.Name)}\":")
-                                .Append($"{JsonConvert.SerializeObject(WebUtility.HtmlEncode(item.Name))}")
+                                .Append($"{JsonSerializer.Serialize(WebUtility.HtmlEncode(item.Name))}")
                                 .Append(",");
                             sbTarget.Append("\"IsChecked\":").Append($"{result}");
                             sbTarget.Append("}").Append(",");
@@ -2400,9 +2401,9 @@ namespace eLearnApps.Controllers
                         sbTarget.Append("{");
                         sbTarget.Append($"\"{nameof(item.Id)}\":").Append($"{item.Id}").Append(",");
                         sbTarget.Append($"\"{nameof(item.Name)}\":")
-                            .Append($"{JsonConvert.SerializeObject(WebUtility.HtmlEncode(item.Name))}").Append(",");
+                            .Append($"{JsonSerializer.Serialize(WebUtility.HtmlEncode(item.Name))}").Append(",");
                         sbTarget.Append($"\"{nameof(item.MemberGroup)}\":")
-                            .Append($"{JsonConvert.SerializeObject(WebUtility.HtmlEncode(item.MemberGroup))}")
+                            .Append($"{JsonSerializer.Serialize(WebUtility.HtmlEncode(item.MemberGroup))}")
                             .Append(",");
                         sbTarget.Append("\"IsChecked\":").Append($"{result}");
                         sbTarget.Append("}").Append(",");
@@ -2434,7 +2435,7 @@ namespace eLearnApps.Controllers
             log.Info("**************** START PeerFeedbackSessionAddOrUpdate ****************");
             log.Info($"PeerFeedbackGetById peerFeedbackId = {peerFeedbackId}");
             var peerFeedback = _peerFeedbackService.PeerFeedbackGetById(peerFeedbackId);
-            log.Info($"PeerFeedbackGetById Ok response = {JsonConvert.SerializeObject(peerFeedback)}");
+            log.Info($"PeerFeedbackGetById Ok response = {JsonSerializer.Serialize(peerFeedback)}");
             // Validation
             if (peerFeedback == null)
             {
@@ -2456,7 +2457,7 @@ namespace eLearnApps.Controllers
             {
                 log.Info($"PeerFeedbackSessionsGetById peerFeedbackSessionId = {peerFeedbackSessionId}");
                 var session = _peerFeedbackService.PeerFeedbackSessionsGetById(peerFeedbackSessionId.Value);
-                log.Info($"PeerFeedbackSessionsGetById Ok response = {JsonConvert.SerializeObject(session)}");
+                log.Info($"PeerFeedbackSessionsGetById Ok response = {JsonSerializer.Serialize(session)}");
                 if (session == null)
                 {
                     log.Warn($"session == null, peerFeedbackSessionId = {peerFeedbackSessionId} not found.");
@@ -2485,14 +2486,14 @@ namespace eLearnApps.Controllers
             log.Info("**************** START PeerFeedbackSessionDelete ****************");
             log.Info($"PeerFeedbackSessionsGetById peerFeedbackSessionId = {peerFeedbackSessionId}");
             var session = _peerFeedbackService.PeerFeedbackSessionsGetById(peerFeedbackSessionId);
-            log.Info($"PeerFeedbackSessionsGetById Ok response = {JsonConvert.SerializeObject(session)}");
+            log.Info($"PeerFeedbackSessionsGetById Ok response = {JsonSerializer.Serialize(session)}");
             if (session != null)
             {
                 session.IsDeleted = true;
                 session.LastUpdatedBy = UserInfo.UserId;
                 session.LastUpdatedTime = DateTime.UtcNow;
                 log.Info("------ start PeerFeedbackSessionsUpdate ------");
-                log.Info($"parameters = {JsonConvert.SerializeObject(session)}");
+                log.Info($"parameters = {JsonSerializer.Serialize(session)}");
                 _peerFeedbackService.PeerFeedbackSessionsUpdate(session);
                 log.Info("------ end PeerFeedbackSessionsUpdate ------");
             }
@@ -2546,7 +2547,7 @@ namespace eLearnApps.Controllers
             log.Info("**************** START PeerFeedbackResponseSave ****************");
             log.Info($" Get PeerFeedBack By Id = {model.PeerFeedbackId.Value}");
             var peerFeedback = _peerFeedbackService.PeerFeedbackGetById(model.PeerFeedbackId.Value);
-            log.Info($" Get PeerFeedBack Ok response = {JsonConvert.SerializeObject(peerFeedback)}");
+            log.Info($" Get PeerFeedBack Ok response = {JsonSerializer.Serialize(peerFeedback)}");
             if (peerFeedback == null)
             {
                 log.Warn($"peerFeedback == null; PeerFeedbackId = {model.PeerFeedbackId.Value} not found");
@@ -2558,7 +2559,7 @@ namespace eLearnApps.Controllers
             {
                 log.Info($" Get PeerFeedBackSession By Id = {model.Id.Value}");
                 session = _peerFeedbackService.PeerFeedbackSessionsGetById(model.Id.Value);
-                log.Info($" Get PeerFeedBackSession Ok response = {JsonConvert.SerializeObject(session)}");
+                log.Info($" Get PeerFeedBackSession Ok response = {JsonSerializer.Serialize(session)}");
                 if (session == null)
                 {
                     log.Warn($"session == null; PeerFeedbackSessionId = {model.Id.Value} not found");
@@ -2601,7 +2602,7 @@ namespace eLearnApps.Controllers
                     if (model.Id > 0)
                     {
                         log.Info("------ start PeerFeedbackSessionsUpdate ------");
-                        log.Info($"update session with param = {JsonConvert.SerializeObject(session)}");
+                        log.Info($"update session with param = {JsonSerializer.Serialize(session)}");
                         _peerFeedbackService.PeerFeedbackSessionsUpdate(session);
                         log.Info($"update session OK");
                         log.Info("------ end PeerFeedbackSessionsUpdate ------");
@@ -2609,14 +2610,14 @@ namespace eLearnApps.Controllers
                     else
                     {
                         log.Info("------ start PeerFeedbackSessionsInsert ------");
-                        log.Info($"insert session with param = {JsonConvert.SerializeObject(session)}");
+                        log.Info($"insert session with param = {JsonSerializer.Serialize(session)}");
                         _peerFeedbackService.PeerFeedbackSessionsInsert(session);
                         log.Info($"insert session OK");
                         log.Info("------ end PeerFeedbackSessionsInsert ------");
                         // generate pairings
                         log.Info("------ start GeneratePairings ------");
                         var userId = UserInfo.UserId;
-                        HostingEnvironment.QueueBackgroundWorkItem(async ct =>
+                        _ = Task.Run(async () =>
                         {
                             await _peerFeedbackService.GeneratePairings(session, userId);
                         });
@@ -2735,7 +2736,7 @@ namespace eLearnApps.Controllers
                         targetInPairing.AddRange(targets);
                     else
                         lstResult.AddRange(targets);
-                    }
+                }
 
                 // Pairing edit, need to add existing to exception
                 var lstExcept = new List<int>();
@@ -2844,7 +2845,7 @@ namespace eLearnApps.Controllers
                 var filePath = @"D:\Workspaces\SMU\Github\eLearnApps\SourceCode\LMSTools_db_scripts\2022\PeerFeedback\1_1_init_table_seed_data.sql";
                 System.IO.File.WriteAllText(filePath, seedDataQuery);
             }
-            var json = JsonConvert.SerializeObject(seedData);
+            var json = JsonSerializer.Serialize(seedData);
             //var seedFile = $"{Server.MapPath(_constants.StaticFilesFolder)}/seed-data-file-{DateTime.Now.ToString("dd-MM-yyyy HH-mm")}.json";
             var seedFile = Path.Combine(
                 _env.ContentRootPath,
@@ -3023,10 +3024,10 @@ namespace eLearnApps.Controllers
         {
             var takeRecentTerms = _constants.PeerFeedbackGetTermsRecentTermsSize;
             string filter = string.Empty;
-            if(request.Filter != null && request.Filter.Filters != null && request.Filter.Filters.Any())
+            if (request.Filter != null && request.Filter.Filters != null && request.Filter.Filters.Any())
             {
                 var filterValue = request.Filter.Filters.FirstOrDefault();
-                if(filterValue != null && filterValue.Value != null)
+                if (filterValue != null && filterValue.Value != null)
                 {
                     string[] arr = ((IEnumerable)filterValue.Value).Cast<object>()
                                    .Select(x => x.ToString())
@@ -3035,11 +3036,11 @@ namespace eLearnApps.Controllers
                 }
             }
             (int TotalCount, IList<CourseOfferingDto> Terms) = await _peerFeedbackService.PeerFeedbackGetWhitelistedTermPagingAsync(
-                request.Page, 
-                request.PageSize, 
+                request.Page,
+                request.PageSize,
                 filter, _constants.UseFullDbName,
                 _constants.PeerFeedbackGetTermsEnableUGPG);
-            log.Info($"get terms OK response = {JsonConvert.SerializeObject(Terms)}");
+            log.Info($"get terms OK response = {JsonSerializer.Serialize(Terms)}");
             var response = Terms.Select(item => new TextValue
             {
                 Value = $"{item.STRM}",
@@ -3185,16 +3186,19 @@ namespace eLearnApps.Controllers
                         "PeerFeedBack",
                         "Report");
                 log.Info($"Get psfsReportBaseFolder = {psfsReportBaseFolder}");
-                HostingEnvironment.QueueBackgroundWorkItem(
-                    ct => peerFeedbackReportJob.Run(
-                        peerFeedbackReportType,
-                        peerFeedbackReportGroupBy,
-                        sessions,
-                        model.SessionNames,
-                        courses,
-                        psfsReportBaseFolder,
-                        requestId,
-                        userInfo, model.TimeZone));
+                var _ = Task.Run(async () =>
+                {
+                    await peerFeedbackReportJob.Run(
+                                  peerFeedbackReportType,
+                                  peerFeedbackReportGroupBy,
+                                  sessions,
+                                  model.SessionNames,
+                                  courses,
+                                  psfsReportBaseFolder,
+                                  requestId,
+                                  userInfo, model.TimeZone);
+
+                });
                 log.Info("------ end ExportPeerFeedBackToExcel ------");
                 return Json(requestId);
             }

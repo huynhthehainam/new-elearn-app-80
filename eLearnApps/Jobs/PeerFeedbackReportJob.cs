@@ -1,28 +1,15 @@
-﻿using Autofac;
-using Autofac.Integration.Mvc;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.EMMA;
+﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using eLearnApps;
 using eLearnApps.Business.Interface;
 using eLearnApps.Core;
-using eLearnApps.Entity.LmsTools;
 using eLearnApps.Entity.Logging;
-using eLearnApps.Helpers;
 using eLearnApps.Models;
-using Org.BouncyCastle.Asn1.X509;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using TimeZoneConverter;
 using ICacheManager = eLearnApps.Core.Caching.ICacheManager;
 
 public class PeerFeedbackReportJob
@@ -30,7 +17,7 @@ public class PeerFeedbackReportJob
     private IUserService _userService;
     private ICacheManager _cacheManager;
     private ILoggingService _loggingService;
-    private string _baseReportFolderPath = ConfigurationManager.AppSettings["PeerFeedbackReportBaseFolderPath"];    
+    private string _baseReportFolderPath = ConfigurationManager.AppSettings["PeerFeedbackReportBaseFolderPath"];
     private int commandTimeoutInSeconds = eLearnApps.Constants.PeerFeedbackReportQueryTimeout;
     private string _sqlConnectionString = ConfigurationManager.ConnectionStrings["DataContext"].ConnectionString;
 
@@ -51,7 +38,7 @@ public class PeerFeedbackReportJob
         List<int> sessions,
         string sessionNames,
         List<int> courses,
-        string baseReportFolderPath,         
+        string baseReportFolderPath,
         string requestId,
         UserModel triggerByUser,
         string timeZone = "Asia/Singapore",
@@ -88,7 +75,7 @@ public class PeerFeedbackReportJob
 
         try
         {
-            
+
 
             if (String.IsNullOrEmpty(peerFeedbackAdminListCsv))
             {
@@ -107,7 +94,8 @@ public class PeerFeedbackReportJob
                     }
                 }
             }
-        } catch (Exception ee)
+        }
+        catch (Exception ee)
         {
             var errMsg = $"[{requestId}] Unable to start report job - error parsing admin list email. {reportParameters} BaseReportFolderPath={_baseReportFolderPath} SqlConnStr={_sqlConnectionString}";
 
@@ -145,11 +133,11 @@ public class PeerFeedbackReportJob
             LogDebug(_userInfo.UserId, errMsg);
             return;
         }
-        
+
 
         //overide baseReportFolderPath if passed
         if (!String.IsNullOrEmpty(baseReportFolderPath))
-            this._baseReportFolderPath = baseReportFolderPath;        
+            this._baseReportFolderPath = baseReportFolderPath;
 
         LogDebug(_userInfo.UserId, $"[{requestId}] - Started Report Job {reportParameters} BaseReportFolderPath={_baseReportFolderPath} SqlConnStr={_sqlConnectionString}");
 
@@ -182,10 +170,11 @@ public class PeerFeedbackReportJob
 
             if (isInitialMailSent)
                 LogDebug(_userInfo.UserId, $"[{requestId}] - Initial email sent to {_userInfo.EmailAddress} {reportParameters}");
-            else { 
+            else
+            {
                 LogDebug(_userInfo.UserId, $"[{requestId}] - Aborting job, unable to send initial email to {_userInfo.EmailAddress} {reportParameters}");
                 return;
-             }            
+            }
 
             // run stored procedure
             // ----------------------------------------
@@ -211,7 +200,7 @@ public class PeerFeedbackReportJob
             //}
 
             var fileName = GetPeerFeedBackTemplateFileName(peerFeedBackReportType, peerFeedBackReportGroupBy, requestId);
-            
+
             // delete existing file if exists.
             if (File.Exists(fileName))
                 File.Delete(fileName);
@@ -245,7 +234,7 @@ public class PeerFeedbackReportJob
                 eLearnApps.Constants.SystemMailName,
                 emailSubject,
                 emailBody,
-                attachment, 
+                attachment,
                 true);
 
             if (isFinalEmailSent)
@@ -254,9 +243,9 @@ public class PeerFeedbackReportJob
                 LogDebug(_userInfo.UserId, $"[{requestId}] - Completed with WARNING - Failed to send final email to {_userInfo.EmailAddress} with report. {reportParameters}");
 
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            
+
 
             var emailHelper = new EmailHelper(_userService, _loggingService, _cacheManager, _userInfo.UserId, 0);
             var emailSubject = $"Peer Feedback - Error generating report {peerFeedBackReportType} requested on {dateTimeNow} by {_userInfo.DisplayName} with request ID {requestId}";
@@ -311,7 +300,7 @@ public class PeerFeedbackReportJob
             sheets.Append(sheet);
 
             var headerRow = new Row();
-           
+
             foreach (DataColumn column in reportData.Tables[0].Columns)
             {
                 if (eLearnApps.Constants.ReportHideColumns.IndexOf(column.ColumnName, StringComparison.OrdinalIgnoreCase) > -1) continue;
@@ -385,8 +374,8 @@ public class PeerFeedbackReportJob
     }
 
     public DataSet GetReportData(
-        PeerFeedBackReportType peerFeedBackReportType, 
-        PeerFeedBackReportGroupBy peerFeedBackReportGroupBy, 
+        PeerFeedBackReportType peerFeedBackReportType,
+        PeerFeedBackReportGroupBy peerFeedBackReportGroupBy,
         List<int> sessions, List<int> courses)
     {
 
@@ -399,22 +388,22 @@ public class PeerFeedbackReportJob
                 procName = "SP_StudentResult";
                 break;
             case PeerFeedBackReportType.OverallResponseRate:
-                procName = peerFeedBackReportGroupBy == PeerFeedBackReportGroupBy.CourseSection 
-                    ? "SP_OverallResponseRateByCourseAcadGroup" 
+                procName = peerFeedBackReportGroupBy == PeerFeedBackReportGroupBy.CourseSection
+                    ? "SP_OverallResponseRateByCourseAcadGroup"
                     : "SP_OverallResponseRateBySchoolCodeAcadYear";
                 break;
             case PeerFeedBackReportType.OverallDescriptorResult:
-                procName = peerFeedBackReportGroupBy == PeerFeedBackReportGroupBy.CourseSection 
-                    ? "SP_DescriptorResponseByCourseAcadGroup" 
+                procName = peerFeedBackReportGroupBy == PeerFeedBackReportGroupBy.CourseSection
+                    ? "SP_DescriptorResponseByCourseAcadGroup"
                     : "SP_DescriptorResponseBySchoolCodeAcadYear";
                 break;
             case PeerFeedBackReportType.OverallMeanScoreResult:
-                procName = peerFeedBackReportGroupBy == PeerFeedBackReportGroupBy.CourseSection  
-                    ? "SP_MeanScoreByCourseAcadGroup" 
+                procName = peerFeedBackReportGroupBy == PeerFeedBackReportGroupBy.CourseSection
+                    ? "SP_MeanScoreByCourseAcadGroup"
                     : "SP_MeanScoreBySchoolCodeAcadYear";
                 break;
         }
-                
+
         DataSet result = null;
         SqlConnection sqlConn = null;
         // call stored procedure procName with timeout of 5 minutes and read the results into a dataset 
@@ -435,8 +424,8 @@ public class PeerFeedbackReportJob
                     sda.Fill(result);
                 }
             }
-        }            
-        
+        }
+
         return result;
     }
 
@@ -444,9 +433,9 @@ public class PeerFeedbackReportJob
     {
         var loggingModel = new DebugLog();
 
-        loggingModel.ShortMessage = message != null && message.Length > 500 ? message.Substring(0,500) : message;
+        loggingModel.ShortMessage = message != null && message.Length > 500 ? message.Substring(0, 500) : message;
 
-        
+
         loggingModel.FullMessage = message;
 
         loggingModel.PageUrl = nameof(PeerFeedbackReportJob);
