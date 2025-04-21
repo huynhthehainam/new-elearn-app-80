@@ -13,6 +13,7 @@ using System.Text.Json;
 using eLearnApps.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.Web;
+using eLearnApps.Models;
 
 namespace eLearnApps.Controllers
 {
@@ -57,6 +58,17 @@ namespace eLearnApps.Controllers
                 var domain = _configuration.GetValue<string>("Domain");
                 return Redirect($"https://{domain}");
             }
+        }
+        [AllowAnonymous]
+        public ActionResult PFLTI()
+        {
+            var showLoginPage = _appSettingService.GetByKey("ShowLoginPage");
+            if (showLoginPage.Value.ToLower() == "true")
+            {
+                return View();
+            }
+            var domain = _configuration.GetValue<string>("Domain");
+            return Redirect($"https://{domain}");
         }
         [HttpPost, AllowAnonymous]
         public ActionResult Lti(string returnUrl)
@@ -146,6 +158,78 @@ namespace eLearnApps.Controllers
             }
 
             log.Debug($"no access found for user: {userId} - {courseId}");
+            return RedirectToAction("AccessDenied", "Error");
+        }
+        [HttpPost, AllowAnonymous]
+        public ActionResult PFLTI(string returnUrl)
+        {
+            var constants = new Constants(_configuration);
+            var claimHelper = new ClaimHelper(_serviewProvider);
+            LogDebug("account-PFLTI", $"landing: {returnUrl}");
+            var userIdString = Request.Form["user_id"];
+
+            var routeValue = new
+            {
+                ReturnUrl = $"{Constants.HomePageUrl}",
+                Content = "You don't have permission access - PFLTI"
+            };
+            var userId = ExtractUserId(userIdString);
+
+            LogDebug("account-lti", $"landing on debug with {userId}");
+
+            // if debug, and requestUrl is not set, means we are debuging with LTI
+            if (string.Equals(constants.ValidateLTI, "true", StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (!ValidateLTI())
+                    return RedirectToAction("AccessDenied", "Error", routeValue);
+            }
+
+            // validate userId
+            var user = _userService.GetById(userId);
+            if (user == null)
+            {
+                LogDebug("account-PFLTI", $"Unable to find user: {userId}.");
+                return RedirectToAction("AccessDenied", "Error", routeValue);
+            }
+
+            _toolName = Category.PeerFeedback.ToString();
+            log.Debug($"Signing in user: {userId}");
+            SignIn(user);
+
+            log.Debug($"Setting PFLTI access into cache: {userId}");
+            claimHelper.SetPFAccessIntoCache(user);
+            var sessionData = HttpContext.Session.GetString(constants.SessionUserKey);
+            UserModel? userInfo = null;
+
+            if (!string.IsNullOrEmpty(sessionData))
+            {
+                userInfo = JsonSerializer.Deserialize<UserModel>(sessionData);
+            }
+
+            log.Debug($"Get redirection url {userId}");
+
+            var sessions = _peerFeedbackService.PeerFeedbackSessionsGetList();
+            sessions = (from session in sessions
+                        from enrolled in userInfo.CurrentLoadedCourses
+                        where (session.CourseOfferingCode ?? string.Empty).Contains(enrolled.CourseCode ?? string.Empty)
+                        select session).ToList();
+            if (!userInfo.HasAdmin && userInfo.IsInstructor && sessions.Count == 0)
+            {
+                return RedirectToAction("NoSurvey", "Error", routeValue);
+            }
+
+            if (!userInfo.HasAdmin && userInfo.IsStudent && sessions.Count == 0)
+            {
+                return RedirectToAction("NoSurvey", "Error", routeValue);
+            }
+
+            if (userInfo.CurrentLoadedCourses != null && userInfo.CurrentLoadedCourses.Any())
+            {
+                HttpContext.Session.SetString("IsInitialLanding", "true");
+                return RedirectToAction("Index", "PeerFeedback");
+            }
+
+            log.Debug($"no access found for user: {userId}");
             return RedirectToAction("AccessDenied", "Error");
         }
         [Authorize, HttpPost, ValidateAntiForgeryToken]
