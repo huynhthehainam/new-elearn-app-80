@@ -29,16 +29,7 @@ namespace eLearnApps.Controllers
             _courseService = courseService;
             _semesterService = semesterService;
         }
-        public PartialViewResult _LeftMenuEE()
-        {
-            return PartialView(MenuName);
-        }
-        public PartialViewResult _LeftMenu()
-        {
-            var temp = ((System.Security.Claims.ClaimsIdentity)User.Identity).Claims.ToList();
 
-            return PartialView(MenuName);
-        }
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<ActionResult> PopulateDropdown(int? semesterId)
