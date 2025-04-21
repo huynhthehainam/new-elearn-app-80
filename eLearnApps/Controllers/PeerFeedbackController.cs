@@ -15,6 +15,7 @@ using eLearnApps.ViewModel.PeerFeedback;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,12 +30,17 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
 using TimeZoneConverter;
+using Extensions = eLearnApps.Extension.Extensions;
 
 namespace eLearnApps.Controllers
 {
     public class PeerFeedbackController : BaseController
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private readonly Constants _constants;
+        private readonly Extensions _extensions;
+        private readonly IWebHostEnvironment _env;
 
         #region CTOR
 
@@ -44,7 +50,7 @@ namespace eLearnApps.Controllers
             ICacheManager cacheManager,
             IHttpContextAccessor httpContextAccessor,
             IConfiguration configuration,
-            IServiceProvider serviewProvider,
+            IServiceProvider serviceProvider,
             ICompositeViewEngine compositeViewEngine,
             IWebHostEnvironment webHostEnvironment,
             IErrorLogService errorLogService,
@@ -53,9 +59,11 @@ namespace eLearnApps.Controllers
             IUserEnrollmentService userEnrollmentService,
             ICategoryGroupService categoryGroupService,
             ICourseCategoryService courseCategoryService,
+            IWebHostEnvironment env,
+            Extensions extensions,
             ILoggingService loggingService,
             IUserGroupService userGroupService, IValenceService valenceService,
-            IAuditService auditService) : base(cacheManager, errorLogService, httpContextAccessor, configuration, serviewProvider, compositeViewEngine)
+            IAuditService auditService) : base(cacheManager, errorLogService, httpContextAccessor, configuration, serviceProvider, compositeViewEngine)
         {
             _courseService = courseService;
             _userService = userService;
@@ -65,9 +73,12 @@ namespace eLearnApps.Controllers
             _userEnrollmentService = userEnrollmentService;
             _userGroupService = userGroupService;
             _courseCategoryService = courseCategoryService;
+            _constants = new Constants(configuration);
+            _extensions = extensions;
             _loggingService = loggingService;
             _auditService = auditService;
             _valenceService = valenceService;
+            _env = env;
         }
 
         #endregion
@@ -173,7 +184,7 @@ namespace eLearnApps.Controllers
                     PeerFeedBackSessionId = item.PeerFeedBackSessionId,
                     PeerFeedBackId = item.PeerFeedBackId,
                     SessionName = item.SessionName,
-                    PeerFeedBackKey = item.PeerFeedBackId.ToEncrypt()
+                    PeerFeedBackKey = _extensions.ToEncrypt(item.PeerFeedBackId)
                 };
                 feedBacks.Add(peerFeedbackViewModel);
             }
@@ -251,7 +262,7 @@ namespace eLearnApps.Controllers
             double progress = 0;
             double userCompleteCount = 0;
             log.Info("Check paramKey");
-            var paramKey = $"{peerFeedBackId}{peerFeedBackSessionId}{peerFeedBackGroupId}".ToEncrypt();
+            var paramKey = _extensions.ToEncrypt($"{peerFeedBackId}{peerFeedBackSessionId}{peerFeedBackGroupId}");
             if (!string.Equals(key, paramKey, StringComparison.Ordinal))
             {
                 log.Warn($"Param key is not correct - issue with param.PeerFeedBackId = {peerFeedBackId}, param.PeerFeedBackSessionId = {peerFeedBackSessionId}");
@@ -349,8 +360,8 @@ namespace eLearnApps.Controllers
                 Session = new PeerFeedbackSessionViewModel
                 {
                     Id = session.Id,
-                    EndTotalMilliseconds = session.EntryCloseTime.TotalMilliseconds(),
-                    StartTotalMilliseconds = session.EntryStartTime.TotalMilliseconds(),
+                    EndTotalMilliseconds = (session.EntryCloseTime - DateTime.MinValue).TotalMilliseconds,
+                    StartTotalMilliseconds = (session.EntryStartTime - DateTime.MinValue).TotalMilliseconds,
                     Label = session.Label
                 },
                 Key = key,
@@ -376,7 +387,7 @@ namespace eLearnApps.Controllers
                 OrgUnitId = _peerFeedbackService.GetCourseId(peerFeedBackGroupId),
                 AuditType = AuditType.Click,
                 UserId = UserInfo.UserId.ToString(),
-                ToolId = Constants.ToolIdPeerFeedback,
+                ToolId = _constants.ToolIdPeerFeedback,
                 ResourceId = Convert.ToInt32(AuditResourceId.ViewedEvaluation)
             };
             _loggingService.AuditUserAction(audit);
@@ -460,19 +471,19 @@ namespace eLearnApps.Controllers
                     PeerFeedBackGroupId = item.PeerFeedBackGroupId,
                     PeerFeedBackPairingId = item.PeerFeedBackPairingId,
                     PeerFeedBackSessionId = item.PeerFeedBackSessionId,
-                    Key = $"{item.PeerFeedBackId}{item.PeerFeedBackSessionId}{item.PeerFeedBackGroupId}".ToEncrypt(),
+                    Key = _extensions.ToEncrypt($"{item.PeerFeedBackId}{item.PeerFeedBackSessionId}{item.PeerFeedBackGroupId}"),
                     DefaultActive = defaultActiveId == item.PeerFeedBackId && defaultGroupId == item.PeerFeedBackGroupId && defaultSessionId == item.PeerFeedBackSessionId,
                     Session = new PeerFeedbackSessionViewModel
                     {
                         Id = peerFeedBackSession.Id,
-                        EndTotalMilliseconds = peerFeedBackSession.EntryCloseTime.TotalMilliseconds(),
-                        StartTotalMilliseconds = peerFeedBackSession.EntryStartTime.TotalMilliseconds(),
+                        EndTotalMilliseconds = (peerFeedBackSession.EntryCloseTime - DateTime.MinValue).TotalMilliseconds,
+                        StartTotalMilliseconds = (peerFeedBackSession.EntryStartTime - DateTime.MinValue).TotalMilliseconds,
                         Label = peerFeedBackSession.Label,
                         EntryStartTime = peerFeedBackSession.EntryStartTime,
                         EntryCloseTime = peerFeedBackSession.EntryCloseTime,
                         PeerFeedbackResultSessionStatus = !isDoneDateTime ? PeerFeedbackResultSessionStatus.Ongoing : (!isDoneProgress ? PeerFeedbackResultSessionStatus.Incomplete : PeerFeedbackResultSessionStatus.Closed),
                         PeerFeedbackId = item.PeerFeedBackId,
-                        PeerFeedBackKey = item.PeerFeedBackId.ToEncrypt(),
+                        PeerFeedBackKey = _extensions.ToEncrypt(item.PeerFeedBackId),
                         Progress = progress,
                         Term = terms.First(a => a.Value == Convert.ToInt32(session.Strm)).Text
                     }
@@ -521,16 +532,16 @@ namespace eLearnApps.Controllers
                         textColorValue.Text = ratingQuestion1.Name;
                         textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(median1);
                     }
-                    else if ((string.Equals(ratingQuestion1.Name, Constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion2.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)) || (string.Equals(ratingQuestion2.Name, Constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion1.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)) ||
+                    else if ((string.Equals(ratingQuestion1.Name, _constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion2.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)) || (string.Equals(ratingQuestion2.Name, _constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion1.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)) ||
 
-                        (string.Equals(ratingQuestion1.Name, Constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion2.Name, Constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase)) || (string.Equals(ratingQuestion2.Name, Constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion1.Name, Constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase)) ||
+                        (string.Equals(ratingQuestion1.Name, _constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion2.Name, _constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase)) || (string.Equals(ratingQuestion2.Name, _constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion1.Name, _constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase)) ||
 
-                        (string.Equals(ratingQuestion1.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion2.Name, Constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase)) || (string.Equals(ratingQuestion2.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion1.Name, Constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase))
+                        (string.Equals(ratingQuestion1.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion2.Name, _constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase)) || (string.Equals(ratingQuestion2.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase) && string.Equals(ratingQuestion1.Name, _constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase))
 
                         )
                     {
-                        textColorValue.Text = Constants.MeetsExpectations;
-                        textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(ratingQuestions.Where(x => string.Equals(x.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First().Id);
+                        textColorValue.Text = _constants.MeetsExpectations;
+                        textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(ratingQuestions.Where(x => string.Equals(x.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First().Id);
                     }
                 }
             }
@@ -556,18 +567,18 @@ namespace eLearnApps.Controllers
 
                 if (mean < 1.5)
                 {
-                    textColorValue.Text = Constants.YetToMeetExpectations;
-                    textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(ratingQuestions.Where(x => string.Equals(x.Name, Constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase)).First().Id);
+                    textColorValue.Text = _constants.YetToMeetExpectations;
+                    textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(ratingQuestions.Where(x => string.Equals(x.Name, _constants.YetToMeetExpectations, StringComparison.OrdinalIgnoreCase)).First().Id);
                 }
                 else if (mean >= 1.5 && mean <= 2.5)
                 {
-                    textColorValue.Text = Constants.MeetsExpectations;
-                    textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(ratingQuestions.Where(x => string.Equals(x.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First().Id);
+                    textColorValue.Text = _constants.MeetsExpectations;
+                    textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(ratingQuestions.Where(x => string.Equals(x.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First().Id);
                 }
                 else if (mean > 2.5)
                 {
-                    textColorValue.Text = Constants.ExceedsExpectations;
-                    textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(ratingQuestions.Where(x => string.Equals(x.Name, Constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase)).First().Id);
+                    textColorValue.Text = _constants.ExceedsExpectations;
+                    textColorValue.ColorCode = ratingColorProvider.GetRatingColorCodes(ratingQuestions.Where(x => string.Equals(x.Name, _constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase)).First().Id);
                 }
             }
 
@@ -695,7 +706,7 @@ namespace eLearnApps.Controllers
             {
                 AuditType = AuditType.Click,
                 UserId = UserInfo.UserId.ToString(),
-                ToolId = Constants.ToolIdPeerFeedback,
+                ToolId = _constants.ToolIdPeerFeedback,
                 ResourceId = Convert.ToInt32(AuditResourceId.ViewedEvaluation),
             };
             _loggingService.AuditUserAction(audit);
@@ -725,7 +736,7 @@ namespace eLearnApps.Controllers
             log.Info($"param: peerFeedBackId = {peerFeedBackId}");
             var questions = PeerFeedbackQuestionTemplate(peerFeedBackId);
             log.Info("------ start PeerFeedbackQuestionTemplate ------");
-            if (peerFeedBack == null || peerFeedBackSession == null || questions == null || !string.Equals(peerFeedBackKey, peerFeedBack.Id.ToEncrypt(), StringComparison.Ordinal))
+            if (peerFeedBack == null || peerFeedBackSession == null || questions == null || !string.Equals(peerFeedBackKey, _extensions.ToEncrypt(peerFeedBack.Id), StringComparison.Ordinal))
             {
                 log.Warn($"peerFeedBack == null || peerFeedBackSession == null || questions == null || peerFeedBackKey not correct - issue with param.PeerFeedBackId = {peerFeedBackId}, param.PeerFeedBackSessionId = {peerFeedBackSessionId}");
                 return RedirectToAction("Index", "Error");
@@ -768,7 +779,7 @@ namespace eLearnApps.Controllers
                 Users = users.OrderBy(x => x.UserId == UserInfo.UserId).ToList(),
                 Questions = questions,
                 Closed = closed,
-                PeerFeedBackKey = peerFeedBack.Id.ToEncrypt(),
+                PeerFeedBackKey = _extensions.ToEncrypt(peerFeedBack.Id),
                 PeerFeedBackResponses = peerFeedBackResponses.Select(x => new PeerFeedBackResponseViewModel
                 {
                     EvaluatorUserId = x.EvaluatorUserId,
@@ -799,7 +810,7 @@ namespace eLearnApps.Controllers
         }
         [HttpPost]
         [PeerFeedBackAuthorize(Role = "student")]
-        public ActionResult PeerFeedbackResponseSave([Bind(Include = "PeerFeedBackKey,PeerFeedBackId,PeerFeedBackSessionId,PeerFeedBackGroupId,Users")] PeerFeedBackResponseUserModel response)
+        public ActionResult PeerFeedbackResponseSave(PeerFeedBackResponseUserModel response)
         {
             log.Info("**************** START PeerFeedbackResponseSave ****************");
             var jsonParam = JsonConvert.SerializeObject(response);
@@ -821,7 +832,7 @@ namespace eLearnApps.Controllers
                 return RedirectToAction("Index", "Error");
             }
             if (session.PeerFeedbackId != peerFeedBack.Id
-                || !string.Equals(response.PeerFeedBackKey, peerFeedBack.Id.ToEncrypt(), StringComparison.Ordinal))
+                || !string.Equals(response.PeerFeedBackKey, _extensions.ToEncrypt(peerFeedBack.Id), StringComparison.Ordinal))
             {
                 log.Warn($"Dangerous actions from users - {UserInfo.DisplayName} - {UserInfo.UserId}");
                 return RedirectToAction("Index", "Error");
@@ -995,7 +1006,7 @@ namespace eLearnApps.Controllers
                 log.Info($"param: peerFeedBackQuestionId = {peerFeedBackQuestionId}");
                 var questionRatingMap = _peerFeedbackService.GetFeedbackQuestionRatingMapByQuestionId(peerFeedBackQuestionId);
                 log.Info("------ end GetFeedbackQuestionRatingMapByQuestionId ------");
-                var ratingMeetsExpectation = ratingQuestions.Where(x => string.Equals(x.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First();
+                var ratingMeetsExpectation = ratingQuestions.Where(x => string.Equals(x.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First();
                 log.Info("------ start AddDefaultExceedsToMeetExpectations ------");
                 log.Info($"param: allResponses = {allResponses}, ratingQuestions = {ratingQuestions.ToJson()}, questionRatingMap = {questionRatingMap.ToJson()}");
                 //get meets expectation item for check calculate
@@ -1163,7 +1174,7 @@ namespace eLearnApps.Controllers
         {
             log.Info("**************** START PeerFeedBackResultQuestionStatistic ****************");
             log.Info("Check paramKey");
-            var paramKey = $"{peerFeedBackId}{peerFeedBackSessionId}{peerFeedBackGroupId}".ToEncrypt();
+            var paramKey = _extensions.ToEncrypt($"{peerFeedBackId}{peerFeedBackSessionId}{peerFeedBackGroupId}");
             if (string.IsNullOrEmpty(key) || !string.Equals(key, paramKey))
             {
                 log.Warn($"Param key is not correct - issue with param.PeerFeedBackId = {peerFeedBackId}, param.PeerFeedBackSessionId = {peerFeedBackSessionId}");
@@ -1235,7 +1246,7 @@ namespace eLearnApps.Controllers
             var responsesMySelf = allResponses.Where(r => r.EvaluatorUserId == UserInfo.UserId).Select(x => x.PeerFeedBackRatingId).Distinct().FirstOrDefault();
             var targetResponses = allResponses.Where(x => x.EvaluatorUserId != UserInfo.UserId).ToList();
             //get meets expectation item for calculate 
-            var ratingMeetsExpectation = ratingQuestions.Where(x => string.Equals(x.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First();
+            var ratingMeetsExpectation = ratingQuestions.Where(x => string.Equals(x.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First();
             log.Info("Add DefaultExceedsToMeetExpectations");
             targetResponses = AddDefaultExceedsToMeetExpectations(targetResponses, ratingQuestions, questionRatingMap);
             log.Info("Loop through ratingQuestions");
@@ -1426,7 +1437,7 @@ namespace eLearnApps.Controllers
             };
 
             //get meets expectation item for check calculate
-            var ratingMeetsExpectation = ratingQuestions.Where(x => string.Equals(x.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First();
+            var ratingMeetsExpectation = ratingQuestions.Where(x => string.Equals(x.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).First();
             log.Info("------ start AddDefaultExceedsToMeetExpectations ------");
             log.Info($"param: targetResponses = {targetResponses.ToJson()}, ratingQuestions = {ratingQuestions.ToJson()}, questionRatingMap = {questionRatingMap.ToJson()}");
             targetResponses = AddDefaultExceedsToMeetExpectations(targetResponses, ratingQuestions, questionRatingMap);
@@ -1487,21 +1498,22 @@ namespace eLearnApps.Controllers
             log.Info("**************** START SelfDirectedLearningResources ****************");
 
             var model = new SelfDirectedLearningResourcesModel();
-            var templateFile = $"{Server.MapPath(Constants.StaticFilesFolder)}/SelfDirectedLearningResources.json";
+            //var templateFile = $"{Server.MapPath(_constants.StaticFilesFolder)}/SelfDirectedLearningResources.json";
+            var templateFile = Path.Combine(_env.WebRootPath, _constants.StaticFilesFolder, "SelfDirectedLearningResources.json");
             var content = System.IO.File.ReadAllText(templateFile);
             if (!string.IsNullOrEmpty(content))
             {
                 log.Info("json convert to List<SelfDirectedLearningResourcesModel>");
                 var items = JsonConvert.DeserializeObject<List<SelfDirectedLearningResourcesModel>>(content);
-                if (string.Compare(questionTitle, Constants.ResponsibilityQuestionText, true) == 0)
+                if (string.Compare(questionTitle, _constants.ResponsibilityQuestionText, true) == 0)
                 {
                     model = items.First(x => x.ItemType == 1);
                 }
-                else if (string.Compare(questionTitle, Constants.MeetsExpectationsQuestionText, true) == 0)
+                else if (string.Compare(questionTitle, _constants.MeetsExpectationsQuestionText, true) == 0)
                 {
                     model = items.First(x => x.ItemType == 2);
                 }
-                else if (string.Compare(questionTitle, Constants.ExceedsExpectationsQuestionText, true) == 0)
+                else if (string.Compare(questionTitle, _constants.ExceedsExpectationsQuestionText, true) == 0)
                 {
                     model = items.First(x => x.ItemType == 3);
                 }
@@ -1514,16 +1526,16 @@ namespace eLearnApps.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AuditUserAction([Bind(Include = "Question,CourseId,ResourceId")] AuditActionModel model)
+        public ActionResult AuditUserAction(AuditActionModel model)
         {
             log.Info("**************** START AuditUserAction ****************");
 
             log.Info("Get resource Id.");
-            if (model.Question.ToLower() == Constants.ResponsibilityQuestionText.ToLower())
+            if (model.Question.ToLower() == _constants.ResponsibilityQuestionText.ToLower())
                 model.ResourceId = AuditResourceId.ClickResponsibilityAndCommitment;
-            else if (model.Question.ToLower() == Constants.MeetsExpectationsQuestionText.ToLower())
+            else if (model.Question.ToLower() == _constants.MeetsExpectationsQuestionText.ToLower())
                 model.ResourceId = AuditResourceId.ClickContributionTowardsTeamEffectiveness;
-            else if (model.Question.ToLower() == Constants.ExceedsExpectationsQuestionText.ToLower())
+            else if (model.Question.ToLower() == _constants.ExceedsExpectationsQuestionText.ToLower())
                 model.ResourceId = AuditResourceId.ClickContributionTowardsTeamDeliverables;
             log.Info($"ResourceId: {model.ResourceId}");
             var audit = new AuditEntry
@@ -1538,7 +1550,7 @@ namespace eLearnApps.Controllers
             log.Info("------ start AuditUserActrion ------");
             _loggingService.AuditUserAction(audit);
             log.Info("------ end AuditUserActrion ------");
-            return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+            return Ok(new { success = true, message = "Success" });
         }
         /// <summary>
         /// 
@@ -1550,9 +1562,9 @@ namespace eLearnApps.Controllers
         private List<PeerFeedBackResponses> AddDefaultExceedsToMeetExpectations(List<PeerFeedBackResponses> targetResponses, List<PeerFeedbackRatingQuestion> ratingQuestions, List<PeerFeedbackQuestionRatingMap> questionRatingMap)
         {
             //get question Meets expectations by question name
-            var meetsExpectationsItem = ratingQuestions.Where(x => string.Equals(x.Name, Constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            var meetsExpectationsItem = ratingQuestions.Where(x => string.Equals(x.Name, _constants.MeetsExpectations, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             //get question Exceeds expectations by question name
-            var exceedsExpectationsItem = ratingQuestions.Where(x => string.Equals(x.Name, Constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            var exceedsExpectationsItem = ratingQuestions.Where(x => string.Equals(x.Name, _constants.ExceedsExpectations, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             if (exceedsExpectationsItem != null && meetsExpectationsItem != null)
             {
                 //get list question Exceeds expectations in the list targetResponses by question id
@@ -1811,7 +1823,7 @@ namespace eLearnApps.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult RatingQuestionCreate([Bind(Include = "Name,DisplayOrder")] RatingQuestionModel model)
+        public ActionResult RatingQuestionCreate(RatingQuestionModel model)
         {
             if(ModelState.IsValid)
             {
@@ -1824,13 +1836,13 @@ namespace eLearnApps.Controllers
                 _peerFeedbackService.InsertPeerFeedbackRatingQuestion(rationQuestion);
                 return Json("");
             }
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, nameof(RatingQuestionModel));
+            return BadRequest(new { success = false, message = nameof(RatingQuestionModel) });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult RatingQuestionUpdate([Bind(Include = "Id,Name,DisplayOrder")] RatingQuestionModel model)
+        public ActionResult RatingQuestionUpdate(RatingQuestionModel model)
         {
             if (ModelState.IsValid)
             {
@@ -1842,7 +1854,7 @@ namespace eLearnApps.Controllers
                 _peerFeedbackService.UpdatePeerFeedbackRatingQuestion(ratingQuestion);
                 return Json("");
             }
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, nameof(RatingQuestionModel));
+            return BadRequest(new { success = false, message = nameof(RatingQuestionModel) });
         }
 
         [HttpPost]
@@ -1859,7 +1871,7 @@ namespace eLearnApps.Controllers
 
                 return Json("");
             }
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, nameof(id));
+            return BadRequest(new { success = false, message = nameof(id) });
         }
 
         [HttpPost]
@@ -1879,7 +1891,7 @@ namespace eLearnApps.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult RatingAnswerCreate([Bind(Include = "Name")] RatingAnswerModel model)
+        public ActionResult RatingAnswerCreate(RatingAnswerModel model)
         {
             if (ModelState.IsValid)
             {
@@ -1891,13 +1903,13 @@ namespace eLearnApps.Controllers
                 _peerFeedbackService.InsertPeerFeedbackRatingOption(rationOption);
                 return Json("");
             }
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, nameof(RatingAnswerModel));
+            return BadRequest(new { success = false, message = nameof(RatingQuestionModel) });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult RatingAnswerUpdate([Bind(Include = "Id,Name")] RatingAnswerModel model)
+        public ActionResult RatingAnswerUpdate(RatingAnswerModel model)
         {
             if (ModelState.IsValid)
             {
@@ -1908,7 +1920,7 @@ namespace eLearnApps.Controllers
                 _peerFeedbackService.UpdatePeerFeedbackRatingOption(ratingOption);
                 return Json("");
             }
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, nameof(RatingAnswerModel));
+            return BadRequest(new { success = false, message = nameof(RatingQuestionModel) });
         }
 
         [HttpPost]
@@ -1925,7 +1937,7 @@ namespace eLearnApps.Controllers
 
                 return Json("");
             }
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, nameof(id));
+            return BadRequest(new { success = false, message = nameof(id) });
         }
 
         [HttpPost]
@@ -1966,11 +1978,11 @@ namespace eLearnApps.Controllers
 
             return PartialView("_CreateOrUpdateQuestion", model);
         }
-
+            
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult PeerFeedbackQuestionSave([Bind(Include = "Id,Title,Description")] PeerFeedbackQuestionViewModel model)
+        public ActionResult PeerFeedbackQuestionSave(PeerFeedbackQuestionViewModel model)
         {
             var question = new PeerFeedbackQuestion();
             if (ModelState.IsValid)
@@ -2180,7 +2192,7 @@ namespace eLearnApps.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult PeerFeedbackSave([Bind(Include = "Id,Name,Description")] ManagePeerFeedbackModel model)
+        public ActionResult PeerFeedbackSave(ManagePeerFeedbackModel model)
         {
             log.Info("**************** START PeerFeedbackSave ****************");
             var peerFeedback = new PeerFeedback();
@@ -2355,7 +2367,7 @@ namespace eLearnApps.Controllers
                         sbTarget.Append("\"GroupId\":").Append($"{group.First().GroupId}").Append(",");
                         sbTarget.Append("\"GroupName\":")
                             .Append(
-                                $"{System.Web.Helpers.Json.Encode(HttpUtility.HtmlEncode(group.First().DisplayName))}")
+                                $"{JsonConvert.SerializeObject(WebUtility.HtmlEncode(group.First().DisplayName))}")
                             .Append(",");
                         sbTarget.Append("\"Target\": [");
                         foreach (var item in group)
@@ -2367,7 +2379,7 @@ namespace eLearnApps.Controllers
                             sbTarget.Append("{");
                             sbTarget.Append($"\"{nameof(item.Id)}\":").Append($"{item.Id}").Append(",");
                             sbTarget.Append($"\"{nameof(item.Name)}\":")
-                                .Append($"{System.Web.Helpers.Json.Encode(HttpUtility.HtmlEncode(item.Name))}")
+                                .Append($"{JsonConvert.SerializeObject(WebUtility.HtmlEncode(item.Name))}")
                                 .Append(",");
                             sbTarget.Append("\"IsChecked\":").Append($"{result}");
                             sbTarget.Append("}").Append(",");
@@ -2388,9 +2400,9 @@ namespace eLearnApps.Controllers
                         sbTarget.Append("{");
                         sbTarget.Append($"\"{nameof(item.Id)}\":").Append($"{item.Id}").Append(",");
                         sbTarget.Append($"\"{nameof(item.Name)}\":")
-                            .Append($"{System.Web.Helpers.Json.Encode(HttpUtility.HtmlEncode(item.Name))}").Append(",");
+                            .Append($"{JsonConvert.SerializeObject(WebUtility.HtmlEncode(item.Name))}").Append(",");
                         sbTarget.Append($"\"{nameof(item.MemberGroup)}\":")
-                            .Append($"{System.Web.Helpers.Json.Encode(HttpUtility.HtmlEncode(item.MemberGroup))}")
+                            .Append($"{JsonConvert.SerializeObject(WebUtility.HtmlEncode(item.MemberGroup))}")
                             .Append(",");
                         sbTarget.Append("\"IsChecked\":").Append($"{result}");
                         sbTarget.Append("}").Append(",");
@@ -2435,8 +2447,8 @@ namespace eLearnApps.Controllers
                 {
                     PeerFeedbackId = peerFeedbackId,
                     Id = 0,
-                    StartTotalMilliseconds = DateTime.UtcNow.TotalMilliseconds(),
-                    EndTotalMilliseconds = DateTime.UtcNow.TotalMilliseconds()
+                    StartTotalMilliseconds = (DateTime.UtcNow - DateTime.MinValue).TotalMilliseconds,
+                    EndTotalMilliseconds = (DateTime.UtcNow - DateTime.MinValue).TotalMilliseconds
                 }
             };
             log.Info($"check peerFeedbackSessionId = {peerFeedbackSessionId}");
@@ -2454,8 +2466,8 @@ namespace eLearnApps.Controllers
                 {
                     Id = session.Id,
                     PeerFeedbackId = session.PeerFeedbackId,
-                    StartTotalMilliseconds = session.EntryStartTime.TotalMilliseconds(),
-                    EndTotalMilliseconds = session.EntryCloseTime.TotalMilliseconds(),
+                    StartTotalMilliseconds = (session.EntryStartTime - DateTime.MinValue).TotalMilliseconds,
+                    EndTotalMilliseconds = (session.EntryCloseTime - DateTime.MinValue).TotalMilliseconds,
                     Label = session.Label,
                     Strm = session.Strm,
                     CourseOfferingCode = string.IsNullOrEmpty(session.CourseOfferingCode) ? new List<string>() : session.CourseOfferingCode.Split(',').ToList()
@@ -2498,8 +2510,8 @@ namespace eLearnApps.Controllers
             {
                 Id = session.Id,
                 PeerFeedbackId = session.PeerFeedbackId,
-                StartTotalMilliseconds = session.EntryStartTime.TotalMilliseconds(),
-                EndTotalMilliseconds = session.EntryCloseTime.TotalMilliseconds(),
+                StartTotalMilliseconds = (session.EntryStartTime - DateTime.MinValue).TotalMilliseconds,
+                EndTotalMilliseconds = (session.EntryCloseTime - DateTime.MinValue).TotalMilliseconds,
                 Label = session.Label,
                 Strm = session.Strm
             };
@@ -2517,8 +2529,8 @@ namespace eLearnApps.Controllers
             {
                 Id = x.Id,
                 PeerFeedbackId = x.PeerFeedbackId,
-                StartTotalMilliseconds = x.EntryStartTime.TotalMilliseconds(),
-                EndTotalMilliseconds = x.EntryCloseTime.TotalMilliseconds(),
+                StartTotalMilliseconds = (x.EntryStartTime - DateTime.MinValue).TotalMilliseconds,
+                EndTotalMilliseconds = (x.EntryCloseTime - DateTime.MinValue).TotalMilliseconds,
                 Label = x.Label,
                 Strm = x.Strm,
                 Term = terms.First(a => a.Value == x.Strm).Text
@@ -2529,7 +2541,7 @@ namespace eLearnApps.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult PeerFeedbackSessionSave([Bind(Include = "Id,PeerFeedbackId,EntryStartTime,EntryCloseTime,Label,Strm,CourseOfferingCode")] PeerFeedbackSessionViewModel model)
+        public ActionResult PeerFeedbackSessionSave(PeerFeedbackSessionViewModel model)
         {
             log.Info("**************** START PeerFeedbackResponseSave ****************");
             log.Info($" Get PeerFeedBack By Id = {model.PeerFeedbackId.Value}");
@@ -2634,9 +2646,9 @@ namespace eLearnApps.Controllers
                     Id = session.Id,
                     PeerFeedbackId = session.PeerFeedbackId,
                     EntryStartTime = session.EntryStartTime,
-                    StartTotalMilliseconds = session.EntryStartTime.TotalMilliseconds(),
+                    StartTotalMilliseconds = (session.EntryStartTime - DateTime.MinValue).TotalMilliseconds,
                     EntryCloseTime = session.EntryCloseTime,
-                    EndTotalMilliseconds = session.EntryCloseTime.TotalMilliseconds(),
+                    EndTotalMilliseconds = (session.EntryCloseTime - DateTime.MinValue).TotalMilliseconds,
                     Label = session.Label
                 };
                 var sessionPairings = _peerFeedbackService.PeerFeedBackPairingSessionsGetBySessionId(session.Id);
@@ -2690,7 +2702,7 @@ namespace eLearnApps.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult PeerFeedBackPairingSave([Bind(Include = "PeerFeedBackId,PeerFeedBackSessionId,PeerFeedBackPairingId,Target")] PeerFeedBackPairingModel evaluationPairingModel)
+        public ActionResult PeerFeedBackPairingSave(PeerFeedBackPairingModel evaluationPairingModel)
         {
             // VALIDATE: param must exist
             if (evaluationPairingModel == null) return RedirectToAction("Index", "Error");
@@ -2706,7 +2718,7 @@ namespace eLearnApps.Controllers
                 if (lstTargetId.Count == 0)
                     return Json(new
                     {
-                        StatusCode = (int)StatusCode.AlreadyExists,
+                        StatusCode = (int)Core.StatusCode.AlreadyExists,
                         Message = "Please select at least 1 group in a pairing."
                     });
 
@@ -2752,7 +2764,7 @@ namespace eLearnApps.Controllers
                 if (duplicateUsers.Count() > 0)
                     return Json(new
                     {
-                        StatusCode = (int)StatusCode.AlreadyExists,
+                        StatusCode = (int)Core.StatusCode.AlreadyExists,
                         Message =
                             $"This target [<strong><i>{string.Join(", ", duplicateUsers)}</i></strong>] appears more than once in this pairing. Please separate into 2 pairings."
                     });
@@ -2768,7 +2780,7 @@ namespace eLearnApps.Controllers
                 if (result != null)
                     return Json(new
                     {
-                        StatusCode = (int)StatusCode.AlreadyExists,
+                        StatusCode = (int)Core.StatusCode.AlreadyExists,
                         Message =
                             $"This target [<strong><i>{result.Group}</i></strong>] is already set up in another pairing. Please do not duplicate the target."
                     });
@@ -2833,7 +2845,11 @@ namespace eLearnApps.Controllers
                 System.IO.File.WriteAllText(filePath, seedDataQuery);
             }
             var json = JsonConvert.SerializeObject(seedData);
-            var seedFile = $"{Server.MapPath(Constants.StaticFilesFolder)}/seed-data-file-{DateTime.Now.ToString("dd-MM-yyyy HH-mm")}.json";
+            //var seedFile = $"{Server.MapPath(_constants.StaticFilesFolder)}/seed-data-file-{DateTime.Now.ToString("dd-MM-yyyy HH-mm")}.json";
+            var seedFile = Path.Combine(
+                _env.ContentRootPath,
+                _constants.StaticFilesFolder,
+                $"seed-data-file-{DateTime.Now.ToString("dd-MM-yyyy HH-mm")}.json");
             System.IO.File.WriteAllText(seedFile, json);
             return Json(string.Empty);
         }
@@ -2848,7 +2864,7 @@ namespace eLearnApps.Controllers
             log.Info("**************** START GetPaticipatingCourse ****************");
             if (string.IsNullOrEmpty(term))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "term is not valid.");
+                return BadRequest(new { success = false, message = "term is not valid." });
             }
             log.Info("------ start PeerFeedbackSessionsGetCourseByIdAndTerm ------");
             var result = _peerFeedbackService.PeerFeedbackSessionsGetCourseByIdAndTerm(term);
@@ -2863,14 +2879,14 @@ namespace eLearnApps.Controllers
             log.Info("**************** START ExportCourseByTermToCsv ****************");
             if (string.IsNullOrEmpty(term))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "parameters is not valid.");
+                return BadRequest(new { success = false, message = "parameters is not valid." });
             }
             var terms = _peerFeedbackService.PeerFeedbackGetWhitelistedTerm();
             var selectedTerm = terms.FirstOrDefault(x => x.Value == term);
             log.Info($"selectedTerm {selectedTerm.ToJson()}");
             if (selectedTerm == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "term is not found.");
+                return BadRequest(new { success = false, message = "parameters is not valid." });
             }
             var codes = selectedTerm.Items.Select(x => x.Value).ToList();
             var result = new List<ExportParticipatingCourseCsvModel>();
@@ -2912,7 +2928,7 @@ namespace eLearnApps.Controllers
             log.Info("**************** START GetGroupReadiness ****************");
             if (string.IsNullOrEmpty(term))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "term is not valid.");
+                return BadRequest(new { success = false, message = "parameters is not valid." });
             }
             log.Info("------ start PeerFeedbackSessionsCategoryGroup ------");
             var result = _peerFeedbackService.PeerFeedbackSessionsGetCourseInfoPreview(codes, new List<string> { term });
@@ -2929,7 +2945,7 @@ namespace eLearnApps.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin")]
-        public ActionResult ExportGroupReadinessReport([Bind(Include = "TimeZone,Terms")] ExportGroupReadinessReportRequestModel model)
+        public ActionResult ExportGroupReadinessReport(ExportGroupReadinessReportRequestModel model)
         {
             log.Info("**************** START ExportGroupReadinessReport ****************");
             log.Info($"ExportGroupReadinessReport parameters {model.ToJson()}");
@@ -2997,15 +3013,15 @@ namespace eLearnApps.Controllers
                     log.Info("**************** END ExportGroupReadinessReport ****************");
                     return File(excel.GetAsByteArray(), "application/vnd.ms-excel", fileName);
                 }
-                return new HttpStatusCodeResult(HttpStatusCode.NotFound, "Not Found.");
+                return NotFound(new { success = false, message = "Not Found." });
             }
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "term is not valid.");
+            return BadRequest(new { success = false, message = "term is not valid." });
         }
 
         [HttpPost, ValidateAntiForgeryToken, PeerFeedBackAuthorize(Role = "admin")]
-        public async Task<ActionResult> GetTerms([Bind(Include = "Page,PageSize,Filter")] KendoUIRequestModel request)
+        public async Task<ActionResult> GetTerms(KendoUIRequestModel request)
         {
-            var takeRecentTerms = Constants.PeerFeedbackGetTermsRecentTermsSize;
+            var takeRecentTerms = _constants.PeerFeedbackGetTermsRecentTermsSize;
             string filter = string.Empty;
             if(request.Filter != null && request.Filter.Filters != null && request.Filter.Filters.Any())
             {
@@ -3021,8 +3037,8 @@ namespace eLearnApps.Controllers
             (int TotalCount, IList<CourseOfferingDto> Terms) = await _peerFeedbackService.PeerFeedbackGetWhitelistedTermPagingAsync(
                 request.Page, 
                 request.PageSize, 
-                filter, Constants.UseFullDbName, 
-                Constants.PeerFeedbackGetTermsEnableUGPG);
+                filter, _constants.UseFullDbName,
+                _constants.PeerFeedbackGetTermsEnableUGPG);
             log.Info($"get terms OK response = {JsonConvert.SerializeObject(Terms)}");
             var response = Terms.Select(item => new TextValue
             {
@@ -3108,7 +3124,7 @@ namespace eLearnApps.Controllers
 
         [HttpPost, ValidateAntiForgeryToken]
         [PeerFeedBackAuthorize(Role = "admin,instructor")]
-        public ActionResult ExportPeerFeedBackToExcel([Bind(Include = "Sessions,GroupBy,ReportType,TimeZone,SessionNames")] ExportPeerFeedBackToExcelModel model)
+        public ActionResult ExportPeerFeedBackToExcel(ExportPeerFeedBackToExcelModel model)
         {
             if (ModelState.IsValid)
             {
@@ -3125,7 +3141,7 @@ namespace eLearnApps.Controllers
                 if (courseOfferingCodes == null || !courseOfferingCodes.Any())
                 {
                     log.Info($"sessions courseOfferingCode is EMPTY.");
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return BadRequest();
                 }
                 log.Info($"sessions courseOfferingCode {courseOfferingCodes.ToJson()}");
                 var courses = new List<int>();
@@ -3143,7 +3159,7 @@ namespace eLearnApps.Controllers
                 if (courses == null || !courses.Any())
                 {
                     log.Info($"courses is EMPTY.");
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return BadRequest();
                 }
                 var logDetails = new
                 {
@@ -3162,7 +3178,12 @@ namespace eLearnApps.Controllers
                 var userInfo = UserInfo;
                 var peerFeedbackReportJob = new PeerFeedbackReportJob(_userService, _cacheManager, _loggingService);
                 log.Info($"Get peerFeedbackReportJob = {peerFeedbackReportJob.ToJson()}");
-                var psfsReportBaseFolder = $@"{Server.MapPath(Constants.StaticFilesFolder)}\PeerFeedBack\Report";
+                //var psfsReportBaseFolder = $@"{Server.MapPath(_constants.StaticFilesFolder)}\PeerFeedBack\Report";
+                var psfsReportBaseFolder = Path.Combine(
+                        _env.ContentRootPath,
+                        _constants.StaticFilesFolder,
+                        "PeerFeedBack",
+                        "Report");
                 log.Info($"Get psfsReportBaseFolder = {psfsReportBaseFolder}");
                 HostingEnvironment.QueueBackgroundWorkItem(
                     ct => peerFeedbackReportJob.Run(
@@ -3177,7 +3198,7 @@ namespace eLearnApps.Controllers
                 log.Info("------ end ExportPeerFeedBackToExcel ------");
                 return Json(requestId);
             }
-            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            return BadRequest();
         }
 
         #region PREPARE DATA EXPORT
@@ -3265,7 +3286,12 @@ namespace eLearnApps.Controllers
                     fileName = $"{PeerFeedBackReportType.OverallMeanScoreResult}";
                     break;
             }
-            var path = $@"{Server.MapPath(Constants.StaticFilesFolder)}\PeerFeedBack\Report";
+            //var path = $@"{Server.MapPath(Constants.StaticFilesFolder)}\PeerFeedBack\Report";
+            var path = Path.Combine(
+                _env.ContentRootPath,
+                _constants.StaticFilesFolder,
+                "PeerFeedBack",
+                "Report");
             return $@"{path}\{fileName}_{groupBy}.xlsx";
         }
         private string GetPeerFeedBackDownloadFileName(ExportPeerFeedBackToExcelModel model)

@@ -67,6 +67,7 @@ namespace eLearnApps
             builder.Services.AddKeyedScoped(typeof(IRepository<>), "default", typeof(Repository<>));
             builder.Services.AddKeyedScoped(typeof(IRepository<>), "lms", typeof(LmsRepository<>));
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<eLearnApps.Extension.Extensions>();
             builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DataContext")));
             builder.Services.AddDbContext<LMSIsisContext>(options =>

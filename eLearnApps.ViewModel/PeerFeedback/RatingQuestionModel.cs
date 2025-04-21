@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Web.ModelBinding;
-using System.Web.Mvc;
-
-namespace eLearnApps.ViewModel.PeerFeedback
+﻿namespace eLearnApps.ViewModel.PeerFeedback
 {
     
     public class RatingQuestionModel
