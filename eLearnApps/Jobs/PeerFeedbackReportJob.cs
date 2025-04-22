@@ -5,6 +5,7 @@ using eLearnApps;
 using eLearnApps.Business.Interface;
 using eLearnApps.Core;
 using eLearnApps.Entity.Logging;
+using eLearnApps.Helpers;
 using eLearnApps.Models;
 using System.Configuration;
 using System.Data;
@@ -20,10 +21,12 @@ public class PeerFeedbackReportJob
     private string _baseReportFolderPath;
     private int _commandTimeoutInSeconds;
     private string _sqlConnectionString;
+    private readonly IServiceProvider _serviceProvider;
     private eLearnApps.Constants _constants;
     public PeerFeedbackReportJob(
         IServiceProvider serviceProvider)
     {
+        _serviceProvider = serviceProvider;
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         var constants = new eLearnApps.Constants(configuration);
         _constants = constants;
@@ -148,7 +151,7 @@ public class PeerFeedbackReportJob
         {
             // Send initial email to user
             // ----------------------------------------
-            var emailHelper = new EmailHelper(_userService, _loggingService, _cacheManager, _userInfo.UserId, 0);
+            var emailHelper = new EmailHelper(_serviceProvider, _userInfo.UserId, 0);
             var emailSubject = $"[Peer & Self Feedback] Acknowledgment of Report Processing Request - Reference ID: {requestId}";
             var emailTemplateAcknowledge = $"acknowledge_template.html";
             var emailBodyAcknowledge = emailHelper.GetEmailTemplate(emailTemplateAcknowledge);
@@ -214,7 +217,7 @@ public class PeerFeedbackReportJob
 
             // email with attachment
             // ----------------------------------------
-            emailHelper = new EmailHelper(_userService, _loggingService, _cacheManager, _userInfo.UserId, 0);
+            emailHelper = new EmailHelper(_serviceProvider, _userInfo.UserId, 0);
             emailSubject = $"[Peer & Self Feedback] Your Report is Ready for Download - Reference ID: {requestId}";
             var emailTemplate = $"report_ready_template.html";
             var emailBody = emailHelper.GetEmailTemplate(emailTemplate);
@@ -250,7 +253,7 @@ public class PeerFeedbackReportJob
         {
 
 
-            var emailHelper = new EmailHelper(_userService, _loggingService, _cacheManager, _userInfo.UserId, 0);
+            var emailHelper = new EmailHelper(_serviceProvider, _userInfo.UserId, 0);
             var emailSubject = $"Peer Feedback - Error generating report {peerFeedBackReportType} requested on {dateTimeNow} by {_userInfo.DisplayName} with request ID {requestId}";
             var emailTemplate = $"report_ready_template.html";
             var emailBody = $"Error processing your request to generate report {peerFeedBackReportType} requested on {dateTimeNow}.\n Error Message: {ex.Message} \n Error Stacktrace: {ex.StackTrace}";

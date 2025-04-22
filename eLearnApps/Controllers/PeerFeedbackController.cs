@@ -42,7 +42,7 @@ namespace eLearnApps.Controllers
         private readonly Constants _constants;
         private readonly Extensions _extensions;
         private readonly IWebHostEnvironment _env;
-
+        private readonly IServiceProvider _serviceProvider;
         #region CTOR
 
         public PeerFeedbackController(
@@ -79,6 +79,7 @@ namespace eLearnApps.Controllers
             _loggingService = loggingService;
             _auditService = auditService;
             _valenceService = valenceService;
+            _serviceProvider = serviceProvider;
             _env = env;
         }
 
@@ -3177,7 +3178,7 @@ namespace eLearnApps.Controllers
                 log.Info($"ExportPeerFeedBackToExcel logDetails {logDetails.ToJson()}");
                 log.Info($"Get Course by UserId, Session = {courses.ToJson()}");
                 var userInfo = UserInfo;
-                var peerFeedbackReportJob = new PeerFeedbackReportJob(_userService, _cacheManager, _loggingService);
+                var peerFeedbackReportJob = new PeerFeedbackReportJob(_serviceProvider);
                 log.Info($"Get peerFeedbackReportJob = {peerFeedbackReportJob.ToJson()}");
                 //var psfsReportBaseFolder = $@"{Server.MapPath(_constants.StaticFilesFolder)}\PeerFeedBack\Report";
                 var psfsReportBaseFolder = Path.Combine(

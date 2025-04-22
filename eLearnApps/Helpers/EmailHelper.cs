@@ -348,7 +348,7 @@ namespace eLearnApps.Helpers
                         Location = meeting.Location
                     };
                     var mailContent = Engine.Razor.RunCompile(template, Guid.NewGuid().ToString(), null, model);
-                    var subject = $"Invitation: {meeting.Title} @ {starttime}({Constants.Gmt8}) ({fromEmail})";
+                    var subject = $"Invitation: {meeting.Title} @ {starttime}({_constants.Gmt8}) ({fromEmail})";
                     await SendMailAsync(user?.EmailAddress, user?.DisplayName, fromEmail, fromName, subject,
                         mailContent);
                 }
@@ -397,7 +397,7 @@ namespace eLearnApps.Helpers
                 };
 
                 var subject =
-                    $"Meeting Canceled: {model.MeetingTitle} @ {starttime}({Constants.Gmt8}) ({owner.DisplayName})";
+                    $"Meeting Canceled: {model.MeetingTitle} @ {starttime}({_constants.Gmt8}) ({owner.DisplayName})";
                 model.Subject = subject;
                 model.HeadingDescription = $"{owner.DisplayName} has canceled this meeting.";
                 lstTemplate.Add(model);
@@ -449,7 +449,7 @@ namespace eLearnApps.Helpers
                     AttendeesName = new List<string>()
                 };
 
-                var subject = $"Canceled: {model.MeetingTitle} @ {starttime}({Constants.Gmt8}) ({owner.DisplayName})";
+                var subject = $"Canceled: {model.MeetingTitle} @ {starttime}({_constants.Gmt8}) ({owner.DisplayName})";
                 model.Subject = subject;
                 model.HeadingDescription = $"{user.DisplayName} has Canceled this meeting";
                 var mailContent = Engine.Razor.RunCompile(template, Guid.NewGuid().ToString(), null, model);
@@ -521,7 +521,7 @@ namespace eLearnApps.Helpers
                         {
                             // for user who was removed from meeting
                             var subject =
-                                $"Canceled: {template.MeetingTitle} @ {starttime}({Constants.Gmt8}) ({owner.DisplayName})";
+                                $"Canceled: {template.MeetingTitle} @ {starttime}({_constants.Gmt8}) ({owner.DisplayName})";
                             template.InviteUserStatus = (int)InviteUserStatus.Remove;
                             template.Subject = subject;
                             template.HeadingDescription = $"{owner.DisplayName} has Canceled this meeting";
@@ -529,7 +529,7 @@ namespace eLearnApps.Helpers
                         else
                         {
                             var subject =
-                                $"Updated invitation: {template.MeetingTitle} @ {starttime}({Constants.Gmt8}) ({owner.DisplayName})";
+                                $"Updated invitation: {template.MeetingTitle} @ {starttime}({_constants.Gmt8}) ({owner.DisplayName})";
                             template.InviteUserStatus = (int)InviteUserStatus.Modified;
                             template.Subject = subject;
                             var hyperLink = $"{_constants.LinkInvite}?SecretKey={newItem.SecretKey}";
