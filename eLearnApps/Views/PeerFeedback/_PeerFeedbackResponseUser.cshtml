@@ -1,8 +1,16 @@
-﻿@using Newtonsoft.Json
-@using eLearnApps.Models
+﻿@using eLearnApps.Models
+@using System.Text.Json;
 @model eLearnApps.ViewModel.PeerFeedback.PeerFeedbackResponseViewModel
+@inject IConfiguration Configuration
 @{
-    var userModel = (UserModel)Session[Constants.SessionUserKey];
+    var constants = new Constants(Configuration);
+    var sessionData = Context.Session.GetString(constants.SessionUserKey);
+    UserModel? userModel = null;
+    if (!string.IsNullOrEmpty(sessionData))
+    {
+        userModel = JsonSerializer.Deserialize<UserModel>(sessionData);
+    }
+
 }
 <input type="hidden" name="Response.PeerFeedBackId" value="@Model.PeerFeedBackId" />
 <input type="hidden" name="Response.PeerFeedBackPairingId" value="@Model.PeerFeedBackPairingId" />
@@ -10,7 +18,9 @@
 <input type="hidden" name="Response.PeerFeedBackGroupId" value="@Model.PeerFeedBackGroupId" />
 <input type="hidden" name="Response.CourseId" value="@Model.CourseId" />
 <input type="hidden" name="Response.PeerFeedBackKey" value="@Model.PeerFeedBackKey" />
-@{ var closed = Model.EndTime < DateTime.UtcNow; }
+@{
+    var closed = Model.EndTime < DateTime.UtcNow;
+}
 <div class="row" id="rowWarning">
     <div class="col-xl-12">
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -112,7 +122,7 @@
                                                                                value="@rating.Id"
                                                                                name="Response.Users[@idx].Questions[@i].rt[@i]"
                                                                                onchange="handleChangeOption(this)"
-                                                                               @(closed ? "disabled" : "") />
+                                                                        @(closed ? "disabled" : "") />
 
                                                                         <label class="form-check-label" for="rdb_@(id)">
                                                                             @if (rating.Name.ToLower().Contains("meeting"))
@@ -188,7 +198,7 @@
                                                                                    data-rating-question="@option.RatingQuestionId"
                                                                                    id="ratingOption_@(id)"
                                                                                    type="checkbox"
-                                                                                   @(isChecked ? "checked" : "")
+                                                                            @(isChecked ? "checked" : "")
                                                                                    name="Response.Users[@idx].Questions[@i].Ratings[@i].Options[@j].Checked"
                                                                                    onchange="setOptionValue(this)"
                                                                                    data-rating-option-group="@ratingOptionGroup"
@@ -213,7 +223,7 @@
                                     <textarea name="Response.Users[@idx].Remark.Remarks" value="@(remark)" type="text" class="form-control remark-users" rows="3" maxlength="450" id="Remark_@(idx)">@(remark)</textarea>
                                     <input type="hidden" name="Response.Users[@idx].Remark.TargetUserId" value="@Model.Users[idx].UserId" />
                                     <input type="hidden" name="Response.Users[@idx].Remark.Id" value="@(remarkId)" />
-                                    <p><span class="current-count" style="font-size:smaller; color:gray; font-style:italic;" >0</span></p>
+                                    <p><span class="current-count" style="font-size:smaller; color:gray; font-style:italic;">0</span></p>
                                 </div>
                             </div>
                         </li>
@@ -249,10 +259,10 @@
                 $(this).prop('checked', true);
                 $(this).trigger('change');
             }
-            @if (closed)
-            {
-                @:$(this).prop("disabled", true);
-            }
+    @if (closed)
+    {
+        @:$(this).prop("disabled", true);
+    }
         });
         $(".col-auto").each(function () {
             //select the elements we need inside of this wrapper
@@ -264,7 +274,7 @@
                 var maxlength = $(this).attr("maxlength");
                 var currentLength = $(this).val().length;
 
-                if (currentLength == 0) { 
+                if (currentLength == 0) {
                     countEl.text("* You can enter up to 450 characters.")
                 }
                 else if (currentLength >= maxlength) {

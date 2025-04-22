@@ -7,19 +7,28 @@ using System.Text;
 
 namespace eLearnApps.Extension
 {
-    public static class StringExtensions
+    public class StringExtensions
     {
-        private static readonly HashSet<char> DefaultNonWordCharacters = new HashSet<char> {' ', '.', ',', ';', ':'};
-        private static readonly string EncryptNRICDelimitter = "||";
-        private static readonly int EncryptNRICElapseMinutesThreshold = 5;
-
-        public static bool IsNullOrEmpty(this string value)
+        private readonly Constants _constants;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly Extensions _extensions;
+        public StringExtensions(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+            var configuration = _serviceProvider.GetService<IConfiguration>();
+            _extensions = new Extensions(serviceProvider);
+            _constants = new Constants(configuration);
+        }
+        private static readonly HashSet<char> _defaultNonWordCharacters = new HashSet<char> { ' ', '.', ',', ';', ':' };
+        private static readonly string _encryptNRICDelimitter = "||";
+        private static readonly int _encryptNRICElapseMinutesThreshold = 5;
+        public bool IsNullOrEmpty(string value)
         {
             return string.IsNullOrEmpty(value);
         }
 
-        public static string CropWholeWords(
-            this string value,
+        public string CropWholeWords(
+             string value,
             int length,
             HashSet<char> nonWordCharacters = null)
         {
@@ -27,14 +36,14 @@ namespace eLearnApps.Extension
 
             if (length < 0) throw new ArgumentException(@"Negative values not allowed.", "length");
 
-            if (nonWordCharacters == null) nonWordCharacters = DefaultNonWordCharacters;
+            if (nonWordCharacters == null) nonWordCharacters = _defaultNonWordCharacters;
 
             if (length >= value.Length) return value;
             var end = length;
 
             for (var i = end; i > 0; i--)
             {
-                if (value[i].IsWhitespace()) break;
+                if (IsWhitespace(value[i])) break;
 
                 if (nonWordCharacters.Contains(value[i])
                     && (value.Length == i + 1 || value[i + 1] == ' '))
@@ -54,13 +63,13 @@ namespace eLearnApps.Extension
             return value.Substring(0, end);
         }
 
-        private static bool IsWhitespace(this char character)
+        private bool IsWhitespace(char character)
         {
             return character == ' ' || character == 'n' || character == 't';
         }
-        public static string NricEncrypt(this string plainText)
+        public string NricEncrypt(string plainText)
         {
-            if(string.IsNullOrEmpty(plainText)) return string.Empty;
+            if (string.IsNullOrEmpty(plainText)) return string.Empty;
 
             try
             {
@@ -68,28 +77,28 @@ namespace eLearnApps.Extension
                 int iRnum = rand.Next(0, 15);
                 string hexValue = iRnum.ToString("X");
 
-                char keyByIdx = Constants.PhotoKey[iRnum];
-                string original = $"{iRnum}{EncryptNRICDelimitter}{plainText}{EncryptNRICDelimitter}{DateTime.UtcNow.ToString("ddMMyyyyHHmm")}";
-                return $"{hexValue}{original.ToEncrypt(keyByIdx.ToString())}";
+                char keyByIdx = _constants.PhotoKey[iRnum];
+                string original = $"{iRnum}{_encryptNRICDelimitter}{plainText}{_encryptNRICDelimitter}{DateTime.UtcNow.ToString("ddMMyyyyHHmm")}";
+                return $"{hexValue}{_extensions.ToEncrypt(original, keyByIdx.ToString())}";
             }
             catch
             {
                 return string.Empty;
             }
         }
-        public static string NricDecrypt(this string encrypted)
+        public string NricDecrypt(string encrypted)
         {
-            if(string.IsNullOrEmpty(encrypted)) return string.Empty;
+            if (string.IsNullOrEmpty(encrypted)) return string.Empty;
 
             try
             {
                 var hexValue = encrypted[0].ToString();
                 int iRnum = int.Parse(hexValue, System.Globalization.NumberStyles.HexNumber);
-                char keyByIdx = Constants.PhotoKey[iRnum];
-                var original = encrypted.Substring(1).ToDecrypt(keyByIdx.ToString());
+                char keyByIdx = _constants.PhotoKey[iRnum];
+                var original = _extensions.ToDecrypt(encrypted.Substring(1), keyByIdx.ToString());
 
                 // decrypted text must contains 2 tokens
-                var arr = original.Split(new string[] { EncryptNRICDelimitter }, StringSplitOptions.None);
+                var arr = original.Split(new string[] { _encryptNRICDelimitter }, StringSplitOptions.None);
                 // incorrect data passed in, return empty string
                 if (arr.Length != 3) return string.Empty;
                 var decryptedKeyIndex = arr[0];
@@ -97,15 +106,15 @@ namespace eLearnApps.Extension
                 var timeStamp = arr[2];
 
                 // plain key idx and encrypted key idx must match
-                if (iRnum.ToString() != decryptedKeyIndex) 
+                if (iRnum.ToString() != decryptedKeyIndex)
                     return string.Empty;
 
                 // time stamp must be of exact format and cannot be older than 5 mins
-                if(DateTime.TryParseExact(timeStamp, "ddMMyyyyHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+                if (DateTime.TryParseExact(timeStamp, "ddMMyyyyHHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
                 {
                     // only return decrypted nric when elapse minutes is less than threshold
                     var elapseMinutes = (DateTime.UtcNow - dt).TotalMinutes;
-                    if (elapseMinutes < EncryptNRICElapseMinutesThreshold) return nric;
+                    if (elapseMinutes < _encryptNRICElapseMinutesThreshold) return nric;
                 }
 
                 return string.Empty;
@@ -116,7 +125,7 @@ namespace eLearnApps.Extension
             }
 
         }
-        public static string ToCsv<T>(this IEnumerable<T> collection)
+        public string ToCsv<T>(IEnumerable<T> collection)
         {
             using (var memoryStream = new MemoryStream())
             {
