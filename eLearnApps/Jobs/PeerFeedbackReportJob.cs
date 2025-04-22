@@ -17,19 +17,22 @@ public class PeerFeedbackReportJob
     private IUserService _userService;
     private ICacheManager _cacheManager;
     private ILoggingService _loggingService;
-    private string _baseReportFolderPath = ConfigurationManager.AppSettings["PeerFeedbackReportBaseFolderPath"];
-    private int commandTimeoutInSeconds = eLearnApps.Constants.PeerFeedbackReportQueryTimeout;
-    private string _sqlConnectionString = ConfigurationManager.ConnectionStrings["DataContext"].ConnectionString;
-
+    private string _baseReportFolderPath;
+    private int _commandTimeoutInSeconds;
+    private string _sqlConnectionString;
+    private eLearnApps.Constants _constants;
     public PeerFeedbackReportJob(
-        IUserService userService,
-        ICacheManager cacheManager,
-        ILoggingService loggingService)
+        IServiceProvider serviceProvider)
     {
-        var lifetimeScope = AutofacDependencyResolver.Current.ApplicationContainer.BeginLifetimeScope("AutofacWebRequest");
-        _userService = lifetimeScope.Resolve<IUserService>();
-        _loggingService = lifetimeScope.Resolve<ILoggingService>();
-        _cacheManager = lifetimeScope.Resolve<ICacheManager>();
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        var constants = new eLearnApps.Constants(configuration);
+        _constants = constants;
+        _baseReportFolderPath = configuration.GetValue<string>("PeerFeedbackReportBaseFolderPath") ?? "";
+        _commandTimeoutInSeconds = constants.PeerFeedbackReportQueryTimeout;
+        _sqlConnectionString = configuration.GetValue<string>("DataContext") ?? "";
+        _userService = serviceProvider.GetRequiredService<IUserService>();
+        _loggingService = serviceProvider.GetRequiredService<ILoggingService>();
+        _cacheManager = serviceProvider.GetRequiredService<ICacheManager>();
     }
 
     public async Task Run(
@@ -51,7 +54,7 @@ public class PeerFeedbackReportJob
         var dateTimeNow = DateTime.Now;
 
         // admin list
-        var peerFeedbackAdminListCsv = eLearnApps.Constants.PeerFeedbackAdmins;
+        var peerFeedbackAdminListCsv = _constants.PeerFeedbackAdmins;
         var peerFeedbackAdminEmails = new List<string>();
 
         string reportNameType = string.Empty;
@@ -162,8 +165,8 @@ public class PeerFeedbackReportJob
             var isInitialMailSent = emailHelper.SendMail(
                 toEmailAddress,
                 toName,
-                eLearnApps.Constants.SystemMailAddress,
-                eLearnApps.Constants.SystemMailName,
+                _constants.SystemMailAddress,
+                _constants.SystemMailName,
                 emailSubject,
                 emailBodyAcknowledge,
                 true);
@@ -230,8 +233,8 @@ public class PeerFeedbackReportJob
                 ToolName.Psfs,
                 toEmailAddress,
                 toName,
-                eLearnApps.Constants.SystemMailAddress,
-                eLearnApps.Constants.SystemMailName,
+                _constants.SystemMailAddress,
+                _constants.SystemMailName,
                 emailSubject,
                 emailBody,
                 attachment,
@@ -267,8 +270,8 @@ public class PeerFeedbackReportJob
 
             emailHelper.SendMailMultiple(
                 peerFeedbackAdminEmails,
-                eLearnApps.Constants.SystemMailAddress,
-                eLearnApps.Constants.SystemMailName,
+                _constants.SystemMailAddress,
+                _constants.SystemMailName,
                 emailSubject,
                 emailBody,
                 false);
@@ -281,7 +284,7 @@ public class PeerFeedbackReportJob
 
     public void ExportToExcel(DataSet reportData, string filePath)
     {
-        IEnumerable<string> percentageColumns = eLearnApps.Constants.ReportPercentageColumns.Split(',');
+        IEnumerable<string> percentageColumns = _constants.ReportPercentageColumns.Split(',');
         using (var workbook = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
         {
             var workbookPart = workbook.AddWorkbookPart();
@@ -303,7 +306,7 @@ public class PeerFeedbackReportJob
 
             foreach (DataColumn column in reportData.Tables[0].Columns)
             {
-                if (eLearnApps.Constants.ReportHideColumns.IndexOf(column.ColumnName, StringComparison.OrdinalIgnoreCase) > -1) continue;
+                if (_constants.ReportHideColumns.IndexOf(column.ColumnName, StringComparison.OrdinalIgnoreCase) > -1) continue;
 
                 var percentageSuffix = column.ColumnName.IndexOf("Percentage", StringComparison.OrdinalIgnoreCase) > -1 || percentageColumns.Contains(column.ColumnName) ? " (%)" : string.Empty;
                 var columnName = $"{column.ColumnName}{percentageSuffix}";
@@ -320,7 +323,7 @@ public class PeerFeedbackReportJob
                 var newRow = new Row();
                 foreach (DataColumn column in reportData.Tables[0].Columns)
                 {
-                    if (eLearnApps.Constants.ReportHideColumns.IndexOf(column.ColumnName, StringComparison.OrdinalIgnoreCase) > -1) continue;
+                    if (_constants.ReportHideColumns.IndexOf(column.ColumnName, StringComparison.OrdinalIgnoreCase) > -1) continue;
 
                     var data = row[column].ToString();
                     if (data.Contains("%"))
@@ -414,7 +417,7 @@ public class PeerFeedbackReportJob
             {
                 using (var sda = new SqlDataAdapter(cmd))
                 {
-                    cmd.CommandTimeout = commandTimeoutInSeconds;
+                    cmd.CommandTimeout = _commandTimeoutInSeconds;
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.AddWithValue("@SessionIds", string.Join(",", sessions));
