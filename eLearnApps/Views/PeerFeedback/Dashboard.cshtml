@@ -1,9 +1,10 @@
 ﻿@using eLearnApps.Core.Extension
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewBag.Title = "Peer and Self Feedback Dashboard";
     ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
-    var httpContextBase = new HttpContextWrapper(HttpContext.Current) as HttpContextBase;
-    var loggedUserInfo = httpContextBase.GetLoggedInUserInfo();
+    var httpContext = HttpContextAccessor.HttpContext;
+    var loggedUserInfo = httpContext?.GetLoggedInUserInfo();
 }
 <style>
     .card {
