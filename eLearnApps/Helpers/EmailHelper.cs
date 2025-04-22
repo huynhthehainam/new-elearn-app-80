@@ -7,10 +7,68 @@ using eLearnApps.Extension;
 using eLearnApps.Models;
 using eLearnApps.ViewModel.FFTS;
 using eLearnApps.ViewModel.Logging;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc;
 using Encoding = System.Text.Encoding;
 
 namespace eLearnApps.Helpers
 {
+    public interface IViewRenderService
+    {
+        Task<string> RenderToStringAsync(string viewName, object model);
+    }
+
+    public class ViewRenderService : IViewRenderService
+    {
+        private readonly IRazorViewEngine _viewEngine;
+        private readonly ITempDataProvider _tempDataProvider;
+        private readonly IServiceProvider _serviceProvider;
+
+        public ViewRenderService(
+            IRazorViewEngine viewEngine,
+            ITempDataProvider tempDataProvider,
+            IServiceProvider serviceProvider)
+        {
+            _viewEngine = viewEngine;
+            _tempDataProvider = tempDataProvider;
+            _serviceProvider = serviceProvider;
+        }
+
+        public async Task<string> RenderToStringAsync(string viewName, object model)
+        {
+            var httpContext = new DefaultHttpContext { RequestServices = _serviceProvider };
+            var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
+
+            var viewResult = _viewEngine.FindView(actionContext, viewName, isMainPage: false);
+            if (!viewResult.Success)
+            {
+                throw new InvalidOperationException($"Couldn't find view '{viewName}'");
+            }
+
+            var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+            {
+                Model = model
+            };
+
+            await using var sw = new StringWriter();
+            var viewContext = new ViewContext(
+                actionContext,
+                viewResult.View,
+                viewData,
+                new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
+                sw,
+                new HtmlHelperOptions()
+            );
+
+            await viewResult.View.RenderAsync(viewContext);
+            return sw.ToString();
+        }
+    }
+
     public class EmailHelper : IEmailHelper
     {
         private readonly SmtpClient _client;
@@ -20,12 +78,16 @@ namespace eLearnApps.Helpers
         private LoggingModel? _loggingModel;
         private readonly int _courseId;
         private readonly Constants _constants;
+        private readonly IServiceProvider _serviceProvider;
+        private IViewRenderService _viewRenderService;
 
         public EmailHelper(IServiceProvider serviceProvider,
             int userId, int courseId)
         {
+            _serviceProvider = serviceProvider;
             _userService = serviceProvider.GetRequiredService<IUserService>();
             _loggingService = serviceProvider.GetRequiredService<ILoggingService>();
+            _viewRenderService = serviceProvider.GetRequiredService<IViewRenderService>();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             _constants = new Constants(configuration);
             var cacheManager = serviceProvider.GetRequiredService<ICacheManager>();
@@ -231,7 +293,7 @@ namespace eLearnApps.Helpers
         }
 
 
-        public async void SendMailInviteRespondedAlert(Meeting meeting, int attendeeId,
+        public async Task SendMailInviteRespondedAlert(Meeting meeting, int attendeeId,
             List<MeetingAttendee> lstAttendees,
             InviteResponseType responseType, string rootPath)
         {
@@ -302,11 +364,11 @@ namespace eLearnApps.Helpers
                     break;
             }
 
-            var mailContent = Engine.Razor.RunCompile(template, Guid.NewGuid().ToString(), null, model);
+            var mailContent = await _viewRenderService.RenderToStringAsync(template, model);
             await SendMailAsync(owner.EmailAddress, owner.DisplayName, fromEmail, fromName, subject, mailContent);
         }
 
-        public async void SendMailInvite(Meeting meeting,
+        public async Task SendMailInvite(Meeting meeting,
             List<MeetingAttendee> lstAttendees, string rootPath)
         {
             var fullFileName = $"{rootPath}/Views/Ffts/_MailInviteeTemplate.cshtml";
@@ -347,7 +409,7 @@ namespace eLearnApps.Helpers
                         InviteUserStatus = (int)InviteUserStatus.New,
                         Location = meeting.Location
                     };
-                    var mailContent = Engine.Razor.RunCompile(template, Guid.NewGuid().ToString(), null, model);
+                    var mailContent = await _viewRenderService.RenderToStringAsync(template, model);
                     var subject = $"Invitation: {meeting.Title} @ {starttime}({_constants.Gmt8}) ({fromEmail})";
                     await SendMailAsync(user?.EmailAddress, user?.DisplayName, fromEmail, fromName, subject,
                         mailContent);
@@ -361,7 +423,7 @@ namespace eLearnApps.Helpers
         /// <param name="meeting"></param>
         /// <param name="attendee"></param>
         /// <param name="rootPath"></param>
-        public async void SendMailCancel(Meeting meeting, List<MeetingAttendee> attendee, string rootPath)
+        public async Task SendMailCancel(Meeting meeting, List<MeetingAttendee> attendee, string rootPath)
         {
             var lstTemplate = new List<TemplateViewModel>();
             var fullFileName = $"{rootPath}/Views/Ffts/_MailInviteeTemplateChange.cshtml";
@@ -407,7 +469,8 @@ namespace eLearnApps.Helpers
             for (var i = 0; i < count; i++)
             {
                 var item = lstTemplate[i];
-                var mailContent = Engine.Razor.RunCompile(templateMail, Guid.NewGuid().ToString(), null, item);
+                var mailContent = await _viewRenderService.RenderToStringAsync(templateMail, item);
+
                 await SendMailAsync(item.ToMailAddress, item.ToName, fromEmail, fromName, item.Subject,
                     mailContent);
             }
@@ -419,7 +482,7 @@ namespace eLearnApps.Helpers
         /// <param name="meeting"></param>
         /// <param name="attendee"></param>
         /// <param name="rootPath"></param>
-        public async void SendMailCancel(Meeting meeting, MeetingAttendee attendee, string rootPath)
+        public async Task SendMailCancel(Meeting meeting, MeetingAttendee attendee, string rootPath)
         {
             var fullFileName = $"{rootPath}/Views/Ffts/_MailInviteeTemplateChange.cshtml";
             var template = File.ReadAllText(fullFileName);
@@ -452,7 +515,7 @@ namespace eLearnApps.Helpers
                 var subject = $"Canceled: {model.MeetingTitle} @ {starttime}({_constants.Gmt8}) ({owner.DisplayName})";
                 model.Subject = subject;
                 model.HeadingDescription = $"{user.DisplayName} has Canceled this meeting";
-                var mailContent = Engine.Razor.RunCompile(template, Guid.NewGuid().ToString(), null, model);
+                var mailContent = await _viewRenderService.RenderToStringAsync(template, model);
                 await SendMailAsync(owner.EmailAddress, owner.DisplayName, fromEmail, fromName, subject, mailContent);
             }
         }
@@ -465,7 +528,7 @@ namespace eLearnApps.Helpers
         /// <param name="newMeeting"></param>
         /// <param name="lstNewAttendees"></param>
         /// <param name="rootPath"></param>
-        public async void SendMailInvite(Meeting originalMeeting, List<MeetingAttendee> lstOriginalAttendees,
+        public async Task SendMailInvite(Meeting originalMeeting, List<MeetingAttendee> lstOriginalAttendees,
             Meeting newMeeting, List<MeetingAttendee> lstNewAttendees, string rootPath)
         {
             try
@@ -594,7 +657,7 @@ namespace eLearnApps.Helpers
                 for (var i = 0; i < count; i++)
                 {
                     var item = lstTemplate[i];
-                    var mailContent = Engine.Razor.RunCompile(templateMail, Guid.NewGuid().ToString(), null, item);
+                    var mailContent = await _viewRenderService.RenderToStringAsync(templateMail, item);
                     await SendMailAsync(item.ToMailAddress, item.ToName, fromEmail, fromName, item.Subject,
                         mailContent);
                 }
@@ -670,7 +733,7 @@ namespace eLearnApps.Helpers
             mMailMessage.IsBodyHtml = isBodyHtml;
             return mMailMessage;
         }
-        public async void SendMailNotifyGradeReleaseUpdate(string content,
+        public async Task SendMailNotifyGradeReleaseUpdate(string content,
             List<UserModel> users)
         {
             var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(_constants.SingaporeStandardTime);
@@ -701,8 +764,9 @@ namespace eLearnApps.Helpers
 
         public string GetEmailTemplate(string templateFileName)
         {
+            var env = _serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
-            var path = $"{CommonHelper.MapPath(_constants.StaticFilesFolder)}/Templates/Email";
+            var path = $"{CommonHelper.MapPath(_constants.StaticFilesFolder, env.ContentRootPath)}/Templates/Email";
 
             var fullFilePath = $"{path}" + Path.DirectorySeparatorChar + $"{templateFileName}";
             if (File.Exists(fullFilePath))

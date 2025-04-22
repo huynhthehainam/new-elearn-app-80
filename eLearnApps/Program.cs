@@ -4,6 +4,7 @@ using eLearnApps.Business.Interface;
 using eLearnApps.Core.Caching;
 using eLearnApps.Data;
 using eLearnApps.Data.Interface;
+using eLearnApps.Helpers;
 using eLearnApps.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +60,7 @@ namespace eLearnApps
             builder.Services.AddScoped<IIcsService, IcsService>();
             builder.Services.AddScoped<IAttendanceDataService, AttendanceDataService>();
             builder.Services.AddScoped<ICmtService, CmtService>();
+            builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
 
             builder.Services.AddScoped<IValenceService, ValenceService>();
 
