@@ -1,0 +1,149 @@
+﻿@using System.Text.Json
+@using eLearnApps.Models
+@using helpers = eLearnApps.Helpers
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration Configuration
+
+@{
+    var httpContext = HttpContextAccessor.HttpContext;
+    var constants = new Constants(Configuration);
+    var action = httpContext?.GetRouteData()?.Values["action"]?.ToString();
+    var sessionData = Context.Session.GetString(constants.SessionUserKey);
+    UserModel? userModel = null;
+    if (!string.IsNullOrEmpty(sessionData))
+    {
+        userModel = JsonSerializer.Deserialize<UserModel>(sessionData);
+    }
+}
+<div class="sidebar">
+    <form>
+        <nav class="sidebar-nav">
+            <ul class="nav" id="leftMenu">
+                @if (userModel.HasAdmin || userModel.IsInstructor)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" tag="#Dashboard" href="@Url.Action("Dashboard", "PeerFeedback")">
+                            <i class="nav-icon icon-speedometer"></i>Dashboard
+                        </a>
+                    </li>
+                    if (userModel.HasAdmin)
+                    {
+                        if (constants.ShowRatingConfigPage == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" tag="#Rating" href="@Url.Action("Rating", "PeerFeedback")">
+                                    <i class="nav-icon fa fa-star"></i> Rating Q&A
+                                </a>
+                            </li>
+                        }
+                        if (constants.ShowQuestionConfigPage == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" tag="#Question" href="@Url.Action("Question", "PeerFeedback")">
+                                    <i class="nav-icon fa fa-question"></i> Question
+                                </a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link" tag="#Manage" href="@Url.Action("ManagePeerFeedback", "PeerFeedback")">
+                                <i class="nav-icon fa fa-list"></i> Manage Peer Feedback
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" tag="#GroupReadiness" href="@Url.Action("GroupReadiness", "PeerFeedback")">
+                                <i class="nav-icon fa fa-users"></i> Group Readiness
+                            </a>
+                        </li>
+                    }
+                }
+
+                @if (userModel.IsStudent && !userModel.HasAdmin && !userModel.IsInstructor)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" tag="#PeerFeedback" href="@Url.Action("PeerFeedback", "PeerFeedback")">
+                            <i class="nav-icon fa fa-book"></i> Peer Feedback
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a tag="#Result" id="studentResultPage" class="nav-link @(string.Equals(action, "PeerFeedbackResult", StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty)" href="@Url.Action("PeerFeedbackResult", "PeerFeedback")">
+                            <i class="nav-icon fa fa-graduation-cap"></i> Results
+                        </a>
+                    </li>
+                }
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#" tag="toggle">
+                        <i class="nav-icon icon-arrow-right"></i> Expand Menu
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </form>
+</div>
+<script type="text/javascript">
+
+    $(function() {
+        const targetAction = window.location.hash;
+        if (targetAction === "") {
+            navigateToFirst();
+        } else {
+            const current = location.href;
+            // onload search for link that match tag
+            const link = $(`#leftMenu li a[tag='${targetAction}']`);
+            if (link) {
+                // remove current active highlight
+                $("a.nav-link").removeClass("active");
+                // highlight selected item
+                $(link).addClass("active");
+                window.location.hash = targetAction;
+                // navigate to selected item
+                const url = $(link).attr("href");
+                Navigate(url);
+            } else {
+                navigateToFirst();
+            }
+        }
+
+        function navigateToFirst() {
+            // go to first element if no hash tag
+            const first = $("#leftMenu li a.nav-link").first();
+            // update UI
+            $("a.nav-link").removeClass("active");
+            first.addClass("active");
+            // update url tag
+            window.location.hash = first.attr("tag");
+            // show content by ajax in main body
+            Navigate(first.attr("href"));
+        }
+
+        $("#leftMenu li a.nav-link").click(function(e) {
+            e.preventDefault();
+            const url = $(this).attr("href");
+            const tag = $(this).attr("tag");
+            if (tag == "toggle") {
+                const minimizedClass = "sidebar-minimized";
+                if ($("body").hasClass(minimizedClass)) {
+                    $("body").removeClass(minimizedClass);
+                    $(this).html("<i class='nav-icon icon-arrow-left'></i>Minimize Menu");
+                } else {
+                    $("body").addClass(minimizedClass);
+                    $(this).html("<i class='nav-icon icon-arrow-right'></i>Expand Menu");
+                }
+            } else {
+                $("a.nav-link").removeClass("active");
+                $(this).addClass("active");
+                window.location.hash = tag;
+                Navigate(url);
+            }
+        });
+
+        function Navigate(url) {
+            window.kendo.ui.progress($('body'), true);
+            $("#main").html('');
+            createPostRequest(url).then(function(response) {
+                $("#main").html(response);
+                window.kendo.ui.progress($('body'), false);
+            });
+        }
+    });
+</script>
