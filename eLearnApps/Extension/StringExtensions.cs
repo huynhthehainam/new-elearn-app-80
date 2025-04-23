@@ -15,7 +15,7 @@ namespace eLearnApps.Extension
         public StringExtensions(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            var configuration = _serviceProvider.GetService<IConfiguration>();
+            var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
             _extensions = new Extensions(serviceProvider);
             _constants = new Constants(configuration);
         }

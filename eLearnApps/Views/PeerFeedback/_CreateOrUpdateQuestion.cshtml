@@ -1,5 +1,5 @@
 ﻿@model eLearnApps.ViewModel.PeerFeedback.PeerFeedbackQuestionViewModel
-
+@using System.Net
 <style>
     .k-link-date { display: unset; }
 
@@ -48,12 +48,19 @@
                             <ul id="editForm" class="fieldlist">
                                 <li>
                                     <label for="txtTitle">Title:</label>
-                                    <input id="txtTitle" type="text" name="title" spellcheck="true" value="@(HttpUtility.HtmlDecode(Model.Title))" class="k-textbox" style="width: 100%;" maxlength="200"/>
+                                    <input id="txtTitle"
+                                           type="text"
+                                           name="title"
+                                           spellcheck="true"
+                                           value="@WebUtility.HtmlDecode(Model.Title)"
+                                           class="k-textbox"
+                                           style="width: 100%;"
+                                           maxlength="200" />
                                     <small>Please enter not more than 200 characters for title.</small><small class="float-right"><span id="wordCountTitle">0</span> / 200</small>
                                 </li>
                                 <li>
                                     <label for="txtDescription">Description:</label>
-                                    <textarea id="txtDescription" rows="5" spellcheck="true" class="k-textbox" style="width: 100%;" maxlength="500">@Html.Raw(HttpUtility.HtmlDecode(Model.Description))</textarea>
+                                    <textarea id="txtDescription" rows="5" spellcheck="true" class="k-textbox" style="width: 100%;" maxlength="500">@Html.Raw(WebUtility.HtmlDecode(Model.Description))</textarea>
                                     <small>Please enter not more than 500 characters for description.</small><small class="float-right"><span id="wordCount">0</span> / 500</small>
                                 </li>
 

@@ -61,6 +61,7 @@ namespace eLearnApps
             builder.Services.AddScoped<IAttendanceDataService, AttendanceDataService>();
             builder.Services.AddScoped<ICmtService, CmtService>();
             builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
+            builder.Services.AddScoped<IPeerFeedbackService, PeerFeedbackService>();
 
             builder.Services.AddScoped<IValenceService, ValenceService>();
 

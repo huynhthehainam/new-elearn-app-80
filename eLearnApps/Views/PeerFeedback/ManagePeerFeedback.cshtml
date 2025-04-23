@@ -1,6 +1,8 @@
-﻿@{
+﻿@inject IConfiguration Configuration
+@{
     ViewBag.Title = "Peer and Self Feedback Tool";
     ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+    var constants = new Constants(Configuration);
 }
 <style>
     .k-grid tbody .k-grid-delete {
@@ -85,7 +87,7 @@
                     schema: {
                         data: () => response.Data, total: () => response.Total, errors: () => response.Errors
                     },
-                    pageSize: @(Constants.PageSize),
+                    pageSize: @(constants.PageSize),
                     serverSorting: false
                 });
                 grid.setDataSource(source);

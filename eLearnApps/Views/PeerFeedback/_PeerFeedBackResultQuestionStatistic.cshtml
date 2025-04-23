@@ -29,7 +29,11 @@
                             <button type="button" class="btn btn-lg btn-block k-primary k-button" data-toggle="modal" data-target="#staticBackdrop-@Model.ResourceId">
                                  View Recommended Resources
                             </button>
-                            @Html.Action("SelfDirectedLearningResources", "PeerFeedback", new { ResourceId = Model.ResourceId, questionTitle = Model.QuestionTitle })
+                            @await Component.InvokeAsync("SelfDirectedLearningResources", new
+                                {
+                                    resourceId = Model.ResourceId,
+                                    questionTitle = Model.QuestionTitle
+                                })
                         </div>
                     </div>
                 }

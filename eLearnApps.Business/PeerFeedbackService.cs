@@ -9,6 +9,7 @@ using eLearnApps.Entity.LmsIsis.Dto;
 using eLearnApps.Entity.LmsTools;
 using eLearnApps.Entity.LmsTools.Dto;
 using eLearnApps.ViewModel.RPT;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -53,59 +54,40 @@ namespace eLearnApps.Business
         private readonly ICategoryGroupDao _categoryGroupDao;
         private readonly IRepository<PS_SIS_LMS_CLASS_V> _repositoryPS_SIS_LMS_CLASS_V;
 
-        public PeerFeedbackService(IRepository<PeerFeedbackRatingQuestion> repositoryPeerFeedbackRatingQuestion,
-            IRepository<PeerFeedbackRatingOption> repositoryPeerFeedbackRatingOption,
-            IRepository<PeerFeedbackQuestion> repositoryPeerFeedbackQuestion,
-            IRepository<PeerFeedbackQuestionRatingMap> repositoryPeerFeedbackQuestionRatingMap,
-            IRepository<PeerFeedback> repositoryPeerFeedback,
-            IRepository<PeerFeedbackSessions> repositoryPeerFeedbackSessions,
-            IRepository<PeerFeedbackEvaluators> repositoryPeerFeedbackEvaluators,
-            IRepository<PeerFeedbackPairings> repositoryPeerFeedbackPairings,
-            IRepository<PeerFeedbackTargets> repositoryPeerFeedbackTargets,
-            IRepository<PeerFeedbackQuestionMap> repositoryPeerFeedbackQuestionMap,
-            IRepository<UserEnrollment> userEnrollmentRepository,
-            IRepository<User> userRepository,
-            IRepository<UserGroup> userGroupRepository,
-            IRepository<CategoryGroup> categoryGroupRepository,
-            IRepository<eLearnApps.Entity.LmsTools.CourseCategory> courseCategoryRepository,
-            IRepository<Course> repositoryCourse,
-            IRepository<PeerFeedBackPairingSessions> repositoryPeerFeedBackPairingSessions,
+        public PeerFeedbackService(
             IDbContext context,
-            IRepository<UserGroup> repositoryUserGroup,
-            IRepository<PeerFeedBackResponses> repositoryPeerFeedBackResponses,
-            IRepository<PeerFeedBackResponseRemarks> repositoryPeerFeedBackResponseRemarks,
-            IRepository<Role> repositoryRoles,
+          IServiceProvider serviceProvider,
                IDaoFactory factory,
                  LMSIsisContext isisContext
         )
         {
-            _repositoryPeerFeedbackRatingQuestion = repositoryPeerFeedbackRatingQuestion;
-            _repositoryPeerFeedbackRatingOption = repositoryPeerFeedbackRatingOption;
-            _repositoryPeerFeedbackQuestion = repositoryPeerFeedbackQuestion;
-            _repositoryPeerFeedbackQuestionRatingMap = repositoryPeerFeedbackQuestionRatingMap;
+            _repositoryPeerFeedbackRatingQuestion = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackRatingQuestion>>("default");
+            _repositoryPeerFeedbackRatingOption = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackRatingOption>>("default");
+            _repositoryPeerFeedbackQuestion = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackQuestion>>("default");
+            _repositoryPeerFeedbackQuestionRatingMap = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackQuestionRatingMap>>("default");
 
-            _repositoryPeerFeedback = repositoryPeerFeedback;
-            _repositoryPeerFeedbackEvaluators = repositoryPeerFeedbackEvaluators;
-            _repositoryPeerFeedbackPairings = repositoryPeerFeedbackPairings;
-            _repositoryPeerFeedbackSessions = repositoryPeerFeedbackSessions;
-            _repositoryPeerFeedbackTargets = repositoryPeerFeedbackTargets;
-            _repositoryPeerFeedbackQuestionMap = repositoryPeerFeedbackQuestionMap;
+            _repositoryPeerFeedback = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedback>>("default");
+            _repositoryPeerFeedbackEvaluators = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackEvaluators>>("default");
+            _repositoryPeerFeedbackPairings = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackPairings>>("default");
+            _repositoryPeerFeedbackSessions = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackSessions>>("default");
+            _repositoryPeerFeedbackTargets = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackTargets>>("default");
+            _repositoryPeerFeedbackQuestionMap = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedbackQuestionMap>>("default");
 
-            _userEnrollmentRepository = userEnrollmentRepository;
-            _userRepository = userRepository;
-            _userGroupRepository = userGroupRepository;
-            _categoryGroupRepository = categoryGroupRepository;
-            _courseCategoryRepository = courseCategoryRepository;
-            _repositoryPeerFeedBackPairingSessions = repositoryPeerFeedBackPairingSessions;
-            _repositoryPeerFeedBackResponses = repositoryPeerFeedBackResponses;
-            _repositoryPeerFeedBackResponseRemarks = repositoryPeerFeedBackResponseRemarks;
-            _repositoryUserGroup = repositoryUserGroup;
-            _repositoryRoles = repositoryRoles;
+            _userEnrollmentRepository = serviceProvider.GetRequiredKeyedService<IRepository<UserEnrollment>>("default");
+            _userRepository = serviceProvider.GetRequiredKeyedService<IRepository<User>>("default");
+            _userGroupRepository = serviceProvider.GetRequiredKeyedService<IRepository<UserGroup>>("default");
+            _categoryGroupRepository = serviceProvider.GetRequiredKeyedService<IRepository<CategoryGroup>>("default");
+            _courseCategoryRepository = serviceProvider.GetRequiredKeyedService<IRepository<eLearnApps.Entity.LmsTools.CourseCategory>>("default");
+            _repositoryPeerFeedBackPairingSessions = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedBackPairingSessions>>("default");
+            _repositoryPeerFeedBackResponses = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedBackResponses>>("default");
+            _repositoryPeerFeedBackResponseRemarks = serviceProvider.GetRequiredKeyedService<IRepository<PeerFeedBackResponseRemarks>>("default");
+            _repositoryUserGroup = serviceProvider.GetRequiredKeyedService<IRepository<UserGroup>>("default");
+            _repositoryRoles = serviceProvider.GetRequiredKeyedService<IRepository<Role>>("default");
             _context = context;
 
             _isisContext = isisContext;
             _repositoryTlCourseOfferings = new Repository<TL_CourseOfferings>(_isisContext);
-            _repositoryCourse = repositoryCourse;
+            _repositoryCourse = serviceProvider.GetRequiredKeyedService<IRepository<Course>>("default");
             _repositoryPS_SIS_LMS_CLASS_V = new Repository<PS_SIS_LMS_CLASS_V>(_isisContext);
 
             _peerFeedBackResponsesDao = factory.PeerFeedBackResponsesDao;

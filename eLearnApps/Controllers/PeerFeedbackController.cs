@@ -61,7 +61,6 @@ namespace eLearnApps.Controllers
             ICategoryGroupService categoryGroupService,
             ICourseCategoryService courseCategoryService,
             IWebHostEnvironment env,
-            Extensions extensions,
             ILoggingService loggingService,
             IUserGroupService userGroupService, IValenceService valenceService,
             IAuditService auditService) : base(cacheManager, errorLogService, httpContextAccessor, configuration, serviceProvider, compositeViewEngine)
@@ -75,7 +74,7 @@ namespace eLearnApps.Controllers
             _userGroupService = userGroupService;
             _courseCategoryService = courseCategoryService;
             _constants = new Constants(configuration);
-            _extensions = extensions;
+            _extensions = new Extensions(serviceProvider);
             _loggingService = loggingService;
             _auditService = auditService;
             _valenceService = valenceService;
@@ -2913,7 +2912,8 @@ namespace eLearnApps.Controllers
                     UnassignedStudentCount = x.UnassignedStudentCount
                 }).ToList();
             }
-            string csv = result == null || !result.Any() ? "No record(s) found" : result.ToCsv();
+            var stringExtensions = new StringExtensions(_serviceProvider);
+            string csv = result == null || !result.Any() ? "No record(s) found" : stringExtensions.ToCsv(result);
             log.Info("**************** END ExportCourseByTermToCsv ****************");
             var tz = TZConvert.IanaToWindows(timeZone);
             var clientTz = TimeZoneInfo.FindSystemTimeZoneById(tz);
