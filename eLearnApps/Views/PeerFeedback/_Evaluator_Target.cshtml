@@ -1,0 +1,589 @@
+﻿@using eLearnApps.Core
+@using eLearnApps.ViewModel.PeerFeedback
+@model eLearnApps.ViewModel.PeerFeedback.EvaluatorTargetModel
+@{
+    var dataSourceModel = new DataSourceEvaluatorTargetModel
+    {
+        DataSourceEvaluator = Model.Evaluator,
+        DataSourceTarget = Model.Target
+    };
+}
+<style>
+    .k-grid-header .k-header {
+        background-color: #F5F5F5 !important;
+        height: 20px;
+        padding: 0;
+    }
+
+    .k-grid tbody tr {
+        line-height: 14px;
+    }
+
+    .k-grid tbody td {
+        padding: 8px;
+    }
+
+    .k-grid thead th {
+        color: #444;
+        padding: 8px !important;
+        vertical-align: -webkit-baseline-middle;
+    }
+
+        .k-grid thead th[role="columnheader"] {
+            color: #444;
+            font-weight: bold;
+            text-align: left;
+            vertical-align: -webkit-baseline-middle;
+        }
+
+    tr.k-master-row {
+        cursor: pointer;
+    }
+
+    .k-dialog .k-content {
+        padding: 17px;
+    }
+
+    #filterText {
+        border: 1px solid #d9d9d9;
+        border-radius: 3px;
+        box-sizing: border-box;
+        padding: 6px;
+        width: 100%;
+    }
+
+    .selectAll {
+        margin: 17px 0;
+    }
+
+    #treeview {
+        border: 1px solid #d9d9d9;
+        height: 300px;
+        overflow-y: auto;
+        width: 100%;
+    }
+
+    #result {
+        color: #9ca3a6;
+        float: right;
+    }
+
+
+    .selectedName {
+        background: #aaa;
+        border-radius: 10px;
+        color: white;
+        float: left;
+        margin-bottom: 5px;
+        margin-right: 5px;
+        padding: 5px 10px;
+    }
+
+    #resultItems {
+        padding-bottom: 15px;
+    }
+
+        #resultItems:after {
+            clear: both;
+            content: '';
+            display: block;
+        }
+</style>
+
+<div id="formTargets" class="sidenav k-content" style="width: 900px;">
+    <h3 id="sideTitle">Evaluators & Targets</h3>
+    <hr style="margin: 20px;" />
+    <form id="evaluators-targets-form">
+        @Html.AntiForgeryToken()
+        <ul class="fieldlist">
+            <li>
+                <label>Filter by</label>
+                <select id="cboGroupBy" style="width: 100%;">
+                </select>
+            </li>
+            <li>
+                <div id="resultItems"></div>
+            </li>
+            <li>
+                <div class="row">
+                    <div class="col">
+                        <ul class="fieldlist">
+                            <li class="list-item col-6">
+                            <li>
+                                <label>Targets</label>
+                            </li>
+                            <li>
+                                <div id="gridTarget"></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <hr style="margin: 10px;" />
+                <button id="btnETClose" type="button" class="k-button"><span class="k-icon k-i-close"></span>&nbsp;Close</button>&nbsp;
+                @if (Model.PeerFeedBackPairingId > 0)
+                {
+                    <button id="btnETDelete" type="button" class="k-button"><span class="k-icon k-i-delete"></span>&nbsp;Delete</button>
+                    @Html.Raw("&nbsp;")
+                }
+                <button id="btnETSave" type="button" class="k-button k-primary"><span class="k-icon k-i-save"></span>&nbsp;Save</button>&nbsp;
+            </li>
+        </ul>
+    </form>
+    @Html.Partial("_FilterDialog", dataSourceModel)
+</div>
+<script>
+    var currentCourseGroup = @Model.CurrentCourseGroup;
+    var pairingId = @Model.PeerFeedBackPairingId;
+    var lstTarget = [], lstEvaluator = [];
+    var dataSourceSection;
+    const getDataGroupByGroup = async _ => {
+        const url = '@Url.Action("GetCategoryGroupBy", "PET", new {courseId = ViewBag.CourseId})';
+        return await createPostRequest(url);
+    };
+    const getDataGroupBySection = async _ => {
+        const url = '@Url.Action("GetUserEnrollWithSection", "PET", new {courseId = ViewBag.CourseId})';
+        return await createPostRequest(url);
+    };
+
+    function ShowETEvaluationForm() {
+        const slide = kendo.fx($("#formTargets")).slideIn("left");
+        slide.play();
+        $(".overlay").show();
+    }
+
+    function HideETEvaluationForm(reload) {
+        $("#formTargets").hide();
+        $(".overlay").hide();
+        if (reload === true) {
+            const parent = $(".overlay").parent();
+            $(parent).trigger("change", true);
+        }
+    }
+
+    $("#btnETSave").click(function() {
+        const popupNotification = $("#popupNotification").kendoNotification({
+            position: {
+                bottom: 80,
+                left: 40
+            }
+        }).data("kendoNotification");
+        if (lstTarget.length <= 0) {
+            popupNotification.show("Target cannot be empty!!", "error");
+            return false;
+        }
+        const data = {
+            Target: lstTarget,
+            TypeId: @Model.TypeId,
+            PeerFeedBackId: @Model.PeerFeedBackId,
+            PeerFeedBackSessionId: @Model.PeerFeedBackSessionId,
+            PeerFeedBackPairingId: @Model.PeerFeedBackPairingId
+        };
+        window.kendo.ui.progress($('#formTargets'), true);
+        const savePairingUrl = '@Url.Action("PeerFeedBackPairingSave", "PeerFeedback")';
+        createPostRequest(savePairingUrl, data).then(function(response) {
+            if (response.hasOwnProperty('StatusCode') && response.StatusCode === @Convert.ToInt32(StatusCode.AlreadyExists)) {
+                window.kendo.alert(response.Message);
+            } else {
+                window.reloadEvaluationPairing();
+            }
+            window.kendo.ui.progress($('#formTargets'), false);
+        });
+    });
+    $("#btnETDelete").click(function() {
+
+    });
+
+    var selfEvaluations = [@((int)PeerFeedbackType.StudentsEvaluateOwnGroupMembers)];
+
+    var evalOwnGroupMembersTypeId = @((int)PeerFeedbackType.StudentsEvaluateOwnGroupMembers);
+
+    function onChangeTarget(e) {
+        lstTarget = this.selectedKeyNames().join(",");
+    }
+
+    function onChangeCourseGroup(e) {
+
+    }
+
+    function onChangeGroupTarget(e) {
+        const selectedCourseGroup = $(this.wrapper).attr('data-groupId');
+        if (currentCourseGroup !== selectedCourseGroup) {
+            if (currentCourseGroup === 0) {
+                currentCourseGroup = selectedCourseGroup;
+            } else {
+                @if (Model.TypeId != (int)PeerFeedbackType.StudentsEvaluateOwnGroupMembers)
+                {
+                    <text>
+                        const subGrid = $(`#subGrid${currentCourseGroup}`).data("kendoGrid");
+                        subGrid.clearSelection();
+                    </text>
+                }
+            }
+
+            currentCourseGroup = selectedCourseGroup;
+            $(`input[type=radio][id=targetgroup_${currentCourseGroup}]`).prop("checked", true);
+
+        }
+        lstTarget = this.selectedKeyNames().join(",");
+
+        @if (Model.TypeId == (int)PeerFeedbackType.StudentsEvaluateOwnGroupMembers)
+        {
+            <text>
+                lstTarget = '';
+                var allSubGrid = $(".subGrid");
+                allSubGrid.each(function(index) {
+                    const subgrid = $(allSubGrid[index]).data("kendoGrid");
+                    lstTarget += `,${subgrid.selectedKeyNames().join(",")}`;
+                });
+            </text>
+        }
+    }
+
+    function onClick(e) {
+        const grid = $("#gridTarget").data("kendoGrid");
+        const row = $(e.target).closest("tr");
+
+        if (row.hasClass("k-state-selected")) {
+            setTimeout(function() {
+                $("#gridTarget").data("kendoGrid").clearSelection();
+            });
+        } else {
+            grid.clearSelection();
+        };
+    };
+
+    var setGridState = (groupId, isDisabled) => {
+        //click header sort
+        if (event.currentTarget.nodeName === "TH") return;
+
+        const targetElement = $(`#subGrid${groupId}`);
+        const grid = $(targetElement).data("kendoGrid");
+        const dataItems = grid.dataItems();
+        const chkHeader = $(targetElement).find(`th[data-groupid='${groupId}'] > input.k-checkbox`);
+        dataItems.map(function(item) {
+            const row = $(`tr[data-uid='${item.uid}']`);
+            const chk = $(row).find('input.k-checkbox');
+            if (isDisabled) {
+                $(row).removeClass('k-state-selected');
+                $(chk).addClass('k-state-disabled');
+                $(chk).prop('checked', false);
+            } else {
+                $(chk).removeClass('k-state-disabled');
+            }
+            $(chk).prop('disabled', isDisabled);
+        });
+        if (isDisabled) {
+            $(targetElement).addClass('k-state-disabled');
+            $(chkHeader).addClass('k-state-disabled');
+            $(chkHeader).prop('checked', false);
+        } else {
+            $(targetElement).removeClass('k-state-disabled');
+            $(chkHeader).removeClass('k-state-disabled');
+        }
+        $(chkHeader).prop('disabled', isDisabled);
+    };
+    // Select the node that will be observed for mutations
+    const targetNode = document.getElementById('formTargets');
+    // Options for the observer (which mutations to observe)
+    const config = { attributes: true, childList: true, subtree: false };
+    // Callback function to execute when mutations are observed
+    const callback = function(mutationsList, observer) {
+        window.createDialog();
+        window.createTreeViewComponent();
+    };
+    // Create an observer instance linked to the callback function
+    const observer = new MutationObserver(callback);
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+    // Later, you can stop observing
+    // observer.disconnect();
+
+    const initialGrid = () => {
+        const isCourseGroup = @Model.IsCourseGroup.ToString().ToLower();
+        if (isCourseGroup) {
+            $("#gridTarget").kendoGrid({
+                noRecords: {
+                    template: "No record available"
+                },
+                dataSource: {
+                    data: [@Html.Raw(Model.Target)],
+                    schema: {
+                        model: {
+                            id: "GroupId",
+                            fields: {
+                                GroupId: { type: "number" },
+                                GroupName: { type: "string" }
+                            }
+                        }
+                    }
+                },
+                detailInit: detailInit,
+                columns: [
+                    {
+                        field: "GroupId",
+                        hidden: true
+                    },
+                    {
+                        field: "GroupName",
+                        title: "Target name",
+                        filterable: true
+                    }
+                ],
+                pageable: false,
+                filterable: {
+                    extra: false,
+                    operators: {
+                        string: {
+                            startswith: "Starts with",
+                            eq: "Is equal to",
+                            neq: "Is not equal to",
+                            contains: "Contains"
+                        }
+                    }
+                },
+                detailExpand: function(e) {
+                    e.sender.tbody.find('.k-detail-row').each(function(idx, item) {
+                        if (item !== e.detailRow[0]) {
+                            const row = $(item).prev().closest('tr');
+                            const prevRdb = $(row).find('input[type="radio"]');
+                            if (prevRdb && prevRdb.length) {
+                                const prevGroupId = $(prevRdb).val();
+                                $(prevRdb).attr('data-prev', true);
+                                const isChecked = $(prevRdb).is(':checked');
+                                if (!isChecked)
+                                    setGridState(prevGroupId, true);
+                                e.sender.collapseRow($(item).prev());
+                            }
+                        }
+                    });
+                },
+                dataBound: function(e) {
+                    const grid = this;
+                    $(`input[type=radio][id*='targetgroup']`).each(function() {
+                        const groupId = parseInt(this.value);
+                        if (currentCourseGroup === groupId && pairingId > 0) {
+                            grid.expandRow($(this).closest('tr'));
+                            $(this).prop("checked", true);
+                        } else {
+                            grid.collapseRow($(this).closest('tr'));
+                        }
+                    });
+                    if (pairingId > 0 && currentCourseGroup > 0) {
+                        const idElement = grid.tbody.find("tr.k-master-row > td[style='display:none']");
+                        $(idElement).each(function() {
+                            const id = parseInt($(this).html());
+                            if (currentCourseGroup === id) {
+                                const masterRow = $(this).closest('tr.k-master-row');
+                                grid.expandRow(masterRow);
+                                return false;
+                            }
+                        });
+                    }
+                    grid.tbody.find("tr.k-master-row").click(function(evt) {
+                        const target = $(evt.target);
+                        if ((target.hasClass("k-i-expand")) || (target.hasClass("k-i-collapse"))) {
+                            return;
+                        }
+
+                        const row = target.closest("tr.k-master-row");
+                        const icon = row.find(".k-i-expand");
+
+                        if (icon.length) {
+                            grid.expandRow(row);
+                            const activeRdb = $(row).find('input[type="radio"]');
+                            if (activeRdb && activeRdb.length) {
+                                const activeGroupId = $(activeRdb).val();
+                                const isChecked = $(activeRdb).is(':checked');
+                                setGridState(activeGroupId, !isChecked);
+                            }
+                        } else {
+                            grid.collapseRow(row);
+                        }
+                    });
+                },
+                change: onChangeCourseGroup
+            });
+
+            function detailInit(e) {
+                //$(".k-grid tbody .k-grid .k-grid-header").hide();
+                const gridId = `subGrid${e.data.GroupId}`;
+                $(`<div class='subGrid' id=${gridId} data-groupId=${e.data.GroupId} />`).appendTo(e.detailCell).kendoGrid({
+                    dataSource: {
+                        data: e.data.Target,
+                        schema: {
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    Id: { type: "number" },
+                                    Name: { type: "string" }
+                                }
+                            }
+                        },
+                        sort: {
+                            field: "IsChecked",
+                            dir: "asc",
+                            compare: function(a, b) {
+                                return b.IsChecked - a.IsChecked;
+                            }
+                        }
+                    },
+                    scrollable: true,
+                    sortable: true,
+                    pageable: false,
+                    selectable: false,
+                    columns: [
+                        {
+                            selectable: true,
+                            width: "50px",
+                            headerAttributes: {
+                                "data-groupId": `${e.data.GroupId}`
+                            }
+                        },
+                        {
+                            field: "Id",
+                            hidden: true
+                        },
+                        {
+                            field: "Name",
+                            title: "Select All",
+                            filterable: true
+                        }
+                    ],
+
+                    dataBound: function() {
+                        var grid = this;
+                        currentCourseGroup = parseInt(e.data.GroupId);
+                        if (pairingId > 0) {
+                            const rows = grid.items();
+                            $(rows).each(function() {
+                                const row = this;
+                                const dataItem = grid.dataItem(row);
+                                if (dataItem.IsChecked > 0) {
+                                    grid.select(row);
+                                }
+                            });
+                        }
+                        const activeRdb = $(`input[type=radio][id=targetgroup_${e.data.GroupId}]`);
+                        if (activeRdb && activeRdb.length) {
+                            const isDisabled = $(activeRdb).is(':disabled');
+                            setGridState(e.data.GroupId, isDisabled);
+                        }
+                        @if (Model.TypeId == (int)PeerFeedbackType.StudentsEvaluateOwnGroupMembers)
+                        {
+                            <text>grid.showColumn(0);</text>
+                        }
+                    },
+                    change: onChangeGroupTarget
+                });
+            }
+
+        } else {
+            $("#gridTarget").kendoGrid({
+                noRecords: {
+                    template: "No record available"
+                },
+                dataSource: {
+                    data: [@Html.Raw(Model.Target)],
+                    schema: {
+                        model: {
+                            id: "Id",
+                            fields: {
+                                Id: { type: "number" },
+                                Name: { type: "string" }
+                            }
+                        }
+                    },
+                    sort: {
+                        field: "IsChecked",
+                        dir: "asc",
+                        compare: function(a, b) {
+                            return b.IsChecked - a.IsChecked;
+                        }
+                    }
+                },
+                columns: [
+                    { selectable: true, width: "50px" }, {
+                        field: "Id",
+                        hidden: true
+                    }, {
+                        field: "Name",
+                        encoded: false,
+                        title: "Target name",
+                        filterable: true
+                    }
+                ],
+                pageable: false,
+                filterable: {
+                    extra: false,
+                    operators: {
+                        string: {
+                            startswith: "Starts with",
+                            eq: "Is equal to",
+                            neq: "Is not equal to",
+                            contains: "Contains"
+                        }
+                    }
+                },
+                dataBound: function(e) {
+                    var grid = this;
+                    const rows = grid.items();
+                    $(rows).each(function() {
+                        const row = this;
+                        const dataItem = grid.dataItem(row);
+                        if (dataItem.IsChecked > 0) {
+                            @if (Model.TypeId != (int)PeerFeedbackType.StudentsEvaluateOwnGroupMembers)
+                            {
+                                @:grid.select(row);
+                            }
+                        }
+                    });
+                    $('#gridTarget .k-grid-content').attr('style', 'height:400px !important;');
+                },
+                change: onChangeTarget
+            });
+        }
+    };
+    const handleGroupBy = async (val) => {
+        if (val === 0) {
+            $("#resultItems").html('');
+            const gridTarget = $("#gridTarget").data('kendoGrid');
+            if (gridTarget)
+                gridTarget.dataSource.data([@Html.Raw(Model.Target)]);
+        } else if (val === 1) {
+            dataSourceSection = await getDataGroupBySection();
+            window.setTreeViewDataSource(dataSourceSection, window.openDialog('Section'));
+        } else if (val === 2) {
+            const dataSource = await getDataGroupByGroup();
+            window.setTreeViewDataSource(dataSource, window.openDialog('Group'));
+        }
+    };
+    $(document).ready(function () {
+        var cboGroupByDatasource = [
+            { name: "None", value: 0 },
+            { name: "Section", value: 1 },
+            { name: "Group", value: 2 }
+        ];
+
+        $("#cboGroupBy").kendoDropDownList({
+            dataSource: cboGroupByDatasource,
+            dataTextField: "name",
+            dataValueField: "name",
+            select: function(e) {
+                const dataItem = e.dataItem;
+                const value = parseInt(dataItem.value);
+                filterConfig.groupBy = value;
+                handleGroupBy(value);
+            }
+        });
+        initialGrid();
+        $("#btnETClose").click(function() {
+            HideETEvaluationForm(false);
+        });
+    });
+    var filterConfig = {
+        groupBy: 0,
+        isCourseGroup: @Model.IsCourseGroup.ToString().ToLower()
+    };
+</script>

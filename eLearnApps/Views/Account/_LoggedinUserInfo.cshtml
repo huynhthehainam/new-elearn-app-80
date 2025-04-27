@@ -1,0 +1,14 @@
+﻿@using eLearnApps.Core.Extension
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var httpContext = HttpContextAccessor.HttpContext;
+    var loggedUserInfo = httpContext?.GetLoggedInUserInfo();
+}
+<script>
+    var userInfo = {
+        userId: @loggedUserInfo.UserId,
+        courseId: @loggedUserInfo.CourseId,
+        toolName: '@loggedUserInfo.ToolName',
+        roleName: '@loggedUserInfo.RoleName'
+    };
+</script>

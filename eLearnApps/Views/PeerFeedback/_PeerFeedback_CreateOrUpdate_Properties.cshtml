@@ -1,0 +1,80 @@
+﻿
+@using eLearnApps.Core
+@model eLearnApps.ViewModel.PeerFeedback.ManagePeerFeedbackModel
+<form id="step_0_form" class="properties">
+    @Html.AntiForgeryToken()
+    <ul class="fieldlist">
+        <li>
+            <label for="txtTitle">Title</label>
+            <input id="txtTitle" name="Name" class="k-textbox" style="width: 100%;" maxlength="200" required data-changed="false" value="@Model.Name" />
+            <small>Please enter not more than 200 characters for title.</small>
+        </li>
+        <li>
+            <label for="txtDescription">Description</label>
+            <textarea id="txtDescription" name="Description" class="k-textbox" style="width: 100%;" maxlength="10000" rows="10" required data-changed="false">@Model.Description</textarea>
+            <small>Please enter not more than 10,000 characters for description.</small>
+        </li>
+        <li>
+            <div class="row">
+                <div class="col">
+                    <button type="button" data-action="save" class="k-button k-primary mr-2" onclick="handleSave();"><span class="k-icon k-i-save"></span>&nbsp;Save</button>
+                </div>
+            </div>
+        </li>
+    </ul>
+</form>
+<script>
+    $(document).ready(function () {
+        $("#type").kendoDropDownList();
+    });
+    var isValidForm = () => {
+        const txtTitle = $('#txtTitle').val();
+        const txtDescription = $('#txtDescription').val();
+        if (txtTitle.length === 0) {
+            window.notification.show("Please enter a title.", "error");
+            return false;
+        }
+        if (txtDescription.length === 0) {
+            window.notification.show("Please enter a description.", "error");
+            return false;
+        }
+        return true;
+    }
+    var handleSave = async () => {
+        if (!isValidForm()) return false;
+        const url = "@Url.Action("PeerFeedbackSave", "PeerFeedback")";
+        const data = {
+            id: @Model.Id.GetValueOrDefault(),
+            name: $("#txtTitle").val(),
+            description: $("#txtDescription").val()
+        }
+        const response = await createPostRequest(url, data);
+        if (data.id === 0) {
+            $("#cardHeaderTitle").html(`Edit - ${data.name}`);
+            addOrEditPeerFeedback(response.Id);
+        }
+        window.notification.show("Peer and Self Feedback saved successfully.", "success");
+    }
+    function addOrEditPeerFeedback(peerFeedbackId) {
+        window.kendo.ui.progress($('#grid'), true);
+        const url = '@Url.Action("PeerFeedbackCreateOrUpdate", "PeerFeedback")';
+        const param = { peerFeedbackId: peerFeedbackId };
+        addAntiForgeryToken(param);
+        const formData = new FormData();
+        buildFormData(formData, param);
+        const options = {
+            method: 'POST',
+            data: formData,
+            url: url
+        };
+        window.axios(options)
+            .then(function(result) {
+                const response = result.data;
+                $("#main").html(response);
+                window.kendo.ui.progress($('#grid'), false);
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    }
+</script>

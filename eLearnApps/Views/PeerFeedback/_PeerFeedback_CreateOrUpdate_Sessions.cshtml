@@ -1,0 +1,122 @@
+﻿@using eLearnApps.Core
+@model eLearnApps.ViewModel.PeerFeedback.ManagePeerFeedbackModel
+<style>
+    #sessionList .k-listview-content {
+        overflow: hidden;
+    }
+
+    .k-window-titlebar {
+        background-color: #0e2669 !important;
+        color: white;
+    }
+</style>
+<div>
+    <form>
+        @Html.AntiForgeryToken()
+        <div class="mt-3 mb-3">
+            <div class="d-flex justify-content-end">
+                <button type="button" id="btnAddSesion" onclick="AddSession()" class="k-button k-primary ml-2"><span class="icon-plus"></span>&nbsp;Add Session</button>
+            </div>
+
+        </div>
+        <div class="row m-3">
+            <div id="sessionList" class="row" style="border:none;">
+            </div>
+        </div>
+    </form>
+</div>
+<div class="overlay" id="dvOverlay"></div>
+<div id="divAddSession">
+</div>
+<script type="text/x-kendo-template" id="sessionItemTemplate">
+    <div class="k-card m-3" data-SessionId="#: Id #">
+        <div class="k-card-header" style="background-color:white;padding:0;">
+            <h5 class="mr-auto"></h5>
+                <span class="k-card-action float-right">
+                    <button class="btn" type="button" data-SessionId="#: Id #" onclick="deletePeerFeedbackSession(this)" style="background-color:inherit;" >
+                        <span class="k-icon k-i-delete" style="font-size:20px;"></span>
+                    </button>
+                    <button class="btn" type="button" data-SessionId="#: Id #" onclick="EditPeerFeedbackSession(this);"  style="background-color:inherit;" >
+                        <span class="k-icon k-i-hyperlink-open" style="font-size:20px;"></span>
+                    </button>
+                </span>
+        </div>
+        <div class="k-card-body">
+            <span class="card-text"><strong>#: Label #</strong></span><br />
+            <span class="card-text"><strong>Term:</strong> #: Term #</span><br />
+            <span class="card-text"><strong>Start Date: </strong>#: GetLocalTime(kendo.parseFloat(StartTotalMilliseconds), window.TimeZone, DateFormat.FormatAm) #</span><br />
+            <span class="card-text"><strong>End Date: </strong>#: GetLocalTime(kendo.parseFloat(EndTotalMilliseconds), window.TimeZone, DateFormat.FormatAm) #</span><br />
+        </div>
+        <input type="hidden" value="#: PeerFeedbackId #" Name="PeerFeedbackId" />
+    </div>
+</script>
+
+<script>
+     var urlAddSessionForm = '@Url.Action("PeerFeedbackSessionAddOrUpdate", "PeerFeedback")';
+    function AddSession() {
+        showLoading($('.tab-form'));
+        createPostRequest(urlAddSessionForm, { peerFeedbackId: @Model.Id }).then(function(response) {
+            $("#divAddSession").html(response);
+            window.ShowAddSessionsForm();
+            hideLoading($('.tab-form'));
+        });
+    }
+    function ReloadSessionList() {
+        showLoading($('.tab-form'));
+        getSessionListDataSource().then(function (dataSource) {
+            var ds = new kendo.data.DataSource({
+                data: dataSource
+            });
+            ds.fetch(function() {
+                $("#sessionList").data("kendoListView").setDataSource(ds);
+                if (ds.total() > 0)
+                    $('.alert-danger').remove();
+            });
+            hideLoading($('.tab-form'));
+        });
+    }
+     function deletePeerFeedbackSession(data) {
+        window.kendo.confirm("Are you sure you want to delete the selected session?").then(function() {
+            const dataObject = {
+                peerFeedbackSessionId: parseInt($(data).attr('data-SessionId'))
+            };
+            var url = '@Url.Action("PeerFeedbackSessionDelete", "PeerFeedback")';
+            createPostRequest(url, dataObject).then(function (response) {
+                ReloadSessionList();
+            });
+        });
+    }
+
+    function EditPeerFeedbackSession(element) {
+        showLoading($('.tab-form'));
+        const sessionId = $(element).data('sessionid');
+        createPostRequest(urlAddSessionForm, {peerFeedbackId: @Model.Id, peerFeedbackSessionId: sessionId }).then(function(response) {
+            $("#divAddSession").html(response);
+            window.ShowEditSessionsForm();
+            hideLoading($('.tab-form'));
+            return 'Ok';
+        });
+     }
+
+     const getSessionListDataSource = () => {
+         const url = `@Url.Action("PeerFeedbackSessionList", "PeerFeedback")`;
+         return createPostRequest(url, { peerFeedbackId: @Model.Id });
+     }
+     $(document).ready(function() {
+         showLoading($('.tab-form'));
+         getSessionListDataSource().then(function(dataSource) {
+             $("#sessionList").kendoListView({
+                 dataSource: dataSource,
+                 template: kendo.template($("#sessionItemTemplate").html()),
+                 dataBound: function(e) {
+                     if (this.dataSource.data().length === 0) {
+                         //custom logic
+                         $("#sessionList").append("<div class='ml-3 alert alert-danger'><strong> No session created. Your evaluators will not be able to view this evaluation.<br />Click on 'Add Session' to create a session.</strong></div>");
+                     }
+                     $('#sessionList .k-listview-content').addClass('row');
+                     hideLoading($('.tab-form'));
+                 }
+             });
+         });
+     });
+</script>

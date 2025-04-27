@@ -32,8 +32,9 @@ namespace eLearnApps.Controllers
         private readonly IServiceProvider _serviewProvider;
         private readonly ILoggingService _loggingService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IPeerFeedbackService _peerFeedbackService;
         private readonly WebHelper _webHelper;
-        public AccountController(IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor, IServiceProvider serviewProvider, ILoggingService loggingService)
+        public AccountController(IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor, IServiceProvider serviewProvider, ILoggingService loggingService, IPeerFeedbackService peerFeedbackService)
         {
             _appSettingService = appSettingService;
             _configuration = configuration;
@@ -44,6 +45,7 @@ namespace eLearnApps.Controllers
             _webHelper = new WebHelper(httpContextAccessor);
             _serviewProvider = serviewProvider;
             _loggingService = loggingService;
+            _peerFeedbackService = peerFeedbackService;
         }
         [AllowAnonymous]
         public IActionResult LtiView()
@@ -76,16 +78,16 @@ namespace eLearnApps.Controllers
             LogDebug("account-lti", $"landing: {returnUrl}");
             var contextId = Request.Form["context_id"];
             var userIdString = Request.Form["user_id"];
-
+            var constants = new Constants(_configuration);
             var routeValue = new
             {
-                ReturnUrl = $"{Constants.HomePageUrl}",
+                ReturnUrl = $"{constants.HomePageUrl}",
                 Content = "You don't have permission access"
             };
             var userId = ExtractUserId(userIdString);
             var courseId = Convert.ToInt32(contextId);
             _courseId = courseId;
-            var constants = new Constants(_configuration);
+
             LogDebug("account-lti", $"landing on debug with {userId} - {courseId}");
 
             // if debug, and requestUrl is not set, means we are debuging with LTI
@@ -170,7 +172,7 @@ namespace eLearnApps.Controllers
 
             var routeValue = new
             {
-                ReturnUrl = $"{Constants.HomePageUrl}",
+                ReturnUrl = $"{constants.HomePageUrl}",
                 Content = "You don't have permission access - PFLTI"
             };
             var userId = ExtractUserId(userIdString);

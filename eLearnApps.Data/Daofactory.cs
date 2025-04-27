@@ -34,7 +34,7 @@ namespace eLearnApps.Data
         //public ITLMergeSectionDao TLMergeSectionDao => new TLMergeSectionDao(_configuration);
         //public IPsSisLmsGradeTypeDao PsSisLmsGradeTypeDao => new PsSisLmsGradeTypeDao(_configuration);
         public IPS_SIS_LMS_PHOTO_VDao PS_SIS_LMS_PHOTO_VDao => new PS_SIS_LMS_PHOTO_VDao(_configuration);
-        //public ITLCourseOfferingDao TLCourseOfferingDao => new TLCourseOfferingDao(_configuration);
+        public ITLCourseOfferingDao TLCourseOfferingDao => new TLCourseOfferingDao(_configuration);
         public IUserDao UserDao => new UserDao(_configuration);
         //public ITAEnrollAckDao TAEnrollAckDao => new TAEnrollAckDao(_configuration);
 
@@ -63,10 +63,10 @@ namespace eLearnApps.Data
         //public IAttendanceAttachmentDao AttendanceAttachmentDao => new AttendanceAttachmentDao(_configuration);
         //public IUserUploadFileDao UserImagesDao => new UserUploadFileDao(_configuration);
         public IDebugLogDao DebugLogDao => new DebugLogDao(_configuration);
-        //public IPeerFeedBackResponsesDao PeerFeedBackResponsesDao => new PeerFeedBackResponsesDao(_configuration);
-        //public IPeerFeedBackResponseRemarksDao PeerFeedBackResponseRemarksDao => new PeerFeedBackResponseRemarksDao(_configuration);
+        public IPeerFeedBackResponsesDao PeerFeedBackResponsesDao => new PeerFeedBackResponsesDao(_configuration);
+        public IPeerFeedBackResponseRemarksDao PeerFeedBackResponseRemarksDao => new PeerFeedBackResponseRemarksDao(_configuration);
         public IAuditDao AuditDao => new AuditDao(_configuration);
-        //public IPeerTutoringRecordDao PeerTutoringRecordDao => new PeerTutoringRecordDao(_configuration);
-        //public IPeerFeedBackDao PeerFeedBackDao => new PeerFeedBackDao(_configuration);
+        public IPeerTutoringRecordDao PeerTutoringRecordDao => new PeerTutoringRecordDao(_configuration);
+        public IPeerFeedBackDao PeerFeedBackDao => new PeerFeedBackDao(_configuration);
     }
 }

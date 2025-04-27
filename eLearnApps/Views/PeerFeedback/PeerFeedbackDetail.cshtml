@@ -1,0 +1,71 @@
+﻿@model eLearnApps.ViewModel.PeerFeedback.PeerFeedbackDetailList
+@{
+    ViewBag.Title = "Peer and Self Feedback";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
+<style>
+    .m-portlet:hover {
+        -moz-box-shadow: 0px 5px 24px #CCCCCC;
+        -ms-box-shadow: 0px 5px 24px #CCCCCC;
+        -o-box-shadow: 0px 5px 24px #CCCCCC;
+        -webkit-box-shadow: 0px 5px 24px #CCCCCC;
+        box-shadow: 0px 5px 24px #CCCCCC;
+        top: -3px;
+    }
+</style>
+<form id="frmMyEvaluation" action="@Url.Action("PeerFeedbackResponse")" method="post">
+    @Html.AntiForgeryToken()
+    <div class="row justify-content-center">
+        @foreach (var item in Model.PeerFeedbackDetails)
+        {
+            <div class="col-4" style="margin-bottom: 10px;">
+                <div class="card h-100">
+                    <div class="m-portlet__body" style="padding: 0.2rem 1.2rem;">
+                        <div class="m-widget4 m-widget4">
+                            <div class="m-widget4__item">
+                                <div class="m-widget4__img m-widget4__img--pic">
+                                    <img src="@item.Avatar" alt="" width="64" height="64">
+                                </div>
+                                <div class="m-widget4__info">
+                                    <span class="m-widget4__title" style="word-break: break-word;" data-search="search">@item.DisplayName</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        const startTime = $('#timeTitle').data('starttime');
+        const endTime = $('#timeTitle').data('endtime');
+
+        const start = moment(startTime).tz(window.TimeZone)._d;
+        const end = moment(endTime).tz(window.TimeZone)._d;
+        const sText = `(${moment(start).format("DD MMM YYYY hh:mm A")} - ${moment(end).format("DD MMM YYYY hh:mm A")})`;
+        $('#timeTitle').html(sText);
+    });
+
+    function openEvaluation() {
+        event.preventDefault();
+        window.kendo.ui.progress($('#frmMyEvaluation'), true);
+        const frmMyEvaluation = document.getElementById('frmMyEvaluation');
+        const urlPost = frmMyEvaluation.action;
+        const param = {
+            peerFeedBackSessionId: @Model.PeerFeedBackSessionId,
+            peerFeedBackGroupId: @Model.PeerFeedBackGroupId,
+            peerFeedBackPairingId: @Model.PeerFeedBackPairingId,
+            peerFeedBackId: @Model.PeerFeedBackId,
+            progress: @Model.Progress
+        };
+        createPostRequest(urlPost, param).then(function (response) {
+            window.kendo.ui.progress($('#frmMyEvaluation'), false);
+            window.closeDialog();
+            $('#main').html(response);
+        });
+    }
+</script>

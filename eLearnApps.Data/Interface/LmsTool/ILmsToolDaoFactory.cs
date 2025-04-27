@@ -35,9 +35,9 @@ namespace eLearnApps.Data.Interface.LmsTool
 
         //ITAEnrollAckDao TAEnrollAckDao { get; }
         //ISubmittedGradeStatisticDao SubmittedGradeStatisticDao { get; }
-        //IPeerFeedBackResponsesDao PeerFeedBackResponsesDao { get; }
-        //IPeerFeedBackResponseRemarksDao PeerFeedBackResponseRemarksDao { get; }
-        //IPeerTutoringRecordDao PeerTutoringRecordDao { get; }
-        //IPeerFeedBackDao PeerFeedBackDao { get; }
+        IPeerFeedBackResponsesDao PeerFeedBackResponsesDao { get; }
+        IPeerFeedBackResponseRemarksDao PeerFeedBackResponseRemarksDao { get; }
+        IPeerTutoringRecordDao PeerTutoringRecordDao { get; }
+        IPeerFeedBackDao PeerFeedBackDao { get; }
     }
 }

@@ -1,0 +1,369 @@
+﻿@model eLearnApps.ViewModel.PeerFeedback.DataSourceEvaluatorTargetModel
+<div id="dialog">
+    <div class="dialogContent">
+        <input id="filterText" type="text" placeholder="Search items"/>
+        <div class="selectAll">
+            <input type="checkbox" id="chbAll" class="k-checkbox" onchange="chbAllOnChange()"/>
+            <label class="k-checkbox-label" for="chbAll">Select All</label>
+            <span id="result"></span>
+        </div>
+        <div id="treeview"></div>
+    </div>
+</div>
+<script id="treeviewTpl" type="text/kendo-ui-template">
+    <input id='_#:item.uid#' type='checkbox' class='k-checkbox'/><label for='_#:item.uid#' class='k-checkbox-label'></label>
+        <span>#: item.text #</span>
+        <span class="k-in"><strong>#: item.text #</strong> (<i>#: item.NumOfStudent #</i>)</span>
+
+</script>
+<script>
+    var filterIds = [];
+    var arrayChecked = [];
+    var dataSourceEvaluator = [@Html.Raw(Model.DataSourceEvaluator)];
+    var dataSourceTarget = [@Html.Raw(Model.DataSourceTarget)];
+    const handleFilterBy = () => {
+        let gridEvaluator = $("#gridEvaluator").data('kendoGrid');
+        let gridTarget = $("#gridTarget").data('kendoGrid');
+        if (filterIds.length > 0) {
+            
+            let filteredEvaluatorDS = [];
+            let userIds = [];
+            let filteredTargetDS = [];
+
+            if (window.filterConfig.groupBy === 1) {
+                // filter evaluator by section
+                for (let i = 0; i < dataSourceEvaluator.length; i++) {
+                    let item = dataSourceEvaluator[i];
+                    for (let j = 0; j < window.dataSourceSection.length; j++) {
+                        let section = window.dataSourceSection[j];
+                        if (filterIds.includes(section.id) && userIds.indexOf(item.Id) < 0) {
+                            let users = section.UserEnroll;
+                            if (users.includes(item.Id)) {
+                                filteredEvaluatorDS.push(item);
+                                userIds.push(item.Id);
+                            }
+                        }
+                    }
+                }
+            } else if (window.filterConfig.groupBy === 2) {
+                // filter evaluator by group
+                for (let i = 0; i < dataSourceEvaluator.length; i++) {
+                    let item = dataSourceEvaluator[i];
+                    for (let j = 0; j < filterIds.length; j++) {
+                        if (item.MemberGroup.indexOf(filterIds[j]) >= 0 && userIds.indexOf(item.Id) < 0) {
+                            filteredEvaluatorDS.push(item);
+                            userIds.push(item.Id);
+                        }
+                    }
+                }
+            }
+            userIds.length = 0;
+            if (gridEvaluator) {
+                gridEvaluator.dataSource.data(filteredEvaluatorDS);
+            }
+
+            if (window.filterConfig.isCourseGroup) {
+
+                // target is group,
+                if (window.filterConfig.groupBy === 1) {
+                    // there is no direct correlation between section and group. logic to implement this feature is too complex.
+                    // we are not handling this feature for now
+                    filteredTargetDS = [];
+                }
+                else if (window.filterConfig.groupBy === 2) {
+                    // filter target by group, loop through unfiltered group categories to find group that match filterIds
+                    for (let i = 0; i < dataSourceTarget.length; i++) {
+                        let group_category = dataSourceTarget[i];
+                        let groups = dataSourceTarget[i].Target;
+                        let found_groups = [];
+
+                        // loop through groups in this group category
+                        for (let j = 0; j < groups.length; j++) {
+                            let group = groups[j];
+                            if (filterIds.includes(group.Id)) {
+                                found_groups.push(group);
+                            }
+                        }
+                        if (found_groups.length) {
+                            let found_group_category = {
+                                GroupId: group_category.GroupId,
+                                GroupName: group_category.GroupName,
+                                Target: found_groups
+                            };
+                            filteredTargetDS.push(found_group_category);
+                        }
+                    }
+                }
+
+
+            } else {
+                // when target is individual, loop through unfiltered groups to find group that match filtered
+                for (let i = 0; i < dataSourceTarget.length; i++) {
+                    let item = dataSourceTarget[i];
+                    if (window.filterConfig.groupBy === 1) {
+                        // loop through sections in course to find matching value with filteredIds
+                        for (let j = 0; j < window.dataSourceSection.length; j++) {
+                            let section = window.dataSourceSection[j];
+                            if (filterIds.includes(section.id) && userIds.indexOf(item.Id) < 0) {
+                                // found matching section, and user
+                                let users = section.UserEnroll;
+                                if (users.includes(item.Id)) {
+                                    filteredTargetDS.push(item);
+                                    userIds.push(item.Id);
+                                }
+                            }
+                        }
+                    }
+                    else if (window.filterConfig.groupBy === 2) {
+                        // filter target by group
+                        for (let j = 0; j < filterIds.length; j++) {
+                            if (item.MemberGroup.indexOf(filterIds[j]) >= 0 && userIds.indexOf(item.Id) < 0) {
+                                filteredTargetDS.push(item);
+                                userIds.push(item.Id);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // update UI grid with filtered data
+            if (gridTarget) gridTarget.dataSource.data(filteredTargetDS);
+
+        } else {
+            // No filter, show all as raw
+            if (gridEvaluator)
+                gridEvaluator.dataSource.data(dataSourceEvaluator);
+            if (gridTarget)
+                gridTarget.dataSource.data(dataSourceTarget);
+        }
+    };
+
+    function checkUncheckAllNodes(nodes, checked) {
+        for (let i = 0; i < nodes.length; i++) {
+            nodes[i].set("checked", checked);
+
+            if (nodes[i].hasChildren) {
+                checkUncheckAllNodes(nodes[i].children.view(), checked);
+            }
+        }
+    }
+
+    function getCheckedNodes(nodes, checkedNodes) {
+        var node;
+
+        for (let i = 0; i < nodes.length; i++) {
+            node = nodes[i];
+            if (node.checked && node.hasChildren === false) {
+                checkedNodes.push({ text: node.text, id: node.id });
+            }
+
+            if (node.hasChildren) {
+                getCheckedNodes(node.children.view(), checkedNodes);
+            }
+        }
+    }
+
+    function onCheck() {
+        const checkedNodes = [];
+        const treeView = $("#treeview").data("kendoTreeView");
+
+        getCheckedNodes(treeView.dataSource.view(), checkedNodes);
+        setMessage(checkedNodes.length);
+    }
+
+    function onExpand(e) {
+        if ($("#filterText").val() === "") {
+            $(e.node).find("li").show();
+        }
+    }
+
+    function setMessage(checkedNodes) {
+        var message = '';
+        if (checkedNodes > 0) {
+            message = checkedNodes + " items selected";
+        }
+        $("#result").html(message);
+    }
+
+    $("#filterText").keyup(function(e) {
+        const filterText = $(this).val();
+
+        if (filterText !== "") {
+            $(".selectAll").css("visibility", "hidden");
+
+            $("#treeview .k-group .k-group .k-in").closest("li").hide();
+            $("#treeview .k-group").closest("li").hide();
+            $(`#treeview .k-in:contains(${filterText})`).each(function() {
+                $(this).parents("ul, li").each(function() {
+                    const treeView = $("#treeview").data("kendoTreeView");
+                    treeView.expand($(this).parents("li"));
+                    $(this).show();
+                });
+            });
+            $(`#treeview .k-group .k-in:contains(${filterText})`).each(function() {
+                $(this).parents("ul, li").each(function() {
+                    $(this).show();
+                });
+            });
+        } else {
+            $("#treeview .k-group").find("li").show();
+            var nodes = $("#treeview > .k-group > li");
+
+            $.each(nodes,
+                function(i, val) {
+                    if (nodes[i].getAttribute("data-expanded") == null) {
+                        $(nodes[i]).find("li").hide();
+                    }
+                });
+
+            $(".selectAll").css("visibility", "visible");
+        }
+    });
+
+    function chbAllOnChange() {
+        const checkedNodes = [];
+        const treeView = $("#treeview").data("kendoTreeView");
+        const isAllChecked = $('#chbAll').prop("checked");
+
+        checkUncheckAllNodes(treeView.dataSource.view(), isAllChecked);
+
+        if (isAllChecked) {
+            setMessage($('#treeview input[type="checkbox"]').length);
+        } else {
+            setMessage(0);
+        }
+    }
+
+    function openDialog(title) {
+        const dialog = $("#dialog").data("kendoDialog");
+        dialog.title(title);
+        dialog.open();
+    }
+
+    function onOkClick(e) {
+        const checkedNodes = [];
+        const treeView = $("#treeview").data("kendoTreeView");
+
+        getCheckedNodes(treeView.dataSource.view(), checkedNodes);
+        populateMultiSelect(checkedNodes);
+        handleFilterBy();
+        updateResult(checkedNodes);
+        e.sender.close();
+    }
+
+    function populateMultiSelect(checkedNodes) {
+        filterIds.length = 0;
+        if (checkedNodes.length > 0) {
+            for (let i = 0; i < checkedNodes.length; i++) {
+                filterIds.push(checkedNodes[i].id);
+            }
+        }
+    }
+
+    function setTreeViewDataSource(dataSource, callback) {
+        arrayChecked.length = 0;
+        $('div#resultItems .selectedName').each(function() {
+            const id = $(this).data('id');
+            arrayChecked.push(id);
+
+        });
+        var treeview = $("#treeview").data("kendoTreeView");
+        const ds = new kendo.data.HierarchicalDataSource({
+            data: dataSource
+        });
+        ds.fetch(function() {
+            treeview.setDataSource(ds);
+            if (typeof callback === "function") {
+                callback();
+            }
+        });
+    }
+
+    function updateResult(checkedNodes) {
+        var result = "";
+        if (checkedNodes.length > 0) {
+            for (let i = 0; i < checkedNodes.length; i++) {
+                const item = checkedNodes[i];
+                result += `<span class='selectedName' data-id='${item.id}'>${item.text}</span>`;
+            }
+        }
+        $("#resultItems").html(result);
+    }
+
+    function onCancelClick(e) {
+        e.sender.close();
+    }
+
+    function createDialog() {
+        const dialog = $("#dialog").data('kendoDialog');
+        if (dialog === null || dialog === undefined) {
+            $("#dialog").kendoDialog({
+                width: "400px",
+                visible: false,
+                closable: true,
+                modal: true,
+                actions: [
+                    {
+                        text: 'Cancel',
+                        primary: false,
+                        action: onCancelClick
+                    },
+                    { text: 'OK', primary: true, action: onOkClick }
+                ]
+            });
+        }
+    }
+
+    function createTreeViewComponent(data = [], callback) {
+        const tree = $("#treeview").data('kendoTreeView');
+        if (tree === null || tree === undefined) {
+            var dataSource = new kendo.data.HierarchicalDataSource({
+                data: data
+            });
+            dataSource.fetch(function() {
+                $("#treeview").kendoTreeView({
+                    dataSource: dataSource,
+                    checkboxes: {
+                        checkChildren: true
+                    },
+                    template: function(dataItem) {
+                        let item = dataItem.item;
+                        let countItem = (item.hasOwnProperty('UserEnroll') && item.UserEnroll !== null && item.UserEnroll !== undefined) ? item.UserEnroll.length : 0;
+                        if (item.hasOwnProperty('NumOfStudent') && item.NumOfStudent > 0) {
+                            countItem = item.NumOfStudent;
+                        }
+                        let info = countItem > 0 ? `<i>( ${countItem} item(s) )</i>` : '';
+                        return `<span><strong>${item.text}</strong></span> ${info}`;
+                    },
+                    loadOnDemand: false,
+                    check: onCheck,
+                    expand: onExpand,
+                    dataBound: function() {
+                        if (arrayChecked.length > 0) {
+                            const view = this.dataSource.view();
+                            for (let i = 0; i < view.length; i++) {
+                                if (view[i].hasChildren) {
+                                    const nodes = view[i].items;
+                                    for (let j = 0; j < nodes.length; j++) {
+                                        const node = nodes[j];
+                                        if (arrayChecked.includes(node.id)) {
+                                            node.set("checked", true);
+                                        }
+                                    }
+                                } else {
+                                    if (arrayChecked.includes(view[i].id)) {
+                                        view[i].set("checked", true);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (typeof callback === "function") {
+                            callback();
+                        }
+                    }
+                });
+            });
+        }
+    }
+</script>

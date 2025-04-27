@@ -4,6 +4,7 @@ using eLearnApps.Business.Interface;
 using eLearnApps.Core.Caching;
 using eLearnApps.Data;
 using eLearnApps.Data.Interface;
+using eLearnApps.Helpers;
 using eLearnApps.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +60,8 @@ namespace eLearnApps
             builder.Services.AddScoped<IIcsService, IcsService>();
             builder.Services.AddScoped<IAttendanceDataService, AttendanceDataService>();
             builder.Services.AddScoped<ICmtService, CmtService>();
+            builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
+            builder.Services.AddScoped<IPeerFeedbackService, PeerFeedbackService>();
 
             builder.Services.AddScoped<IValenceService, ValenceService>();
 
@@ -67,6 +70,7 @@ namespace eLearnApps
             builder.Services.AddKeyedScoped(typeof(IRepository<>), "default", typeof(Repository<>));
             builder.Services.AddKeyedScoped(typeof(IRepository<>), "lms", typeof(LmsRepository<>));
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<eLearnApps.Extension.Extensions>();
             builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DataContext")));
             builder.Services.AddDbContext<LMSIsisContext>(options =>

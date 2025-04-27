@@ -1,0 +1,140 @@
+﻿@using System.Text
+@using eLearnApps.Extension
+@model eLearnApps.ViewModel.PeerFeedback.PeerFeedBackResultDetailViewModel
+<style>
+    .card {
+        /*background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);*/
+        display: block;
+        line-height: 1.42857143;
+        margin-bottom: 20px;
+        margin-bottom: 0.3rem;
+        /*transition: box-shadow .25s;*/
+    }
+
+    a[data-toggle="collapse"]:after {
+        content: "\f054";
+        float: left;
+        font-family: 'FontAwesome';
+        padding-right: 20px;
+    }
+
+    a[data-toggle="collapse"].collapsed:after {
+        content: "\f078";
+    }
+
+    a[aria-expanded="true"]:after {
+        content: "\f078";
+    }
+
+    a[aria-expanded="false"].collapsed:after {
+        content: "\f054";
+    }
+    .badge {
+        font-size: 100%;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card" style="border-bottom: 1px solid #e4e5e6;">
+            <div class="card-header">
+                <h5 class="d-inline">Progress: @Math.Floor(Model.Progress)%</h5>
+                <div class="card-header-actions">
+                    <h7 id="headerSession@(Model.Session.Id)" data-start="@Model.Session.StartTotalMilliseconds" data-end="@Model.Session.EndTotalMilliseconds"></h7>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (Model == null || Model.Questions.Count == 0)
+                {
+                    <h5>No record(s).</h5>
+                }
+                else
+                {
+                    <div class="row mb-1">
+                        <div class="col-12">
+                            <div class="accordion" style="border-bottom: 1px;" id="accordionQuestionStatistic@(Model.Session.Id)">
+                                @foreach (var item in Model.Questions)
+                                {
+                                    var collpaseId = $"{Model.PeerFeedBackId}_{item.Id}_{Model.PeerFeedBackSessionId}_{Model.PeerFeedBackGroupId}";
+                                    <div class="card" style="border: none;">
+                                        <div class="card-header" id="heading_QuestionStatistic_@collpaseId" style="background-color: #f0f3f5 !important; color: inherit; ">
+                                            <div class="row">
+                                                <div class="col-7">
+                                                    <h6 class="mb-0">
+                                                        <a data-toggle="collapse" style="cursor: pointer" data-target="#collapse_QuestionStatistic_@collpaseId" data-index="@collpaseId" aria-controls="collapse_QuestionStatistic_@collpaseId">
+                                                            @item.Title
+                                                        </a>
+                                                    </h6>
+                                                </div>
+                                                <div class="col-5">
+                                                    <div class="card-header-actions">
+                                                        @if (item.MeanScore != null && item.MeanScore.ColorCode != null)
+                                                        { 
+                                                        <h6 class="mb-0 ml-5">
+                                                            Mean Score is <span class="badge me-1 rounded-pill ml-1" style="background-color: @item.MeanScore.ColorCode !important;color:white;">@item.MeanScore.Text</span>
+                                                        </h6>
+                                                        }                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="collapse_QuestionStatistic_@collpaseId"
+                                             class="collapse statistic"
+                                             data-question="@item.Id"
+                                             data-groupby="@Model.GroupBy"
+                                             data-index="@collpaseId"
+                                             aria-labelledby="heading_QuestionStatistic_@collpaseId"
+                                             data-parent="#accordionQuestionStatistic@(Model.Session.Id)">
+                                            <div class="card-body">
+                                                <div id="dvResultDetail@(collpaseId)"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var data = [];
+    $(document).ready(function() {
+        $('div[id*="collapse_QuestionStatistic_"]').on('show.bs.collapse',
+            function(e) {
+                GetQuestionStatistic($(e.target));
+            });
+        $('div[id*="collapse_QuestionStatistic_"]').on('hidden.bs.collapse',
+            function (e) {
+                const element = $(e.target);
+                const index = $(element).data('index');
+                $(`#dvResultDetail${index}`).html('');
+            });
+        //const end = GetLocalTime(kendo.parseFloat('@Model.Session.EndTotalMilliseconds'), window.TimeZone, DateFormat.FormatAm);
+        //const start = GetLocalTime(kendo.parseFloat('@Model.Session.StartTotalMilliseconds'), window.TimeZone, DateFormat.FormatAm);
+        @*$('#headerSession@(Model.Session.Id)').html(`${start} to ${end}`);*@
+    });
+
+    function GetQuestionStatistic(element) {
+        const index = $(element).data('index');
+        const groupBy = $(element).attr('data-groupby');
+        const peerFeedBackQuestionId = $(element).data('question');
+        const param = {
+            Key: '@Model.Key',
+            groupBy: groupBy,
+            peerFeedBackSessionId: @Model.PeerFeedBackSessionId,
+            peerFeedBackGroupId: @Model.PeerFeedBackGroupId,
+            peerFeedBackId: @Model.PeerFeedBackId,
+            peerFeedBackQuestionId: peerFeedBackQuestionId,
+            peerFeedBackPairingId: @Model.PeerFeedBackPairingId
+        };
+        const urlDetail = `@Url.Action("PeerFeedBackResultQuestionStatistic", "PeerFeedback")`;
+        createPostRequest(urlDetail, param).then(function(response) {
+            $(`#dvResultDetail${index}`).html('');
+            $(`#dvResultDetail${index}`).html(response);
+        });
+    }
+</script>

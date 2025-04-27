@@ -1,0 +1,164 @@
+﻿@using Newtonsoft.Json
+@model  eLearnApps.ViewModel.PeerFeedback.PeerFeedBackSessionsPairingListModel
+@{
+    var typeId = (int)ViewBag.TypeId;
+    var num = 0;
+}
+<style>
+    .k-multiselect-wrap { border: none; }
+
+    .k-multiselect-wrap li { padding: 0 0.857em 0 .857em; }
+
+    #sessionPairingList .k-expander-title {
+        color: #fff;
+        margin-left: 20px;
+    }
+
+    #sessionPairingList .k-expander-indicator {
+        float: left;
+        margin-left: 0;
+        position: absolute;
+    }
+
+    #sessionPairingList .k-expander-header {
+        background-color: #0e2669 !important;
+        color: #fff;
+    }
+
+    .card {
+        display: block;
+        line-height: 1.42857143;
+        margin-bottom: 20px;
+        margin-bottom: 0.3rem;
+    }
+
+    a[data-toggle="collapse"]:after {
+        content: "\f054";
+        float: left;
+        font-family: 'FontAwesome';
+        padding-right: 20px;
+    }
+
+    a[data-toggle="collapse"].collapsed:after { content: "\f078"; }
+
+    a[aria-expanded="true"]:after { content: "\f078"; }
+
+    a[aria-expanded="false"].collapsed:after { content: "\f054"; }
+</style>
+<script>
+    function createElement(element, datasource = []) {
+        const multiSelect = $(element).kendoMultiSelect({ readonly: true, dataSource: datasource, value: datasource, dataBound: function() { $('span.k-select').remove(); } }).data("kendoMultiSelect");
+        multiSelect.readonly(true);
+    }
+</script>
+@foreach (var item in Model.SessionPairings)
+{
+    num++;
+    <div class="accordion" style="border-bottom: 1px;" id="accordionParent">
+        <div class="card" style="border: none; border-bottom: 1px solid #e4e5e6;">
+            <div class="card-header" style="background-color: #0e2669 !important; color: #fff;">
+                <div class="d-flex">
+                    <div>
+                        <h6 class="mb-0">
+                            <a data-toggle="collapse" aria-expanded="true" style="cursor: pointer" data-target="#collapse_@item.Session.Id" aria-controls="collapse_@item.Session.Id">#@num</a>
+                        </h6>
+                    </div>
+                    <div class="ml-auto">
+                        <div class="card-header-actions">
+                            <div class="row">
+                                <div class="col-auto">
+                                    <a data-session="@item.Session.Id" data-pairing="0" onclick="createOrUpdateTargets(this)" style="cursor: pointer;">
+                                        <span class="k-icon k-i-hyperlink-open"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="collapse_@item.Session.Id" class="collapse show" aria-labelledby="heading_@item.Session.Id">
+                <div class="card-body">
+                    <h5 class="card-title mb-1">
+                        Session
+                    </h5>
+                    <div class="row">
+                        <div class="k-card m-3">
+                            <div class="k-card-body">
+                                <span class="card-text">
+                                    <strong>@item.Session.Label</strong>
+                                </span><br/>
+                                <span class="card-text">
+                                    <strong>Start Date:</strong><span data-utc="@item.Session.StartTotalMilliseconds"></span>
+                                </span><br/>
+                                <span class="card-text">
+                                    <strong>End Date:</strong><span data-utc="@item.Session.EndTotalMilliseconds"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <h5 class="card-title mt-3">Targets</h5>
+                    @if (!item.Session.Targets.Any())
+                    {
+                        <div class="ml-3 alert alert-danger">
+                            <strong>
+                                No targets assigned.<br/>
+                                Click on 'Edit' to assign are targets.
+                            </strong>
+                        </div>
+                    }
+                    else
+                    {
+                        var arrName = new List<string>();
+                        foreach (var target in item.Session.Targets)
+                        {
+                            if (target.Type == 0)
+                            {
+                                arrName.Add(target.Name);
+                            }
+                            else
+                            {
+                                <div class="form-group">
+                                    <label for="cbo-@item.Session.Id-@target.Id">
+                                        <strong>
+                                            <i>@target.Name</i>
+                                        </strong>
+                                    </label>
+                                    @if (!string.IsNullOrEmpty(target.Description))
+                                    {
+                                        var arr = target.Description.Split(',');
+
+                                        <select id="cbo-@item.Session.Id-@target.Id" multiple="multiple" style="width: 90%"></select>
+                                        <script>
+                                            let dataSource = @Html.Raw(JsonConvert.SerializeObject(arr));
+                                            createElement($("#cbo-@item.Session.Id-@target.Id"), dataSource);
+                                        </script>
+                                    }
+                                </div>
+                            }
+                        }
+                        if (arrName.Any())
+                        {
+                            <select id="cbo-@item.Session.Id" multiple="multiple" style="width: 90%"></select>
+                            <script>
+                                let ds = @Html.Raw(JsonConvert.SerializeObject(arrName));
+                                createElement($("#cbo-@item.Session.Id"), ds);
+                            </script>
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    $(document).ready(function() {
+        $('span[data-utc]').each(function() {
+            const utcTime = $(this).data('utc');
+            const dt = GetLocalTime(kendo.parseFloat(utcTime), window.TimeZone, DateFormat.FormatAm);
+            $(this).html(` ${dt}`);
+        });
+    });
+    
+</script>

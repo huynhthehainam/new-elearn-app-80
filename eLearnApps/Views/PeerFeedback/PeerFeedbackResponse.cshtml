@@ -1,0 +1,481 @@
+@model eLearnApps.ViewModel.PeerFeedback.PeerFeedbackResponseViewModel
+@{
+    ViewBag.Title = "Peer and Self Feedback";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+    var closed = Model.EndTime < DateTime.UtcNow;
+
+}
+<style>
+    body {
+        background: #eee;
+    }
+
+    .email-app {
+        background: #fff;
+        border: 1px solid #e1e6ef;
+        display: flex;
+        flex-direction: row;
+    }
+
+        .email-app nav {
+            border-right: 1px solid #e1e6ef;
+            flex: 0 0 200px;
+            padding: 1rem;
+        }
+
+            .email-app nav .btn-block {
+                margin-bottom: 15px;
+            }
+
+            .email-app nav .nav {
+                flex-direction: column;
+            }
+
+                .email-app nav .nav .nav-item {
+                    position: relative;
+                }
+
+                    .email-app nav .nav .nav-item .nav-link,
+                    .email-app nav .nav .nav-item .navbar .dropdown-toggle,
+                    .navbar .email-app nav .nav .nav-item .dropdown-toggle {
+                        border-bottom: 1px solid #e1e6ef;
+                        color: #151b1e;
+                    }
+
+                        .email-app nav .nav .nav-item .nav-link i,
+                        .email-app nav .nav .nav-item .navbar .dropdown-toggle i,
+                        .navbar .email-app nav .nav .nav-item .dropdown-toggle i {
+                            font-size: 14px;
+                            margin: 0 10px 0 0;
+                            text-align: center;
+                            width: 20px;
+                        }
+
+                        .email-app nav .nav .nav-item .nav-link .badge,
+                        .email-app nav .nav .nav-item .navbar .dropdown-toggle .badge,
+                        .navbar .email-app nav .nav .nav-item .dropdown-toggle .badge {
+                            float: right;
+                            margin-left: 10px;
+                            margin-top: 4px;
+                        }
+
+        .email-app main {
+            flex: 1;
+            min-width: 0;
+            padding: 1rem;
+        }
+
+        .email-app .inbox .toolbar {
+            border-bottom: 1px solid #e1e6ef;
+            padding-bottom: 1rem;
+        }
+
+        .email-app .inbox .messages {
+            list-style: none;
+            padding: 0;
+        }
+
+        .email-app .inbox .message {
+            border-bottom: 1px solid #e1e6ef;
+            cursor: pointer;
+            padding: 1rem 1rem 1rem 2rem;
+            position: relative;
+        }
+
+            .email-app .inbox .message:hover {
+                background: #f9f9fa;
+            }
+
+            .email-app .inbox .message .actions {
+                display: flex;
+                flex-direction: column;
+                left: 0;
+                position: absolute;
+            }
+
+                .email-app .inbox .message .actions .action {
+                    color: #c0cadd;
+                    margin-bottom: 0.5rem;
+                    text-align: center;
+                    width: 2rem;
+                }
+
+            .email-app .inbox .message a {
+                color: #000;
+            }
+
+                .email-app .inbox .message a:hover {
+                    text-decoration: none;
+                }
+
+            .email-app .inbox .message.unread .header,
+            .email-app .inbox .message.unread .title {
+                font-weight: bold;
+            }
+
+            .email-app .inbox .message .header {
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 0.5rem;
+            }
+
+                .email-app .inbox .message .header .date {
+                    margin-left: auto;
+                }
+
+            .email-app .inbox .message .title {
+                margin-bottom: 0.5rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .email-app .inbox .message .description {
+                font-size: 12px;
+            }
+
+        .email-app .message .toolbar {
+            border-bottom: 1px solid #e1e6ef;
+            padding-bottom: 1rem;
+        }
+
+        .email-app .message .details .title {
+            font-weight: bold;
+            padding: 1rem 0;
+        }
+
+        .email-app .message .details .header {
+            border-bottom: 1px solid #e1e6ef;
+            border-top: 1px solid #e1e6ef;
+            display: flex;
+            margin: 1rem 0;
+            padding: 1rem 0;
+        }
+
+            .email-app .message .details .header .avatar {
+                height: 40px;
+                margin-right: 1rem;
+                width: 40px;
+            }
+
+            .email-app .message .details .header .from {
+                align-self: center;
+                color: #9faecb;
+                font-size: 12px;
+            }
+
+                .email-app .message .details .header .from span {
+                    display: block;
+                    font-weight: bold;
+                }
+
+            .email-app .message .details .header .date {
+                margin-left: auto;
+            }
+
+        .email-app .message .details .attachments {
+            border-bottom: 3px solid #f9f9fa;
+            border-top: 3px solid #f9f9fa;
+            margin-bottom: 1rem;
+            padding: 1rem 0;
+        }
+
+            .email-app .message .details .attachments .attachment {
+                align-self: center;
+                display: flex;
+                font-size: 12px;
+                margin: 0.5rem 0;
+            }
+
+                .email-app .message .details .attachments .attachment .badge {
+                    line-height: inherit;
+                    margin: 0 0.5rem;
+                }
+
+                .email-app .message .details .attachments .attachment .menu {
+                    margin-left: auto;
+                }
+
+                    .email-app .message .details .attachments .attachment .menu a {
+                        color: #e1e6ef;
+                        font-size: 14px;
+                        padding: 0 0.5rem;
+                    }
+
+    #fieldlist {
+        margin: 0;
+        padding: 0;
+    }
+
+        #fieldlist li {
+            list-style: none;
+            padding-bottom: .7em;
+            text-align: left;
+        }
+
+        #fieldlist label {
+            color: #444;
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            padding-bottom: .3em;
+            text-transform: uppercase;
+        }
+
+        #fieldlist li.status {
+            text-align: center;
+        }
+
+        #fieldlist li .k-widget:not(.k-tooltip),
+        #fieldlist li .k-textbox {
+            margin: 0 5px 5px 0;
+        }
+
+    .confirm {
+        padding-top: 1em;
+    }
+
+    .valid {
+        color: green;
+    }
+
+    .invalid {
+        color: red;
+    }
+
+    span.k-widget.k-tooltip-validation {
+        background: none;
+        border: 0;
+        box-shadow: none;
+        color: red;
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+        width: 160px;
+    }
+
+    .k-tooltip-validation .k-warning {
+        display: none;
+    }
+
+    @@media (max-width: 767px) {
+        .email-app {
+            flex-direction: column;
+        }
+
+            .email-app nav {
+                flex: 0 0 100%;
+            }
+    }
+
+    @@media (max-width: 575px) {
+        .email-app .message .header {
+            flex-flow: row wrap;
+        }
+
+            .email-app .message .header .date {
+                flex: 0 0 100%;
+            }
+    }
+
+    #clockdiv {
+        bottom: 42px;
+        color: red;
+        font-size: 18px;
+        position: fixed;
+        right: 50px;
+        /* border: 3px solid #73AD21; */
+        z-index: 9999;
+    }
+
+    .k-i-close {
+        cursor: pointer;
+    }
+
+    .card-danger {
+        background-color: #f86c6b !important;
+        color: white !important;
+    }
+
+    .bg-card-header {
+        display: block;
+        text-decoration: none;
+        border-radius: 6px !important;
+        margin: 10px;
+        padding: 1em 3em;
+        box-shadow: 0 4px 6px rgb(50 50 93 / 11%), 0 1px 3px rgb(0 0 0 / 8%);
+        background-size: 300% 300%;
+        background-image: linear-gradient(to right, #1ca7ec 0%, #b847ff 50%, #1ca7ec 100%);
+        color: white !important;
+    }
+
+    .table th, .table td {
+        border-top: 1px solid #eee;
+        width: 50%;
+    }
+
+    .font-weight-bold {
+        color: #666 !important;
+    }
+
+    #grid .k-grid-header .k-link {
+        color: white !important;
+    }
+
+    .k-window-titlebar {
+        background-color: #f58220 !important;
+        color: white;
+        text-align: center;
+    }
+
+    .k-window-title.k-dialog-title {
+        display: flex;
+        justify-content: center;
+    }
+
+    .k-dialog-buttongroup .k-primary {
+        font-weight: bold;
+        border-radius: 2px;
+        border-color: #e5e5e5;
+        color: #444;
+        background-color: #e5e5e5;
+        background-position: 50% 50%;
+        box-shadow: 0 2px 6px 0 rgb(0 0 0 / 20%)
+    }
+
+    .k-dialog-buttongroup .k-primary:hover {
+        font-weight: bold;
+        border-color: #e0e0e0;
+        background-color: #e0e0e0;
+    }
+    .k-window-content.k-dialog-content {
+        text-align: center;
+    }
+
+</style>
+
+<div id="clockdiv"></div>
+
+<form id="form_evaluation_response" method="post" action="@Url.Action("PeerFeedbackResponseSave")">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-card-header @(closed ? "card-danger" : "")">
+                    @if (closed)
+                    {
+                        <i class="fa fa-lock fa-lg"></i>
+                    }
+                    else
+                    {
+                        <i class="icon-note"></i>
+                    }
+                    My Evaluation - @Model.Name <span id="timeTitle" data-starttime="@Model.StartTime.ToString("dd MMM yyyy hh:mm tt")" data-endtime="@Model.EndTime.ToString("dd MMM yyyy hh:mm tt")"></span>
+                    <div class="card-header-actions">
+                        <strong>Progress: @Model.Progress.ToString("N2")%</strong>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @Html.Partial("_PeerFeedbackResponseUser", Model)
+                </div>
+                <div class="card-footer">
+                    <button id="btnBack" type="button" class="k-button" onclick="NavigateByTagName('PeerFeedback')"><span class="k-icon k-i-arrow-left"></span>&nbsp;Back</button>&nbsp;
+                    <button id="btnSave" type="button" class="k-button k-primary" @(closed ? "disabled" : "")><span class="k-icon k-i-save"></span>&nbsp;Submit</button>&nbsp; &nbsp;
+                    <div class="status" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <span id="notification" style="display: none;"></span>
+</form>
+
+<script>
+
+    var notification;
+    $(document).ready(function() {
+        const startTime = $('#timeTitle').data('starttime');
+        const endTime = $('#timeTitle').data('endtime');
+
+        const start = moment(startTime).tz(window.TimeZone)._d;
+        const end = moment(endTime).tz(window.TimeZone)._d;
+        const sText = `(${moment(start).format("DD MMM YYYY hh:mm A")} - ${moment(end).format("DD MMM YYYY hh:mm A")})`;
+        $('#timeTitle').html(sText);
+
+        // localize utc time to client's local time
+        $('[data-utcdate]').each(function() {
+            const d = moment($(this).attr('data-utcdate')).tz(window.TimeZone)._d;
+            $(this).html(moment(d).format("DD MMM YYYY hh:mm A"));
+        });
+        $('#btnSave').click(function (evt) {
+            setupPeerFeedbackPage();
+            if ($('input[type="radio"][id*="rdb_"]:checked').length === 0 || itemNeedToEvaluate.length > 0) {
+
+                window.kendo.confirm(`You will not be able to view the feedback result of your peers if you do not complete 100% evaluation.</br></position center> Please click "Cancel" to continue evaluating or "Confirm" to submit.</position center>`)
+                    .done(function () {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    })
+                    .fail(function () {
+                        auditUserAction(4);
+                        let myForm = document.getElementById('form_evaluation_response');
+                        let formData = new FormData(myForm);
+                        const options = {
+                            method: 'POST',
+                            data: formData,
+                            url: '@Url.Action("PeerFeedbackResponseSave")'
+                        };
+                        window.axios(options).then(function (response) {
+                            if (response.data && response.data.hasOwnProperty('ErrorMessage')) {
+                                window.notification.show(response.data.ErrorMessage, "error");
+                            } else {
+                                window.notification.show("Peer and Self Feedback Responses saved successfully.", "success");
+                                startEvaluation();
+                            }
+                        });
+                    });
+                $("span.k-dialog-title").html("Incomplete Submission");
+                $(".k-dialog-buttongroup>button.k-button").html("Confirm");
+                $(".k-dialog-buttongroup>button.k-primary").html("Cancel");
+
+            }
+            else {
+                auditUserAction(5);
+                let myForm = document.getElementById('form_evaluation_response');
+                let formData = new FormData(myForm);
+                const options = {
+                    method: 'POST',
+                    data: formData,
+                    url: '@Url.Action("PeerFeedbackResponseSave")'
+                };
+                window.axios(options).then(function (response) {
+                    if (response.data && response.data.hasOwnProperty('ErrorMessage')) {
+                        window.notification.show(response.data.ErrorMessage, "error");
+                    } else {
+                        window.notification.show("Peer and Self Feedback Responses saved successfully.", "success");
+                        startEvaluation();
+                    }
+                });
+            }
+        });
+        notification = $("#notification").kendoNotification().data("kendoNotification");
+    });
+    const startEvaluation = () => {
+        window.kendo.ui.progress($('#main'), true);
+        NavigateByTagName("PeerFeedback");
+        const url = '@Url.Action("PeerFeedbackList", "PeerFeedback")';
+        createPostRequest(url).then(function(response) {
+            $("#dvPeerFeedback").html(response);
+            window.kendo.ui.progress($('#main'), false);
+        });
+    }
+    function auditUserAction(resourceId) {
+        var courseId = $("input[name='Response.CourseId']").val();
+        const url = '@Url.Action("AuditUserAction", "PeerFeedback")';
+        const param = {
+            ResourceId: resourceId,
+            CourseId: courseId,
+            Question: "",
+        };
+        createPostRequest(url, param);
+    }
+</script>

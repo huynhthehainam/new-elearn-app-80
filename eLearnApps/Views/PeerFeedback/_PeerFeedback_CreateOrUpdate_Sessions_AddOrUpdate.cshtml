@@ -1,0 +1,542 @@
+﻿@using eLearnApps.Core
+@{
+    var dayOfWeek = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+}
+@model eLearnApps.ViewModel.PeerFeedback.PeerFeedbackSessionAddOrEditViewModel
+
+<style>
+    #downloadCSV {
+        color: black;
+        font-size: 12px;
+        font-style: italic;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .fieldlist li {
+        padding-bottom: 1.2em;
+    }
+
+    li.k-button {
+        padding-bottom: 0;
+    }
+</style>
+<div id="formAddSession" class="sidenav k-content" style="width: 430px">
+    <h3 id="sideTitle">Please complete the form below to create a new Peer and Self Feedback exercise</h3>
+    <hr />
+    <div id="sessionContainer">
+        <form id="add-session-from" data-role="form" class="k-widget k-form">
+            @Html.AntiForgeryToken()
+            <ul class="fieldlist">
+                <li>
+                    <ul class="fieldlist" id="mainSingleSession">
+                        <li>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="txtLabel">Session Name</label>
+                                </div>
+                                <div class="col-10">
+                                    <input id="txtLabel" name="Label" class="k-textbox" maxlength="200" style="width: 100%;" required value="@Model.Session.Label" />
+                                </div>
+                            </div>
+                            <small>Please enter not more than 200 characters for Session Name.</small>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="dpStart">Start Date</label>
+                                </div>
+                                <div class="col-10">
+                                    <input id="dpStart" name="Start" style="width: 100%;" required data-utc="@Model.Session.StartTotalMilliseconds" />
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="dpEnd">End Date</label>
+                                </div>
+                                <div class="col-10">
+                                    <input id="dpEnd" name="End" style="width: 100%;" required data-utc="@Model.Session.EndTotalMilliseconds" />
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Term</label>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check form-check-inline">
+                                        <select name="strm" id="strm"></select>
+                                        <span style="margin-left:10px;"><a onclick="" id="downloadCSV"><strong>Download courses based on<br />selected TERM (CSV Format).</strong></a></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label>Participating Course(s)</label>
+                                </div>
+                                <div class="col-10">
+                                    <div id="cboParticipatingCourse"></div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <hr />
+                            <button id="btnSessionCancel" type="button" class="k-button"><span class="k-icon k-i-close"></span>&nbsp;Cancel</button>&nbsp;
+                            <button id="btnSessionReview" type="button" class="k-button">&nbsp;Review</button>&nbsp;
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="container">
+                @Html.Partial("_CourseDetailModal")
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="dialog">
+    <div class="dialogContent">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<script>
+    var recurringStart, recurringEnd, dates, arrDayOfWeek = [], cboParticipatingCourse, cboStrm, termDatasource = [], btnSessionReview;
+    const isEdit = Boolean(@(Model.Session.Id > 0 ? 1 : 0));
+    function ShowEditSessionsForm() {
+        const slide = kendo.fx($("#formAddSession")).slideIn("left");
+        slide.play();
+        $(".overlay").show();
+    }
+
+    function ShowAddSessionsForm() {
+        const slide = kendo.fx($("#formAddSession")).slideIn("left");
+        slide.play();
+        $(".overlay").show();
+    }
+    var isValid = () => {
+        var today = new Date();
+        var todayFormat = kendo.toString(today, "dd MMM yyyy hh:mm tt");
+        const txtLabel = $('#txtLabel').val();
+        const txtStart = $('#dpStart').data('kendoDateTimePicker');
+        const txtEnd = $('#dpEnd').data('kendoDateTimePicker');
+        const strm = cboStrm.value();
+        const courseCode = cboParticipatingCourse.value();
+
+        if (txtLabel === "" && txtStart === "" && txtEnd === "") {
+            createCustomDialog("SESSION NAME, START DATE, and END DATE are required to set up the session.");
+            return false;
+        }
+        if (txtLabel === "") {
+            createCustomDialog("SESSION NAME cannot be empty.");
+            return false;
+        }
+
+        //Validate StartDate
+        var startDateValue = txtStart.value();
+        var startDateText = txtStart.element.val();
+        var startDateFormat = txtStart.options.format;
+        var startDateParsedDate = kendo.parseDate(startDateText, startDateFormat);
+
+        if (startDateText === "" || startDateText === null) {
+            createCustomDialog("START DATE cannot be empty.");
+            return false
+        }
+
+        if (startDateParsedDate === null) {
+            createCustomDialog(`Incorrect START DATE format. (Example: ${todayFormat})`);
+            return false
+        }
+
+        //Validate EndDate
+        var endDateValue = txtEnd.value();
+        var endDateText = txtEnd.element.val();
+        var endDateFormat = txtEnd.options.format;
+        var endDateParsedDate = kendo.parseDate(endDateText, endDateFormat);
+
+        if (endDateText === "" || endDateText === null) {
+            createCustomDialog("END DATE cannot be empty.");
+            return false;
+        }
+
+        if (endDateParsedDate === null) {
+            createCustomDialog(`Incorrect END DATE format. (Example: ${todayFormat})`);
+            return false
+        }
+
+        if (startDateValue >= endDateValue) {
+            createCustomDialog("END DATE must be later than START DATE.");
+            return false;
+        }
+        if (endDateValue < today) {
+            createCustomDialog(`END DATE must be later than today’s date (${today}).`);
+            return false;
+        }
+
+        if (strm === "" || strm === undefined) {
+            createCustomDialog("Please select a TERM.");
+            return false;
+        }
+        if (courseCode === "" || courseCode === undefined || courseCode === null || courseCode.length === 0) {
+            createCustomDialog("Please select the PARTICIPATING COURSES.");
+            return false;
+        }
+        return true;
+    }
+
+    function HandleSave(){
+        const txtLabel = $('#txtLabel').val();
+        const txtStart = $('#dpStart').data('kendoDateTimePicker').value();
+        const txtEnd = $('#dpEnd').data('kendoDateTimePicker').value();
+        const selectedCourseCode = cboParticipatingCourse.value();
+        if (isValid()) {
+            kendo.ui.progress($('#formAddSession'), true);
+            var data = {
+                Id: '@Model.Session.Id',
+                Label: txtLabel,
+                Strm: $('#strm').data('kendoDropDownList').value(),
+                PeerFeedbackId: '@Model.Session.PeerFeedbackId',
+                EntryStartTime: moment(txtStart).tz(window.TimeZone).utc().format("DD MMM YYYY HH:mm:ss"),
+                EntryCloseTime: moment(txtEnd).tz(window.TimeZone).utc().format("DD MMM YYYY HH:mm:ss"),
+                PeerFeedbackSessionId: '@Model.Session.Id',
+                CourseOfferingCode: selectedCourseCode
+            };
+            const saveEvalSessionUrl = '@Url.Action("PeerFeedbackSessionSave", "PeerFeedback")';
+            createPostRequest(saveEvalSessionUrl, data).then(function (response) {
+                if (response && response.length > 0) {
+                    const msg = response.map(function (item) {
+                        return `<strong>${item}</strong><br />`;
+                    });
+                    createCustomDialog(msg);
+                    $("#btnSessionSave").prop('disabled', false);
+                } else {
+                    window.ReloadSessionList();
+                    HideAddSessionsForm();
+                    window.notification.show("Peer and Self Feedback saved successfully.", "success");
+                }
+                kendo.ui.progress($('#formAddSession'), false);
+            });
+        } else {
+            $("#btnSessionSave").prop('disabled', false);
+        }
+    }
+
+    $("#btnSessionSave").click(function () {
+        $("#btnSessionSave").prop('disabled', true);
+        HandleSave()
+
+    });
+    $("#btnSessionCancel").click(function() {
+        HideAddSessionsForm();
+    });
+
+    function handleSessionReview() {
+        if (isValid()) {
+            const params = {
+                term: $('#strm').data('kendoDropDownList').value(),
+                codes: cboParticipatingCourse.value(),
+            };
+            window.openDialog(params);
+        }
+    };
+
+    async function GetModalContent(){
+        window.event.preventDefault();
+          $('#dialogCourseDetail').kendoWindow({
+              height: '70%',
+              width: '60%',
+              title: "Select one",
+              modal: true,
+              animation: false,
+              visible: false,
+              draggable: false,
+              deactivate: function(e) {
+                  const window = $('#dialogCourseDetail').data("kendoWindow");
+                  window.destroy();
+                  window.wrapper.empty();
+              }
+          });
+          const popup = $('#dialogCourseDetail').data('kendoWindow');
+          popup.open();
+          popup.center();
+    }
+    function HideAddSessionsForm() {
+        $("#formAddSession").hide();
+        $(".overlay").hide();
+        $("#divAddSession").html('');
+    }
+
+    function ShowSession() {
+        const isChecked = $("#rdbSingleSession").is(":checked");
+        if (isChecked) {
+            $("#mainSingleSession").show();
+            $("#mainRecurringSession").hide();
+        } else {
+            $("#mainSingleSession").hide();
+            $("#mainRecurringSession").show();
+        }
+    }
+    var start, end, selectOfferingCode = [];
+    @foreach (var code in Model.Session.CourseOfferingCode)
+    {
+        @:selectOfferingCode.push("@code");
+    }
+    function getDefaultSelectedTerm(options) {
+        const url = `@Url.Action("GetDefaultSelectedStrm", "PeerFeedback")`;
+        createPostRequest(url, { strm: `@Model.Session.Strm` }).then(function (result) {
+            options.success(result);
+            if (result.data.length > 0) {
+                // because there's only one option
+                $("#strm").data("kendoDropDownList").select(1)
+            }
+        });
+    }
+    function clearDefaultSelectedTerm() {
+        const txtFilter = $(cboStrm.filterInput).val();
+        if (cboStrm.filterInput === null ||
+            cboStrm.filterInput === undefined ||
+            txtFilter === null ||
+            txtFilter === undefined ||
+            txtFilter.length === 0) {
+            $("#strm").data("kendoDropDownList").value('');
+        }
+    }
+    function setOptions(options) {
+        var params = addAntiForgeryToken(options.data);
+        $.ajax({
+            data: params,
+            method: "POST",
+            dataType: "json",
+            url: `@Url.Action("GetTerms", "PeerFeedback")`,
+            success: function (result) {
+                options.success(result);
+                clearDefaultSelectedTerm();
+            }
+        });
+    }
+    $(document).ready(function () {
+        const datasource = new kendo.data.DataSource({
+            transport: {
+                read: function (options) {
+                    @if(Model.Session.Id > 0)
+                    {
+                         @:getDefaultSelectedTerm(options);
+                    }
+                    else
+                    {
+                        @:setOptions(options);
+                    }
+                }
+            },
+            page:1,
+            pageSize: 30,
+            serverPaging: true,
+            serverFiltering: false,
+            schema: {
+                data: function (response) {
+                    return response.data;
+                }, total: function (response) {
+                    return response.total;
+                },
+                fields: {
+                    Text: { type: "string" },
+                    Value: { type: "string" }
+                }
+            }
+        });
+        cboStrm = $("#strm").kendoDropDownList({
+            value: "",
+            filter: "contains",
+            dataTextField: "Text",
+            dataValueField: "Value",
+            change: function (e) {
+                getParticipatingDatasource();
+            },
+            virtual: {
+                itemHeight: 26
+            },
+            dataSource: datasource,
+            dataBound: function (e) {
+                clearDefaultSelectedTerm();
+            }
+        }).data("kendoDropDownList");
+        // disable strm on edit
+        @if (Model.Session.Id > 0)
+        {
+            @:cboStrm.enable(false);
+        }
+
+        start = $("#dpStart").kendoDateTimePicker({
+            format: "dd MMM yyyy hh:mm tt",
+            change: startChange,
+            value: @Model.Session.Id !== 0 ? GetLocalTime(kendo.parseFloat('@Model.Session.StartTotalMilliseconds'), window.TimeZone,  DateFormat.FormatAm) : '',
+            interval: 15,
+            parseFormats: ["MM/dd/yyyy"]
+        }).data("kendoDateTimePicker");
+
+        end = $("#dpEnd").kendoDateTimePicker({
+            format: "dd MMM yyyy hh:mm tt",
+            change: endChange,
+            interval: 15,
+            value: @Model.Session.Id !== 0 ? GetLocalTime(kendo.parseFloat('@Model.Session.EndTotalMilliseconds'), window.TimeZone,  DateFormat.FormatAm) : '',
+            parseFormats: ["MM/dd/yyyy"]
+        }).data("kendoDateTimePicker");
+
+        function startChange() {
+            var startDate = start.value();
+            end.value('');
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate());
+                end.min(startDate);
+            }
+        }
+
+        function endChange() {
+            var endDate = end.value();
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate());
+            }
+        }
+
+        cboParticipatingCourse = $("#cboParticipatingCourse").kendoMultiSelect({
+            itemTemplate: "<input type='checkbox' class='k-checkbox'/> #:data.Text#",
+            autoClose: false,
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: [],
+            downArrow: true,
+            dataBound: function () {
+                var items = this.ul.find("li");
+                setTimeout(function () {
+                    checkInputs(items);
+                });
+            },
+            change: function () {
+                var items = this.ul.find("li");
+                checkInputs(items);
+                const isEnable = cboParticipatingCourse !== null && cboParticipatingCourse !== undefined && cboParticipatingCourse.value().length > 0;
+                btnSessionReview.enable(isEnable);
+            }
+        }).data("kendoMultiSelect");
+        var checkInputs = function (elements) {
+            elements.each(function () {
+                var element = $(this);
+                var input = element.children("input");
+                input.prop("checked", element.hasClass("k-state-selected"));
+            });
+        };
+        getParticipatingDatasource();
+
+        @if (Model.Session.Id > 0)
+        {
+            @:end.min(start.value());
+            @:cboParticipatingCourse.enable(false);
+        }
+
+        $('#downloadCSV').click(async function(e) {
+            e.preventDefault();
+            const strm = cboStrm.value();
+            if (!strm || strm.length === "") {
+                createCustomDialog("Please select a TERM.");
+                return false;
+            }
+            window.kendo.ui.progress($('#main'), true);
+            const params = { term: cboStrm.value(), timeZone: window.TimeZone }
+            const url = `@Url.Action("ExportCourseByTermToCsv", "PeerFeedback")`
+            try {
+                const response = await getBlobAsync(url, params);
+                if (response !== null && response !== undefined) {
+                    var fileName = response.headers["content-disposition"];
+                    fileName = fileName.replace('attachment; filename=', '');
+                    fileName = `${fileName.replaceAll('"', '')}`;
+                    const data = await response.data;
+                    if (data !== null && data !== undefined) {
+                        var blob = new Blob([data], { type: "text/csv" });
+                        kendo.saveAs({
+                            dataURI: blob,
+                            fileName: fileName
+                        });
+                    }
+                } else {
+                    createCustomDialog('Something went wrong!')
+                }
+            } catch (e) {
+                console.log(e);
+            } finally {
+                window.kendo.ui.progress($('#main'), false);
+            }
+        });
+        btnSessionReview = $("#btnSessionReview").kendoButton({
+            click: handleSessionReview,
+            enable: isEdit || cboParticipatingCourse !== null && cboParticipatingCourse !== undefined && cboParticipatingCourse.value().length > 0
+        }).data("kendoButton");
+    });
+
+    function getParticipatingDatasource() {
+        window.kendo.ui.progress($("#cboParticipatingCourse"), true);
+        cboParticipatingCourse.setDataSource([]);
+        term = cboStrm.value();
+        @if(Model.Session.Id > 0)
+        {
+            @:term = `@Model.Session.Strm`;
+        }
+        const url = `@Url.Action("GetCourseOfferingCodeByStrm", "PeerFeedback")`;
+        createPostRequest(url, { strm: term }).then(function (response) {
+            const data = response.map(function (item) {
+                return { Text: item, Value: item };
+            });
+            var ds = new kendo.data.DataSource({
+                data: data
+            });
+            ds.fetch(function () {
+                cboParticipatingCourse.setDataSource(ds);
+                if (selectOfferingCode.length > 0)
+                    cboParticipatingCourse.value(selectOfferingCode);
+            });
+            window.kendo.ui.progress($("#cboParticipatingCourse"), false);
+        });
+    }
+    function getTermDatasource() {
+        window.kendo.ui.progress($("#main"), true);
+        const url = `@Url.Action("GetTerms", "PeerFeedback")`;
+        cboStrm.setDataSource([]);
+        termDatasource = [];
+        createPostRequest(url).then(function (response) {
+            termDatasource = response.Data;
+            var ds = new kendo.data.DataSource({
+                data: response.Data
+            });
+            ds.fetch(function () {
+                cboStrm.setDataSource(ds);
+                @if(Model.Session.Id > 0)
+                {
+                    @:cboStrm.value(`@Model.Session.Strm`);
+                    @:getParticipatingDatasource();
+                }
+            });
+        }).finally(function () {
+            window.kendo.ui.progress($("#main"), false);
+        });
+    }
+    function createCustomDialog(content) {
+        var dialog = $("#dialog").kendoDialog({
+            height: "150px",
+            title: 'PSFS Notification',
+            closable: true,
+            modal: true,
+            content: content,
+            actions: [
+                { text: 'OK' }
+            ]
+        }).data("kendoDialog");
+
+        dialog.open();
+    }
+</script>

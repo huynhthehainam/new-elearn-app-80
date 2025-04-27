@@ -1,0 +1,56 @@
+﻿<script>
+    var saveAll = (e) => {
+        showLoading('#wizardForm');
+        var isValid = false;
+        let wizard = $('.k-wizard').data("kendoWizard");
+        if (wizard === undefined) {
+            // when edit evaluation
+            // save 
+            if ($(`#step_0_form`).length > 0) {
+                prepareSavePeerFeedBack(e);
+            }
+            handleFinish();
+        }
+        else {
+            // wizard is used when creating evaluation
+            isValid = handleWizardSave(e);
+            if (isValid) {
+                handleFinish();
+            }
+        }
+        hideLoading('#wizardForm');
+    }
+    var handleFinish = () => {
+       
+    }
+
+    var handleWizardSave = (e) => {
+        let wizard = $('.k-wizard').data("kendoWizard");
+        var currentStep = wizard.activeStep();
+        if (currentStep.options.index === 0) {
+            wizard.enableStep(1, true);
+            prepareSavePeerFeedBack(e);
+        }
+        return true;
+    }
+    var prepareSavePeerFeedBack = (e) => {
+       
+    }
+
+    var handleSave = (saveEvalUrl, formObject, cardHeaderTitle) => {
+      
+    }
+    var handleCancelClick = () => {
+        if ($('input[data-changed="true"]').length > 0) {
+            window.kendo.confirm("You’ve entered may not be saved.").done(function () { NavigateByTagName('ManagePeerFeedback'); });
+        } else {
+            NavigateByTagName('ManagePeerFeedback');
+        }
+    }
+    var handleFinishClick = (e) => {
+        showLoading('#wizardForm');
+        handleFinish();
+        NavigateByTagName('Manage');
+        hideLoading('#wizardForm');
+    }
+</script>

@@ -1,0 +1,110 @@
+﻿@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "_headerform" }))
+{
+    @Html.AntiForgeryToken()
+    <div id="section-not-print" class="navbar navbar-expand-lg navbar-dark bg-header d-flex flex-wrap justify-content-between sticky-top navbar pt-0 pb-0 mb-6">
+        <div class="order-xl-1">
+            <div class="d-flex">
+                <div class="flex-fill">
+                    <button class="navbar-toggle-always sidebar-toggler  d-lg-none mr-auto " type="button" data-toggle="sidebar-show">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <button class="navbar-toggle-always sidebar-toggler d-md-down-none mr-auto " type="button" data-toggle="sidebar-lg-show">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+                <div class="flex-fill nav navbar-nav">
+                    <span class="nav-link">
+                        <span class="" id="lblFormTitle">
+                            @if (ViewBag.PageIcon == null)
+                            {
+                                <i class="nav-icon icon-calendar"></i>
+                                <span>&nbsp; @ViewBag.Title</span>
+                            }
+                            else
+                            {
+                                <img src="@ViewBag.PageIcon" height="39" style="padding-bottom:10px;">
+                                <span class=" d-md-down-none">&nbsp;</span>
+                            }
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="order-xl-3 ml-auto">
+            <div class="d-flex">
+                <div class="flex-fill">
+
+                    <a class="nav-link mt-2" id="lnkUserGuideNoLink" title="User Guide" style="display: none;">
+                        <i class="fa fa-question-circle fa-2x" style="color: lightgray;"></i>
+                    </a>
+
+                    @*<a class="nav-link mt-2" title="User Guide" id="lnkUserGuide" style="color: white; display: none;" download target="_blank">
+                        <i class="fa fa-question-circle fa-2x"></i>
+                    </a>*@
+                </div>
+                <div class=" flex-fill">
+                    <a class="nav-link" href="https://www.smu.edu.sg/">
+                        <img src="@Url.Content("~/Content/images/logo.png")" height="55" alt="SMU Logo" />
+                    </a>
+                </div>
+            </div>
+        </div>
+        @*<div class=" order-xl-2 flex-grow-1">
+            <div class="d-md-flex flex-md-row justify-content-center">
+                <div class="col-11">
+                    <div class="d-flex">
+                        <div class="p-2 flex-fixed-width-item ">
+                            <label for="term" class="pt-2 font-weight-bold">TERM/COURSE</label>
+                        </div>
+                        <div class="p-2 flex-grow-1" id="dvTermCourse">
+                            <input id="termCourse" placeholder="Enter course code to filter" style="width: 100%;" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+    </div>
+}
+
+<script>
+    var connection = $.hubConnection();
+    var hub = connection.createHubProxy("PeerFeedBackHub");
+    hub.on("sessionLogout",
+        function (url) {
+            window.location.replace(url);
+        });
+    $.connection.hub.logging = true;
+    connection.logging = true;
+    connection.start();
+
+    $(document).ready(function () {
+
+    });
+    $('#sidebar_toggle').click(function() {
+        setTimeout(function() { $(window).trigger('resize'); }, 300);
+    });
+</script>
+<style>
+    .flex-fixed-width-item {
+        flex: 0 0 70px;
+    }
+
+    .navbar-toggle-always {
+        background-color: transparent;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        float: right;
+        margin-bottom: 8px;
+        margin-left: 0;
+        margin-right: 15px;
+        margin-right: 0;
+        margin-top: 8px;
+        padding: 9px 10px;
+        position: relative;
+    }
+
+        .navbar-toggle-always:focus {
+            outline: 0;
+        }
+</style>

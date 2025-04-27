@@ -1,0 +1,146 @@
+﻿@{
+    string version = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(DateTime.Now.Ticks.ToString()));
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="./">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="elearnapps">
+    <meta name="keyword" content="SMU">
+    <link rel="shortcut icon" href="@Url.Content("~/Content/appsicon/favicon.ico")" type="image/x-icon" />
+    <title>@ViewBag.Title</title>
+
+    <!-- Icons-->
+    <script src="~/Scripts/CoreUI/vendors/jquery/js/jquery.min.js"></script>
+    <link href="~/Scripts/CoreUI/vendors/@Html.Raw("@coreui")/icons/css/coreui-icons.min.css" rel="stylesheet">
+    <link href="~/Scripts/CoreUI/vendors/flag-icon-css/css/flag-icon.min.css" rel="stylesheet">
+    <link href="~/Scripts/CoreUI/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/Scripts/CoreUI/vendors/simple-line-icons/css/simple-line-icons.css" rel="stylesheet">
+
+    <!-- Main styles for this application-->
+    <link href="@Url.Content("~/Scripts/CoreUI/css/style.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Scripts/CoreUI/vendors/pace-progress/css/pace.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/KendoUI.V2021.2.616/kendo.common-material.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/KendoUI.V2021.2.616/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/KendoUI.V2021.2.616/kendo.material.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content($"~/Content/CustomStyle.css?v={version}")" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/gh/djibe/bootstrap-switch@6a41c824782c514fd5e09b6683f852a9c9b2a997/dist/css/bootstrap4/bootstrap-switch.min.css" rel="stylesheet" />
+
+    <script src="@Url.Content("~/Scripts/KendoUI.V2021.2.616/jquery.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/KendoUI.V2021.2.616/jszip.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/KendoUI.V2021.2.616/kendo.all.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/KendoUI.V2021.2.616/pako_deflate.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment-timezone-with-data.js")"></script>
+    <script src="@Url.Content($"~/Scripts/Common.js?v={version}")"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.6/dist/loadingoverlay.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/djibe/bootstrap-switch/dist/js/bootstrap-switch.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/utf8/3.0.0/utf8.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-suggest@2.0.3/dist/bootstrap-suggest.min.js" integrity="sha256-U/wBe7g3ddY/13YsLKPiLAijdEd/+6usAMSHbwiGwKo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js" integrity="sha512-gtcrasYnyeB27+IejClswFlb/eggt+khRr+lLAeNcgg5x2ijlWaiBOPXZkwivNj15LaE6s9CzV57hsoTPrQ5xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="module" src="https://unpkg.com/@Html.Raw("@github")/g-emoji-element@latest?module"></script>
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js" language="javascript"></script>
+    <script src="~/signalr/hubs"></script>
+
+    @Html.Partial("_AppJs")
+    <script>
+        var CourseId;
+        var detect = jstz.determine();
+        var TimeZone = detect.name();
+
+        kendo.pdf.defineFont({
+            "DejaVu Sans"             : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans.ttf")",
+            "DejaVu Sans|Bold"        : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Bold.ttf")",
+            "DejaVu Sans|Bold|Italic" : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Oblique.ttf")",
+            "DejaVu Sans|Italic"      : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Oblique.ttf")",
+            "WebComponentsIcons"      : "@Url.Content("~/Content/kendo/fonts/glyphs/WebComponentsIcons.ttf")",
+            "SimSun"      : "@Url.Content("~/Content/kendo/fonts/glyphs/simsun.ttc")"
+        });
+    </script>
+    <style>
+        .page-loading {
+            background: #ffffff;
+            color: #666666;
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            z-index: 5000;
+            top: 0;
+            left: 0;
+            float: left;
+            text-align: center;
+            padding-top: 25%;
+            opacity: .80;
+        }
+
+        .page-spinner {
+            margin: 0 auto;
+            height: 64px;
+            width: 64px;
+            animation: rotate 0.8s infinite linear;
+            border: 5px solid grey;
+            border-right-color: transparent;
+            border-radius: 50%;
+        }
+
+        @@keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show sidebar-minimized">
+    <div id="page-loading" class="page-loading">
+        <div class="page-spinner"></div>
+        <br />
+        Loading...
+    </div>
+    <script type="text/javascript" src="https://unpkg.com/onscreen/dist/on-screen.umd.min.js"></script>
+    <script type="text/javascript">
+        var os = new OnScreen({
+            tolerance: 0,
+            debounce: 100,
+            container: window
+        });
+    </script>
+    @Html.Partial("_Header_PF")
+    <div class="app-body">
+        @Html.Partial("_LeftMenuPF")
+        @Html.Partial("~/Views/Account/_LoggedinUserInfo.cshtml")
+        <main class="main">
+            <br />
+            <div class="container-fluid" id="main">
+                @RenderBody()
+            </div>
+
+            <div id="dialog">
+            </div>
+        </main>
+    </div>
+    <script src="~/Scripts/CoreUI/vendors/popper.js/js/popper.min.js"></script>
+    <script src="~/Scripts/CoreUI/vendors/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/CoreUI/vendors/perfect-scrollbar/js/perfect-scrollbar.min.js"></script>
+    <script src="~/Scripts/CoreUI/vendors/@Html.Raw("@coreui")/coreui/js/coreui.min.js"></script>
+    <script>
+        window.addEventListener('load', (event) => {
+            $('#page-loading').hide();
+        });
+    </script>
+</body>
+</html>

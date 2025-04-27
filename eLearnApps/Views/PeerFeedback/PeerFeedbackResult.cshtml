@@ -1,0 +1,416 @@
+﻿@{
+    ViewBag.Title = "Peer and Self Feedback result";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+}
+@model List<eLearnApps.ViewModel.PeerFeedback.PeerFeedbackResultModel>
+@{
+    var ongoingSessions = Model.Where(t => t.Session.PeerFeedbackResultSessionStatus == eLearnApps.ViewModel.PeerFeedback.PeerFeedbackResultSessionStatus.Ongoing).OrderByDescending(x => x.Session.EntryStartTime).ToList();
+    var closedSessions = Model.Where(t => t.Session.PeerFeedbackResultSessionStatus == eLearnApps.ViewModel.PeerFeedback.PeerFeedbackResultSessionStatus.Closed).OrderByDescending(x => x.Session.EntryStartTime).ToList();
+    var incompleteSessions = Model.Where(t => t.Session.PeerFeedbackResultSessionStatus == eLearnApps.ViewModel.PeerFeedback.PeerFeedbackResultSessionStatus.Incomplete).OrderByDescending(x => x.Session.EntryStartTime).ToList();
+}
+<style>
+    .card {
+        /*background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);*/
+        display: block;
+        line-height: 1.42857143;
+        margin-bottom: 20px;
+        margin-bottom: 0.3rem;
+        /*transition: box-shadow .25s;*/
+    }
+
+    a[data-toggle="collapse"]:after {
+        content: "\f054";
+        float: left;
+        font-family: 'FontAwesome';
+        padding-right: 20px;
+    }
+
+    a[data-toggle="collapse"].collapsed:after {
+        content: "\f078";
+    }
+
+    a[aria-expanded="true"]:after {
+        content: "\f078";
+    }
+
+    a[aria-expanded="false"].collapsed:after {
+        content: "\f054";
+    }
+</style>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>My Result</h5>
+            </div>
+            <div class="card-body">
+                @if (Model == null || Model.Count == 0)
+                {
+                    <h5>No items to display.</h5>
+                }
+                else
+                {
+                    <div class="row mb-2">
+                        <div class="col-12 pl-0">
+                            <div class="form-row align-items-center">
+                                <div class="col-auto form-check-inline">
+                                    <div class="form-check">
+                                        <h6 class="form-check-label">
+                                            Group By:
+                                        </h6>
+                                    </div>
+                                </div>
+                                <div class="col-auto form-check-inline">
+                                    <input class="form-check-input" checked type="radio" name="groupBy" id="assignedGroup" value="@Convert.ToInt32(PeerFeedBackResultGroupBy.AssignedGroup)" style="margin-top:3px;" onchange="handleChange(this)">
+                                    <label class="form-check-label" for="assignedGroup">Assigned Group</label>
+                                </div>
+                                <div class="col-auto form-check-inline">
+                                    <input class="form-check-input" type="radio" name="groupBy" id="allCourses" value="@Convert.ToInt32(PeerFeedBackResultGroupBy.AllCourses)" style="margin-top:3px;" onchange="handleChange(this)">
+                                    <label class="form-check-label" for="allCourses">All Courses</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="dataItem">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card-body">
+                                            <h5>Ongoing</h5>
+                                            <div class="form-check">
+                                            </div>
+                                            @if (ongoingSessions.Any())
+                                            {
+                                                <div class="accordion" style="border-bottom: 1px;" id="accordionParent">
+                                                    @foreach (var item in ongoingSessions)
+                                                    {
+                                                        var elementId = Guid.NewGuid().ToString();
+                                                        <div id="accordion_@elementId">
+                                                            <div class="card" style="border: none; border-bottom: 1px solid #e4e5e6;">
+                                                                <div class="card-header" id="heading_@elementId" style="background-color: #ffa500 !important; color: #fff; ">
+                                                                    <div class="row">
+                                                                        <div class="col-6">
+                                                                            <h6 class="mb-0">
+                                                                                <a data-toggle="collapse" style="cursor: pointer" data-target="#collapse_detail_@elementId" data-index="@item.PeerFeedBackGroupId" aria-controls="collapse_detail_@elementId">
+                                                                                    @item.CourseName - @item.Session.Term - @item.Name
+                                                                                </a>
+                                                                            </h6>
+                                                                        </div>
+                                                                        <div class="col-6">
+                                                                            <div class="card-header-actions">
+                                                                                <div class="row">
+                                                                                    <div class="col-auto">
+                                                                                        <span class="small" data-label="@item.Session.Label" data-start="@item.Session.StartTotalMilliseconds" data-end="@item.Session.EndTotalMilliseconds"></span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="collapse_detail_@elementId" class="collapse detail"
+                                                                     data-id="@elementId"
+                                                                     data-key="@item.Key"
+                                                                     data-groupby="@(Convert.ToInt32(PeerFeedBackResultGroupBy.AssignedGroup))"
+                                                                     data-warning="@(string.IsNullOrEmpty(item.WarningMessage) ? 0 : 1)"
+                                                                     data-default="@item.DefaultActive.ToString().ToLower()"
+                                                                     data-peerFeedBack="@item.PeerFeedBackId"
+                                                                     data-session="@item.PeerFeedBackSessionId"
+                                                                     data-group="@item.PeerFeedBackGroupId"
+                                                                     data-pairing="@item.PeerFeedBackPairingId"
+                                                                     data-index="@item.PeerFeedBackGroupId"
+                                                                     data-course="@item.CourseId"
+                                                                     aria-labelledby="heading_@elementId"
+                                                                     data-parent="#accordionParent">
+                                                                    <div class="card-body">
+                                                                        @if (string.IsNullOrEmpty(item.WarningMessage))
+                                                                        {
+                                                                            <div id="dvDetail_@(elementId)_@(item.PeerFeedBackGroupId)"></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <h5>@item.WarningMessage</h5>
+                                                                            <br />
+                                                                            <div class="row">
+                                                                                <div class="col-12">
+                                                                                    <button type="button"
+                                                                                            id="startEvaluation"
+                                                                                            class="k-button-secondary k-button"
+                                                                                            data-role="button"
+                                                                                            role="button"
+                                                                                            aria-disabled="false"
+                                                                                            tabindex="0"
+                                                                                            style="cursor: pointer"
+                                                                                            data-progress="@item.Session.Progress"
+                                                                                            data-peerFeedBack="@item.PeerFeedBackId"
+                                                                                            data-session="@item.PeerFeedBackSessionId"
+                                                                                            data-pairing="@item.PeerFeedBackPairingId"
+                                                                                            data-group="@item.PeerFeedBackGroupId"
+                                                                                            data-class="card-ongoing"
+                                                                                            data-closed="false"
+                                                                                            data-key="@item.Session.PeerFeedBackKey"
+                                                                                            data-item-name="@item.Name"
+                                                                                            data-utc-enddate="@item.Session.EntryCloseTime.ToString("dd MMM yyyy HH:mm:ss")"
+                                                                                            data-utc-startdate="@item.Session.EntryStartTime.ToString("dd MMM yyyy HH:mm:ss")"
+                                                                                            data-url="@Url.Action("PeerFeedbackResponse", "PeerFeedback")"
+                                                                                            onclick="RedirectToDetail(this);">
+                                                                                        <span class="k-icon k-i-play"></span>&nbsp;&nbsp;Start Evaluation
+                                                                                    </button>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                            }
+                                            else
+                                            {
+                                                <div class="col-12">
+                                                    <span>There are no ongoing sessions.</span>
+                                                </div>
+                                            }
+                                            <br />
+                                            <br />
+                                            <h5>Closed</h5>
+                                            @if (closedSessions.Any())
+                                            {
+                                                <div class="accordion" style="border-bottom: 1px;" id="accordionParent">
+                                                    @foreach (var item in closedSessions)
+                                                    {
+                                                        var elementId = Guid.NewGuid().ToString();
+                                                        <div id="accordion_@elementId">
+                                                            <div class="card" style="border: none; border-bottom: 1px solid #e4e5e6;">
+                                                                <div class="card-header" id="heading_@elementId" style="background-color: green !important; color: #fff; ">
+                                                                    <div class="row">
+                                                                        <div class="col-6">
+                                                                            <h6 class="mb-0">
+                                                                                <a data-toggle="collapse" style="cursor: pointer" data-target="#collapse_detail_@elementId" data-index="@item.PeerFeedBackGroupId" aria-controls="collapse_detail_@elementId">
+                                                                                    @item.CourseName - @item.Session.Term - @item.Name
+                                                                                </a>
+                                                                            </h6>
+                                                                        </div>
+                                                                        <div class="col-6">
+                                                                            <div class="card-header-actions">
+                                                                                <div class="row">
+                                                                                    <div class="col-auto">
+                                                                                        <span class="small" data-label="@item.Session.Label" data-start="@item.Session.StartTotalMilliseconds" data-end="@item.Session.EndTotalMilliseconds"></span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="collapse_detail_@elementId" class="collapse detail"
+                                                                     data-id="@elementId"
+                                                                     data-key="@item.Key"
+                                                                     data-groupby="@(Convert.ToInt32(PeerFeedBackResultGroupBy.AssignedGroup))"
+                                                                     data-warning="@(string.IsNullOrEmpty(item.WarningMessage) ? 0 : 1)"
+                                                                     data-default="@item.DefaultActive.ToString().ToLower()"
+                                                                     data-peerFeedBack="@item.PeerFeedBackId"
+                                                                     data-session="@item.PeerFeedBackSessionId"
+                                                                     data-group="@item.PeerFeedBackGroupId"
+                                                                     data-pairing="@item.PeerFeedBackPairingId"
+                                                                     data-index="@item.PeerFeedBackGroupId"
+                                                                     data-course="@item.CourseId"
+                                                                     aria-labelledby="heading_@elementId"
+                                                                     data-parent="#accordionParent">
+                                                                    <div class="card-body">
+                                                                        @if (string.IsNullOrEmpty(item.WarningMessage))
+                                                                        {
+                                                                            <div id="dvDetail_@(elementId)_@(item.PeerFeedBackGroupId)"></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <h5>@item.WarningMessage</h5>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="col-12">
+                                                    <span>There are no closed sessions.</span>
+                                                </div>
+                                            }
+                                            <br />
+                                            <br />
+                                            <h5>Incomplete</h5>
+                                            @if (incompleteSessions.Any())
+                                            {
+                                                <div class="accordion" style="border-bottom: 1px;" id="accordionParent">
+                                                    @foreach (var item in incompleteSessions)
+                                                    {
+                                                        var elementId = Guid.NewGuid().ToString();
+                                                        <div id="accordion_@elementId">
+                                                            <div class="card" style="border: none; border-bottom: 1px solid #e4e5e6;">
+                                                                <div class="card-header" id="heading_@elementId" style="background-color: #a9a9a9 !important; color: #fff; ">
+                                                                    <div class="row">
+                                                                        <div class="col-6">
+                                                                            <h6 class="mb-0">
+                                                                                <a data-toggle="collapse" style="cursor: pointer" data-target="#collapse_detail_@elementId" data-index="@item.PeerFeedBackGroupId" aria-controls="collapse_detail_@elementId">
+                                                                                    @item.CourseName - @item.Session.Term - @item.Name
+                                                                                </a>
+                                                                            </h6>
+                                                                        </div>
+                                                                        <div class="col-6">
+                                                                            <div class="card-header-actions">
+                                                                                <div class="row">
+                                                                                    <div class="col-auto">
+                                                                                        <span class="small" data-label="@item.Session.Label" data-start="@item.Session.StartTotalMilliseconds" data-end="@item.Session.EndTotalMilliseconds"></span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="collapse_detail_@elementId" class="collapse detail"
+                                                                     data-id="@elementId"
+                                                                     data-key="@item.Key"
+                                                                     data-groupby="@(Convert.ToInt32(PeerFeedBackResultGroupBy.AssignedGroup))"
+                                                                     data-warning="@(string.IsNullOrEmpty(item.WarningMessage) ? 0 : 1)"
+                                                                     data-default="@item.DefaultActive.ToString().ToLower()"
+                                                                     data-peerFeedBack="@item.PeerFeedBackId"
+                                                                     data-session="@item.PeerFeedBackSessionId"
+                                                                     data-group="@item.PeerFeedBackGroupId"
+                                                                     data-pairing="@item.PeerFeedBackPairingId"
+                                                                     data-index="@item.PeerFeedBackGroupId"
+                                                                     data-course="@item.CourseId"
+                                                                     aria-labelledby="heading_@elementId"
+                                                                     data-parent="#accordionParent">
+                                                                    <div class="card-body">
+                                                                        @if (string.IsNullOrEmpty(item.WarningMessage))
+                                                                        {
+                                                                            <div id="dvDetail_@(elementId)_@(item.PeerFeedBackGroupId)"></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <h5>@item.WarningMessage</h5>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                            }
+                                            else
+                                            {
+                                                <div class="col-12">
+                                                    <span>There are no incomplete sessions.</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var data = [];
+    $(document).ready(function() {
+        $('div[id*="collapse_detail_"]').on('show.bs.collapse',
+            function (e) {
+                const element = $(e.target);
+                const warning = $(element).data('warning');
+                if (warning === 0)
+                    GetMyEvaluationDetail($(e.target));
+            });
+        $('div[id*="collapse_detail_"]').on('hidden.bs.collapse',
+            function (e) {
+                const element = $(e.target);
+                const index = $(element).data('index');
+                const warning = $(element).data('warning');
+                if (warning === 0)
+                    $(`#dvDetail${index}`).html('');
+            });
+        $('span[data-start]').each(function () {
+            const start = GetLocalTime(kendo.parseFloat(`${$(this).data('start')}`), window.TimeZone, DateFormat.FormatAm);
+            const end = GetLocalTime(kendo.parseFloat(`${$(this).data('end')}`), window.TimeZone, DateFormat.FormatAm);
+            $(this).html(`${start} to ${end}`);
+        });
+        if ($('div[data-default="true"]')) {
+            $('div[data-default="true"]').first().collapse('show');
+        }
+    });
+
+    function GetMyEvaluationDetail(element) {
+        window.kendo.ui.progress($('body'), true);
+        const index = $(element).data('index');
+        const key = $(element).data('key');
+        const elementId = $(element).data('id');
+        const groupBy = $(element).data('groupby');
+        const urlDetail = `@Url.Action("PeerFeedbackResultDetail", "PeerFeedback")`;
+        const peerFeedBackSessionId = $(element).data("session");
+        const peerFeedBackGroupId = $(element).data("group");
+        const peerFeedBackId = $(element).data("peerfeedback");
+        const peerFeedBackPairingId = $(element).data("pairing");
+        if (key) {
+            const param = {
+                key: key,
+                groupBy: groupBy,
+                peerFeedBackId: peerFeedBackId,
+                peerFeedBackGroupId: peerFeedBackGroupId,
+                peerFeedBackSessionId: peerFeedBackSessionId,
+                peerFeedBackPairingId: peerFeedBackPairingId
+            };
+            createPostRequest(urlDetail, param).then(function (response) {
+                $(`#dvDetail_${elementId}_${index}`).html('');
+                $(`#dvDetail_${elementId}_${index}`).html(response);
+                window.kendo.ui.progress($('body'), false);
+            });
+        }
+    }
+    function handleChange(element) {
+        if (element.value === '@(Convert.ToInt32(PeerFeedBackResultGroupBy.AssignedGroup))') {
+            NavigateByTagName('Result');
+        } else {
+            const urlDetail = `@Url.Action("PeerFeedbackResultDetailAllCourses", "PeerFeedback")`;
+            createPostRequest(urlDetail).then(function (response) {
+                $(`#dataItem`).html('');
+                $(`#dataItem`).html(response);
+            });
+        }
+    }
+    function RedirectToDetail(element) {
+        const url = $(element).data('url');
+        const peerFeedBackSessionId = $(element).data("session");
+        const peerFeedBackGroupId = $(element).data("group");
+        const peerFeedBackPairingId = $(element).data("pairing");
+        const peerFeedBackId = $(element).data("peerfeedback");
+        const progress = $(element).data("progress");
+        const closed = $(element).data("closed");
+        const peerFeedBackKey = $(element).data("key");
+        const param = {
+            peerFeedBackSessionId: peerFeedBackSessionId,
+            peerFeedBackGroupId: peerFeedBackGroupId,
+            peerFeedBackPairingId: peerFeedBackPairingId,
+            peerFeedBackId: peerFeedBackId,
+            progress: progress,
+            closed: closed,
+            peerFeedBackKey: peerFeedBackKey
+        };
+        window.kendo.ui.progress($('#main'), true);
+        createPostRequest(url, param).then(function (response) {
+            window.kendo.ui.progress($('#main'), false);
+            $('#main').html(response);
+        });
+    }
+</script>

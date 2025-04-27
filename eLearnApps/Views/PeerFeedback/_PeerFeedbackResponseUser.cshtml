@@ -1,0 +1,398 @@
+﻿@using eLearnApps.Models
+@using System.Text.Json;
+@model eLearnApps.ViewModel.PeerFeedback.PeerFeedbackResponseViewModel
+@inject IConfiguration Configuration
+@{
+    var constants = new Constants(Configuration);
+    var sessionData = Context.Session.GetString(constants.SessionUserKey);
+    UserModel? userModel = null;
+    if (!string.IsNullOrEmpty(sessionData))
+    {
+        userModel = JsonSerializer.Deserialize<UserModel>(sessionData);
+    }
+
+}
+<input type="hidden" name="Response.PeerFeedBackId" value="@Model.PeerFeedBackId" />
+<input type="hidden" name="Response.PeerFeedBackPairingId" value="@Model.PeerFeedBackPairingId" />
+<input type="hidden" name="Response.PeerFeedBackSessionId" value="@Model.PeerFeedBackSessionId" />
+<input type="hidden" name="Response.PeerFeedBackGroupId" value="@Model.PeerFeedBackGroupId" />
+<input type="hidden" name="Response.CourseId" value="@Model.CourseId" />
+<input type="hidden" name="Response.PeerFeedBackKey" value="@Model.PeerFeedBackKey" />
+@{
+    var closed = Model.EndTime < DateTime.UtcNow;
+}
+<div class="row" id="rowWarning">
+    <div class="col-xl-12">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <span class="fa fa-warning mr-2"></span>
+            You have not completed evaluating these <span id="spCountNotComplete"></span> members: <span id="spItemNeedToTake"></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12">
+        <div class="email-app mb-4">
+            <main class="inbox">
+                <ul class="messages">
+                    <li class="alert">
+                        <u class="alert-link mb-3">Peer Feedback</u>
+                        <p style="color: #23282c; margin-top: 1rem;">Please rate your team members on the following three criteria and select all the relevant descriptors which you have observed during this project. Your honest and constructive feedback will help your teammates improve their skills of collaboration and leadership over the course of their study at SMU.</p>
+                        <u class="alert-link">Note: Your feedback will be aggregated anonymously, ensuring confidentiality among your peers and instructors. Your instructor will explain if and how the peer evaluations may impact the overall grading of the group project.</u>
+                    </li>
+                    @for (var idx = 0; idx < Model.Users.Count; idx++)
+                    {
+                        var item = Model.Users[idx];
+                        if (item.UserId == userModel.UserId)
+                        {
+                            <li class="alert mt-3">
+                                <u class="alert-link mb-1">Self Feedback</u>
+                                <p style="color: #23282c;margin-top:1rem;">Please rate yourself on the following three criteria and select all the relevant descriptors which you have displayed during this project.</p>
+                            </li>
+                        }
+                        <li class="message unread">
+                            <div>
+                                <input type="hidden" name="Response.Users[@idx].UserId" value="@item.UserId" />
+                                <div class="actions">
+                                    <span class="action">
+                                        <i class="fa fa-user-circle"></i>
+                                    </span>
+                                </div>
+                                <div class="header" style="display: inline-block;">
+                                    @if (item.UserId == userModel.UserId)
+                                    {
+                                        <span class="badge me-1 bg-success mr-1">My self-rating</span>
+                                    }
+                                    <span class="from">@item.DisplayName</span>
+                                </div>
+                                <div class="col-auto">
+                                    <table style="width: 100%" class="table table-responsive-sm table-sm">
+                                        <thead>
+                                        </thead>
+                                        <tbody>
+                                            @for (var i = 0; i < Model.Questions.Count; i++)
+                                            {
+                                                var question = Model.Questions[i];
+                                                var tdTarget = $"td_{item.UserId}_{question.Id}";
+                                                <tr>
+
+                                                    <td>
+                                                        @if (question.Title.ToLower().Contains("responsibility"))
+                                                        {
+                                                            <g-emoji class="g-emoji" alias="purple_heart" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f49c.png">💜</g-emoji>
+                                                        }
+                                                        else if (question.Title.ToLower().Contains("effectiveness"))
+                                                        {
+                                                            <g-emoji class="g-emoji" alias="trophy" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3c6.png">🏆</g-emoji>
+                                                        }
+                                                        else if (question.Title.ToLower().Contains("deliverables"))
+                                                        {
+                                                            <g-emoji class="g-emoji" alias="clap" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44f.png">👏</g-emoji>
+                                                        }
+                                                        <span class="font-weight-bold">@question.Title</span><br />
+                                                        <input type="hidden" id="Response.Users_[@idx]__Questions_[@i]__QuestionId" name="Response.Users[@idx].Questions[@i].QuestionId" value="@question.Id" />
+                                                    </td>
+                                                    <td id="@tdTarget">
+                                                        <div class="form-group row">
+                                                            <label class="col-md-3 col-form-label pt-0 font-weight-bold">Rating:</label>
+                                                            <div class="col-md-9">
+                                                                @{
+                                                                    bool isNotComplete = true;
+                                                                }
+                                                                @for (var index = 0; index < question.RatingQuestion.Count; index++)
+                                                                {
+                                                                    var rating = question.RatingQuestion[index];
+                                                                    var isExceedingMyExpectations = string.Equals("Exceeds expectations", rating.Name, StringComparison.OrdinalIgnoreCase);
+                                                                    bool isChecked = Model.PeerFeedBackResponses.Any(x => x.TargetUserId == item.UserId && x.PeerFeedbackQuestionId == question.Id && x.PeerFeedBackRatingId == rating.Id);
+                                                                    if (isChecked && isNotComplete)
+                                                                    {
+                                                                        isNotComplete = false;
+                                                                    }
+                                                                    var id = $"{item.UserId}{question.Id}{rating.Id}";
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input @(isChecked ? "checked" : "")
+                                                                               data-checked="@(isChecked ? "true" : "false")"
+                                                                               data-user="@item.UserId"
+                                                                               data-question="@question.Id"
+                                                                               data-exceeds-expectations="@(isExceedingMyExpectations ? 1 : 0)"
+                                                                               class="form-check-input"
+                                                                               data-rating-option-group="@id"
+                                                                               data-id="rating_@(id)"
+                                                                               id="rdb_@id"
+                                                                               type="radio"
+                                                                               value="@rating.Id"
+                                                                               name="Response.Users[@idx].Questions[@i].rt[@i]"
+                                                                               onchange="handleChangeOption(this)"
+                                                                        @(closed ? "disabled" : "") />
+
+                                                                        <label class="form-check-label" for="rdb_@(id)">
+                                                                            @if (rating.Name.ToLower().Contains("meeting"))
+                                                                            {
+                                                                                <g-emoji class="g-emoji" alias="thumbs_up" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44d.png">👍</g-emoji>
+                                                                            }
+                                                                            else if (rating.Name.ToLower().Contains("below"))
+                                                                            {
+                                                                                <g-emoji class="g-emoji" alias="thumbs_down" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44e.png">👎</g-emoji>
+                                                                            }
+                                                                            else if (rating.Name.ToLower().Contains("exceed"))
+                                                                            {
+                                                                                <g-emoji class="g-emoji" alias="1st_place_medal" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f947.png">🥇</g-emoji>
+                                                                            }
+                                                                            @rating.Name
+                                                                        </label>
+                                                                        <input type="hidden" id="rating_@(id)" name="Response.Users[@idx].Questions[@i].Ratings[@index].RatingId" value="@rating.Id" />
+                                                                    </div>
+                                                                }
+
+                                                                <input type="hidden" data-validate-for="td_@(item.UserId)_@(question.Id)" data-user="@item.UserId" data-question="@question.Id" data-name="@item.DisplayName" />
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row" id="dv_@(item.UserId)_@(question.Id)">
+                                                            <label class="col-md-12 col-form-label" id="label_Exceeds_expectations_@(item.UserId)_@(question.Id)">
+                                                                <small><i>A rating of 'Exceeds expectations' implies that all the following descriptors for 'Meets expectations' would generally have been displayed. If this is not the case, please consider charging your rating to 'Meets expectations' and select the appropriate descriptors</i></small>
+                                                            </label>
+                                                            <label class="col-md-12 col-form-label">Tick all that applies:</label>
+                                                            <div class="col-md-12">
+                                                                @for (var index = 0; index < question.RatingQuestion.Count; index++)
+                                                                {
+                                                                    var rating = question.RatingQuestion[index];
+                                                                    var options = rating.RatingOptions;
+                                                                    var isExceedingMyExpectations = string.Equals("Exceeds expectations", rating.Name, StringComparison.OrdinalIgnoreCase);
+                                                                    bool isDisplay = false;
+                                                                    for (var j = 0; j < options.Count; j++)
+                                                                    {
+                                                                        var option = options[j];
+                                                                        bool isChecked = Model.PeerFeedBackResponses.Any(x => x.TargetUserId == item.UserId && x.PeerFeedbackQuestionId == question.Id && x.PeerFeedBackRatingId == rating.Id && x.PeerFeedBackOptionId == option.RatingOptionId);
+                                                                        var id = $"{item.UserId}{option.QuestionId}{option.RatingQuestionId}{option.RatingOptionId}";
+                                                                        var ratingOptionGroup = $"{item.UserId}{option.QuestionId}{option.RatingQuestionId}";
+                                                                        var hiddenId = $"Response_Users_{idx}_Questions_{i}_Ratings_{index}_Options_{@j}_OptionId";
+                                                                        if (isExceedingMyExpectations && isDisplay == false)
+                                                                        {
+                                                                            isDisplay = true;
+                                                                            var attactData = question.RatingQuestion.FirstOrDefault(x => string.Equals(x.Name, "Meets expectations", StringComparison.OrdinalIgnoreCase));
+                                                                            if (attactData != null)
+                                                                            {
+                                                                                var attachOptions = attactData.RatingOptions;
+                                                                                foreach (var attach in attachOptions)
+                                                                                {
+                                                                                    var inputAttachId = Guid.NewGuid().ToString();
+                                                                                    <div class="form-check @(option.Display ? "" : "hide")" data-group="container_option_group_@(ratingOptionGroup)" data-tag="@($"{item.UserId}{option.QuestionId}")">
+                                                                                        <input class="form-check-input" id="@inputAttachId" type="checkbox" disabled="disabled" checked="checked" />
+                                                                                        <label class="form-check-label" for="@inputAttachId">@attach.OptionName</label>
+                                                                                    </div>
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        <div class="form-check @(option.Display ? "" : "hide")" data-group="container_option_group_@(ratingOptionGroup)" data-tag="@($"{item.UserId}{option.QuestionId}")">
+                                                                            <input type="hidden"
+                                                                                   id="@hiddenId"
+                                                                                   name="Response.Users[@idx].Questions[@i].Ratings[@index].Options[@j].OptionId"
+                                                                                   value="@(isChecked ? option.RatingOptionId : 0)"
+                                                                                   data-tag="@($"{item.UserId}{option.QuestionId}")" />
+                                                                            <input data-tag="@($"{item.UserId}{option.QuestionId}")"
+                                                                                   class="form-check-input"
+                                                                                   data-checked="@(isChecked ? "true" : "false")"
+                                                                                   data-id="@hiddenId"
+                                                                                   data-user="@item.UserId"
+                                                                                   data-question="@option.QuestionId"
+                                                                                   data-rating-question="@option.RatingQuestionId"
+                                                                                   id="ratingOption_@(id)"
+                                                                                   type="checkbox"
+                                                                            @(isChecked ? "checked" : "")
+                                                                                   name="Response.Users[@idx].Questions[@i].Ratings[@i].Options[@j].Checked"
+                                                                                   onchange="setOptionValue(this)"
+                                                                                   data-rating-option-group="@ratingOptionGroup"
+                                                                                   value="@option.RatingOptionId" @(closed ? "disabled" : "")>
+
+                                                                            <label class="form-check-label" for="ratingOption_@(id)">@option.OptionName</label>
+                                                                        </div>
+                                                                    }
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <span class="font-weight-bold">Additional Feedback</span>
+                                    @{
+                                        string remark = Model.PeerFeedBackResponseRemarks.Count > 0 ? Model.PeerFeedBackResponseRemarks.FirstOrDefault(x => x.TargetUserId == item.UserId).Remarks : "";
+                                        int remarkId = Model.PeerFeedBackResponseRemarks.Count > 0 ? Model.PeerFeedBackResponseRemarks.FirstOrDefault(x => x.TargetUserId == item.UserId).Id : 0;
+                                    }
+                                    <textarea name="Response.Users[@idx].Remark.Remarks" value="@(remark)" type="text" class="form-control remark-users" rows="3" maxlength="450" id="Remark_@(idx)">@(remark)</textarea>
+                                    <input type="hidden" name="Response.Users[@idx].Remark.TargetUserId" value="@Model.Users[idx].UserId" />
+                                    <input type="hidden" name="Response.Users[@idx].Remark.Id" value="@(remarkId)" />
+                                    <p><span class="current-count" style="font-size:smaller; color:gray; font-style:italic;">0</span></p>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                    <!--End foreach user-->
+                </ul>
+            </main>
+        </div>
+    </div>
+</div>
+
+<script>
+    var isClosed = '@closed' === "True" ? true : false;
+    var itemNeedToEvaluate = '';
+    $(document).ready(function () {
+        $('input:radio').each(function () {
+            const checked = $(this).data("checked");
+            if (checked) {
+                $(this).prop('checked', true);
+                $(this).trigger('change');
+            } else {
+                const user = $(this).data("user");
+                const question = $(this).data("question");
+                $(`#dv_${user}_${question}`).hide();
+            }
+        });
+        $('input:checkbox').each(function () {
+            const checked = $(this).data("checked");
+            if (checked) {
+                const user = $(this).data("user");
+                const question = $(this).data("question");
+                $(`#dv_${user}_${question}`).show();
+                $(this).prop('checked', true);
+                $(this).trigger('change');
+            }
+    @if (closed)
+    {
+        @:$(this).prop("disabled", true);
+    }
+        });
+        $(".col-auto").each(function () {
+            //select the elements we need inside of this wrapper
+            const textEl = $(this).find('.remark-users');
+            const countEl = $(this).find('.current-count');
+
+            //Determine the character count on a keyup event
+            textEl.keyup(function () {
+                var maxlength = $(this).attr("maxlength");
+                var currentLength = $(this).val().length;
+
+                if (currentLength == 0) {
+                    countEl.text("* You can enter up to 450 characters.")
+                }
+                else if (currentLength >= maxlength) {
+                    countEl.text("* You have reached the maximum number of characters.");
+                } else {
+                    //countEl.text("* You can enter up to 450 characters. " + maxlength - currentLength + " characters left.");
+                    countEl.text("* You can enter up to 450 characters. There are " + (maxlength - currentLength) + " characters left.");
+                }
+                //countEl.text(this.value.length);
+            });
+
+            //Trigger the event manually on page load so it has an initial count
+            textEl.keyup();
+        });
+        setupPeerFeedbackPage();
+    });
+    function setupPeerFeedbackPage() {
+        $('div.form-check.hide input[type="checkbox"]').prop("checked", false);
+        $('div.form-check.hide input[type="hidden"]').val(0);
+        itemNeedToEvaluate = '';
+        if ($('input[type="radio"][id*="rdb_"]:checked').length > 0) {
+            $('#spItemNeedToTake').empty();
+            let itemNeedToTake = '';
+            const users = [];
+            $('input[data-validate-for]').each(function (index) {
+                const id = $(this).data("validate-for");
+                const name = $(this).data("name");
+                const userId = $(this).data("user");
+                let elements = $(`input[data-validate-for][data-user='${userId}']`);
+                let question = $(this).data("question");
+                let numberOfSelectedAnswer = $(`input[type="checkbox"][data-user="${userId}"][data-question="${question}"]:checked`).length
+                let isComplete = numberOfSelectedAnswer > 0 ? true : false;
+                if (elements.length > 1 && !users.includes(userId) && !isComplete) {
+                    users.push(userId);
+                    itemNeedToTake += `<i><a class="alert-link mr-1" onclick="focusTo(this)" href="#" data-target="${id}">${name}</a></i>&nbsp;`;
+                    $(`#${id}`).attr('style', 'border: 1px solid #dc3545');
+                    itemNeedToEvaluate += `${name} `;
+                }
+                else if (!isComplete) {
+                    $(`#${id}`).attr('style', 'border: 1px solid #dc3545');
+                }
+                else {
+                    $(`#${id}`).removeAttr('style');
+                }
+
+            });
+            if (itemNeedToTake.length > 0) {
+                $('#rowWarning').show();
+                $('#spCountNotComplete').html(users.length);
+                $('#spItemNeedToTake').append(itemNeedToTake);
+            } else {
+                $('#rowWarning').hide();
+            }
+        } else {
+            $('#rowWarning').hide();
+        }
+    }
+    function focusTo(source) {
+        event.preventDefault();
+        var target = $(source).data('target');
+        $('html,body').animate({
+            scrollTop: $(`#${target}`).offset().top
+        },'slow');
+    }
+    function handleChangeOption(element) {
+        const isChecked = $(element).is(":checked");
+        const ratingOptionGroup = $(element).data("rating-option-group");
+        const user = $(element).data("user");
+        const question = $(element).data("question");
+        const tag = `${user}${question}`;
+        const hiddenId = $(element).data('id');
+        $(`div[data-tag="${tag}"`).removeClass("hide");
+        $(`div[data-tag="${tag}"`).addClass("hide");
+        $(`input[type='checkbox'][data-tag=${tag}]`).prop("disabled", true);
+
+        if (isChecked) {
+            $(`#dv_${user}_${question}`).show();
+            $(`input[type=checkbox][data-rating-option-group='${ratingOptionGroup}']`).prop("disabled", isClosed);
+            $(`div[data-group="container_option_group_${ratingOptionGroup}"]`).removeClass("hide");
+            $(`div[data-group="container_option_group_${ratingOptionGroup}"]`).parent()
+            $(`#${hiddenId}`).val($(element).val());
+            $(`input[type=checkbox][disabled=disabled][data-rating-option-group='${ratingOptionGroup}']`).each(function () {
+                const defaultChecked = $(this).data("checked");
+                if (defaultChecked) {
+                    $(this).prop("checked", true);
+                    $(this).trigger('change');
+                }
+            });
+            const isExceedsExpectations = $(element).data("exceeds-expectations");
+            if (isExceedsExpectations === 1) {
+                $(`#label_Exceeds_expectations_${user}_${question}`).show();
+                $(`div[data-group='container_option_group_${ratingOptionGroup}']>input[type=checkbox]`).each(function () {
+                    const defaultChecked = $(this).attr("checked");
+                    if (defaultChecked) {
+                        $(this).prop("checked", true);
+                        $(this).trigger('change');
+                    }
+                });
+            }
+            else
+                $(`#label_Exceeds_expectations_${user}_${question}`).hide();
+        }
+        else {
+            $(`div[data-group="container_option_group_${ratingOptionGroup}"]`).addClass("hide");
+            $(`#${hiddenId}`).val(0);
+        }
+    }
+    function setOptionValue(element) {
+        const isChecked = $(element).is(":checked");
+        const id = $(element).data("id");
+        const defaultChecked = $(element).data("checked");
+        if (isChecked)
+            $(`#${id}`).val($(element).val());
+        else {
+            $(`#${id}`).val(0);
+            if (defaultChecked) {
+                $(element).data("checked", false);
+            }
+        }
+    }
+</script>

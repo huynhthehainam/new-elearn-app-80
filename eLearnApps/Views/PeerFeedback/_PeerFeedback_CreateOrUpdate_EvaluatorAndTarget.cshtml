@@ -1,0 +1,71 @@
+﻿@using helpers = eLearnApps.Helpers
+@using eLearnApps.Core
+@model eLearnApps.ViewModel.PeerFeedback.ManagePeerFeedbackModel
+<div class="mt-3">
+    <form>
+        @Html.AntiForgeryToken()
+        <div class="mt-3 mb-3">
+            <div class="row">
+                <div class="col-6 float-left">
+                    <button class="k-button" type="button" id="btnExp" data-expand="true">Expand</button>
+                    <button class="k-button" type="button" id="btnColps" data-expand="true">Collapse</button>
+                </div>
+            </div>
+        </div>
+        <div id="sessionPairingList" style="border:none;">
+        </div>
+    </form>
+</div>
+<div class="overlay" id="dvOverlay"></div>
+<div id="divSetting"></div>
+
+<script>
+    function reloadEvaluationSession() {
+        showLoading($('.tab-form'));
+        getEvaluationSessionListDataSource().then(function (dataSource) {
+            $('#sessionPairingList').html(dataSource);
+            hideLoading($('.tab-form'));
+        });
+        $('#divSetting').html('');
+    }
+    var arrSelfEvaluation = [@((int)PeerFeedbackType.StudentsEvaluateOwnGroupMembers)];
+    function editEvaluationSession(data) {
+        showLoading($('.tab-form'));
+        const url = "@Url.Action("EvaluationCreateOrUpdateSessionAllocationAssignSession", "Pet", new { courseId = ViewBag.CourseId })";
+        createPostRequest(url).then(function(response) {
+            $('#divAssignSession').html(response);
+            var model = { EvaluationPairingId: $(data).attr('data-evaluationPairingId') }
+            window.ShowEditSessionsForm(model);
+            hideLoading($('.tab-form'));
+        });
+    }
+    function createOrUpdateTargets(element) {
+        const urlAdd = `@Url.Action("CreateOrUpdateEvaluatorAndTarget", "PeerFeedback")`;
+        const param = {
+            peerFeedbackId: @Model.Id,
+            peerFeedBackSessionId: $(element).data("session"),
+            peerFeedBackPairingId: $(element).data("pairing")
+        };
+        createPostRequest(urlAdd, param).then(function (data) {
+            $('#divSetting').html('');
+            $('#divSetting').html(data);
+            const slide = kendo.fx($("#formTargets")).slideIn("left");
+            slide.play();
+            $(".overlay").show();
+        });
+    }
+    const getEvaluationSessionListDataSource = () => {
+        var url = `@Url.Action("PeerFeedBackTargetsGetTargetPairingList", "PeerFeedback")`;
+        return createPostRequest(url, { peerFeedbackId: @Model.Id });
+    }
+    $(document).ready(function() {
+        reloadEvaluationSession();
+        $('#btnExp').click(function() {
+            $('.collapse').collapse('show');
+        });
+
+        $('#btnColps').click(function() {
+            $('.collapse').collapse('hide');
+        });
+    });
+</script>

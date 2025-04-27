@@ -1,0 +1,122 @@
+﻿
+<div id="dialogModal">
+    <div id="gridPreview"></div>
+</div>
+
+<script>
+    var selectedCourseId = [];
+    function openDialog(param) {
+        $("#dialogModal").data("kendoDialog").open();
+        const url = `@Url.Action("GetGroupReadiness", "PeerFeedback")`;
+        createPostRequest(url, param).then(function (response) {
+            setDataSource(response.Data);
+            selectedCourseId = response.Data.map(x => x.CourseId);
+        });
+    }
+    function onOkClick(e) {
+        window.kendo.ui.progress($('#formAddSession'), true);
+        const syncUrl = `@Url.Action("SyncGroupEnrollment", "PeerFeedback")`;
+        createPostRequest(syncUrl, { selectedCourseId: selectedCourseId }).then(function () {
+            window.kendo.ui.progress($('#formAddSession'), false);
+            window.HandleSave();
+        });
+        e.sender.close();
+    }
+    function onCancelClick() {
+
+    }
+    function createDialog() {
+        const dialog = $("#dialogModal").data('kendoDialog');
+        const txtStartTime = GetLocalTime(kendo.parseFloat('@Model.Session.StartTotalMilliseconds'), window.TimeZone,  DateFormat.FormatAm);
+        const txtEndTime = GetLocalTime(kendo.parseFloat('@Model.Session.EndTotalMilliseconds'), window.TimeZone,  DateFormat.FormatAm);
+        const startTimeDisplay = moment(txtStartTime).tz(window.TimeZone).utc().format("DD MMM YYYY HH:mm:ss")
+        const endTimeDisplay = moment(txtEndTime).tz(window.TimeZone).utc().format("DD MMM YYYY HH:mm:ss")
+        if (dialog === null || dialog === undefined) {
+            $("#dialogModal").kendoDialog({
+                width: "1200px",
+                height: "600px",
+                title: `Preview for ${$('#txtLabel').val()} starting from ${startTimeDisplay} to ${endTimeDisplay}`,
+                visible: false,
+                closable: true,
+                modal: true,
+                actions: [
+                    { text: 'Confirm', primary: true, action: onOkClick },
+                    {
+                        text: 'Cancel',
+                        primary: false,
+                        action: onCancelClick
+                    }
+
+                ]
+            });
+        }
+    }
+    function createGrid() {
+        $("#gridPreview").kendoGrid({
+            noRecords: true,
+            pageable: {
+                refresh: true,
+                messages: {
+                    empty: "No item to display"
+                }
+            },
+            scrollable: true,
+            columns: [
+                {
+                    field: "OfferingSchool",
+                    title: "Offering School",
+                    width: 100
+                },
+                {
+                    field: "CourseCode",
+                    title: "Course Code",
+                    width: 200
+                },
+                {
+                    title: 'Course Title',
+                    field: 'CourseTitle',
+                    width: 300
+                },
+                {
+                    title: 'Instructor Name',
+                    field: 'InstructorName',
+                    width: 300,
+                    template: function (dataItem) {
+                        return dataItem.InstructorName;
+                    }
+                }
+            ]
+        });
+        $("#gridPreview").hide();
+    }
+    function setDataSource(dataSource) {
+        $("#gridPreview").show();
+        var grid = $("#gridPreview").data("kendoGrid");
+        dataSource.forEach(dataItem => {
+            if (dataItem.InstructorName !== null && dataItem.InstructorName !== undefined && dataItem.InstructorName.length > 0) {
+                let msg = `<li>${dataItem.InstructorName}</li>`;
+                if (dataItem.InstructorName.indexOf(',') > -1) {
+                    msg = '';
+                    const instructors = dataItem.InstructorName.split(',');
+                    instructors.forEach(name => {
+                        msg += `<li>${kendo.htmlEncode(name.trim())}</li>`;
+                    });
+                }
+                dataItem.InstructorName = `<ul>${msg}</ul>`;
+            } else {
+                dataItem.InstructorName = 'N.A';
+            }
+            return dataItem;
+        });
+        const ds = new kendo.data.DataSource({
+            data: dataSource
+        });
+        ds.fetch(function () {
+            grid.setDataSource(ds);
+        });
+    }
+    $(document).ready(function () {
+        createGrid();
+        createDialog();
+    });
+</script>
