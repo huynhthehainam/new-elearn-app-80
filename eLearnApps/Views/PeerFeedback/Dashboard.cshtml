@@ -190,7 +190,7 @@
             let result = response.map(item => {
                 const startTime = moment.utc(item.EntryStartTime).local().format("DD MMM YYYY");
                 const closeTime = moment.utc(item.EntryCloseTime).local().format("DD MMM YYYY");
-                const displayText = `(${item.PeerFeedBackName}) ${item.Label} (${startTime} to ${closeTime})`;
+                const displayText = `(${item.peerFeedBackName}) ${item.label} (${startTime} to ${closeTime})`;
                 return { displayText: displayText, sessionId: item.Id, peerFeedBackId: item.PeerFeedBackId }
             });
             var ds = new kendo.data.DataSource({

@@ -50,7 +50,7 @@
     function SearchPeerFeedback() {
         const grid = $("#grid").data("kendoGrid");
         let dataSource = grid.dataSource;
-        dataSource.filter({ field: "Name", operator: "contains", value: $("#txtSearch").val() });
+        dataSource.filter({ field: "name", operator: "contains", value: $("#txtSearch").val() });
         grid.setDataSource(dataSource);
     }
 
@@ -82,11 +82,15 @@
     const bindGridView = () => {
         getDatasource().then(function (response) {
             const grid = $("#grid").data("kendoGrid");
-            if (response && response.Data) {
+            if (response && response.data) {
                 const source = new window.kendo.data.DataSource({
-                    schema: {
-                        data: () => response.Data, total: () => response.Total, errors: () => response.Errors
+                   schema: {
+                        data: () => response.data,
+                        total: () => response.total,
+                        errors: () => response.errors,
+
                     },
+
                     pageSize: @(constants.PageSize),
                     serverSorting: false
                 });
@@ -110,14 +114,15 @@
             scrollable: true,
             columns: [
                 {
-                    field: "Name",
+                    field: "name",
                     title: "Title",
                     sortable: {
                         initialDirection: "desc"
                     },
                     width: 400
                 }, {
-                    field: "Description",
+                    field: "description",
+                    title: "Description",
                     width: 400
                 }, {
                     command: [

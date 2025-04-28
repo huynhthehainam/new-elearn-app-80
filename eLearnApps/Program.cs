@@ -5,6 +5,7 @@ using eLearnApps.Core.Caching;
 using eLearnApps.Data;
 using eLearnApps.Data.Interface;
 using eLearnApps.Helpers;
+using eLearnApps.Hubs;
 using eLearnApps.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,11 @@ namespace eLearnApps
                 options.IdleTimeout = TimeSpan.FromMinutes(20); // Set session timeout
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
+            });
+
+            builder.Services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
             });
 
             // Add services to the container.
@@ -62,6 +68,7 @@ namespace eLearnApps
             builder.Services.AddScoped<ICmtService, CmtService>();
             builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
             builder.Services.AddScoped<IPeerFeedbackService, PeerFeedbackService>();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             builder.Services.AddScoped<IValenceService, ValenceService>();
 
@@ -105,6 +112,11 @@ namespace eLearnApps
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Account}/{action=LTIVIEW}/{id?}");
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<PeerFeedBackHub>("/peerfeedbackhub"); // <-- MAP YOUR HUB
+            });
+
 
 
             using (var scope = app.Services.CreateScope())

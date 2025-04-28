@@ -67,15 +67,25 @@
 }
 
 <script>
-    var connection = $.hubConnection();
-    var hub = connection.createHubProxy("PeerFeedBackHub");
-    hub.on("sessionLogout",
-        function (url) {
-            window.location.replace(url);
+      // Create the SignalR connection
+    document.addEventListener("DOMContentLoaded", function () {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/peerfeedbackhub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+        console.log('dom content loaded');
+        connection.start()
+            .then(function () {
+                console.log("Connected!");
+            })
+            .catch(function (err) {
+                console.error("SignalR Error: ", err.toString());
+            });
+
+        connection.on("sessionLogout", function (surveyUrl) {
+            window.location.href = surveyUrl;
         });
-    $.connection.hub.logging = true;
-    connection.logging = true;
-    connection.start();
+    });
 
     $(document).ready(function () {
 

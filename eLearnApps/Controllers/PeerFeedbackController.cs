@@ -35,7 +35,7 @@ using Extensions = eLearnApps.Extension.Extensions;
 
 namespace eLearnApps.Controllers
 {
-    public class PeerFeedbackController : BaseController
+    public class PeerFeedbackController : BaseNoCourseController
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -62,8 +62,9 @@ namespace eLearnApps.Controllers
             ICourseCategoryService courseCategoryService,
             IWebHostEnvironment env,
             ILoggingService loggingService,
+            ICurrentUserService currentUserService,
             IUserGroupService userGroupService, IValenceService valenceService,
-            IAuditService auditService) : base(cacheManager, errorLogService, httpContextAccessor, configuration, serviceProvider, compositeViewEngine)
+            IAuditService auditService) : base(cacheManager, errorLogService, serviceProvider, configuration, httpContextAccessor, currentUserService)
         {
             _courseService = courseService;
             _userService = userService;

@@ -80,8 +80,8 @@
                     return response.total;
                 },
                 fields: {
-                    Text: { type: "string" },
-                    Value: { type: "string" }
+                    text: { type: "string" },
+                    value: { type: "string" }
                 }
             }
         });
@@ -136,13 +136,13 @@
         };
         // create MultiSelect from select HTML element
         cboTerm = $("#ddlTerm").kendoMultiSelect({
-            itemTemplate: "<input type='checkbox' class='k-checkbox' style='margin-right:5px;'/>#:data.Text#",
+            itemTemplate: "<input type='checkbox' class='k-checkbox' style='margin-right:5px;'/>#:data.text#",
             autoClose: false,
             clearButton: true,
             autoWidth: true,
             filter: "contains",
-            dataTextField: "Text",
-            dataValueField: "Value",
+            dataTextField: "text",
+            dataValueField: "value",
             dataBound: function () {
                 var items = this.ul.find("li");
                 setTimeout(function () {
@@ -165,7 +165,7 @@
         createPostRequest(url).then(function (response) {
             let result = response.Data.map(item => {
                 /*const displayText = `(${item.PeerFeedBackName}) ${item.Label} (${startTime} to ${closeTime})`;*/
-                return { displayText: item.Text, termId: item.Value }
+                return { displayText: item.text, termId: item.value }
             });
             var ds = new kendo.data.DataSource({
                 data: result

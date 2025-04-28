@@ -14,6 +14,8 @@ using eLearnApps.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.Web;
 using eLearnApps.Models;
+using Microsoft.AspNetCore.SignalR;
+using eLearnApps.Hubs;
 
 namespace eLearnApps.Controllers
 {
@@ -33,8 +35,9 @@ namespace eLearnApps.Controllers
         private readonly ILoggingService _loggingService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPeerFeedbackService _peerFeedbackService;
+        private readonly IHubContext<PeerFeedBackHub> _hubContext;
         private readonly WebHelper _webHelper;
-        public AccountController(IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor, IServiceProvider serviewProvider, ILoggingService loggingService, IPeerFeedbackService peerFeedbackService)
+        public AccountController(IHubContext<PeerFeedBackHub> hubContext, IAppSettingService appSettingService, IConfiguration configuration, IUserService userService, IValenceService valenceService, IRoleService roleService, IHttpContextAccessor httpContextAccessor, IServiceProvider serviewProvider, ILoggingService loggingService, IPeerFeedbackService peerFeedbackService)
         {
             _appSettingService = appSettingService;
             _configuration = configuration;
@@ -46,6 +49,7 @@ namespace eLearnApps.Controllers
             _serviewProvider = serviewProvider;
             _loggingService = loggingService;
             _peerFeedbackService = peerFeedbackService;
+            _hubContext = hubContext;
         }
         [AllowAnonymous]
         public IActionResult LtiView()
@@ -233,6 +237,35 @@ namespace eLearnApps.Controllers
 
             log.Debug($"no access found for user: {userId}");
             return RedirectToAction("AccessDenied", "Error");
+        }
+        [HttpGet, Authorize]
+        public async Task<ActionResult> LogOff()
+        {
+            try
+            {
+                var constants = new Constants(_configuration);
+                var user = User as ClaimsPrincipal;
+                var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var claimHelper = new ClaimHelper(_serviewProvider);
+                claimHelper.ClearUserFromCache(userId);
+
+                // Setting.    
+                await HttpContext.SignOutAsync();
+
+                // Clear session
+                HttpContext.Session.Clear();
+
+                // Notify clients via SignalR
+                await _hubContext.Clients.All.SendAsync("sessionLogout", constants.SurveyUrl);
+            }
+            catch (Exception ex)
+            {
+                // Info    
+                throw ex;
+            }
+
+            // Info.    
+            return RedirectToAction("LtiView", "Account");
         }
         [Authorize, HttpPost, ValidateAntiForgeryToken]
         public ActionResult UpdateClaims(int courseId, string hash, string referrer)

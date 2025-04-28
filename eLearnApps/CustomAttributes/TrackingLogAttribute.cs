@@ -54,16 +54,19 @@ namespace eLearnApps.CustomAttribute
                 else if (controllerType == "BaseNoCourseController" && context.Controller is BaseNoCourseController baseController)
                 {
                     var userInfo = baseController.UserInfo;
-
-                    loggingModel = new LoggingModel
+                    if (userInfo != null)
                     {
-                        UserId = userInfo.UserId,
-                        RoleId = roleId,
-                        IpAddress = request.HttpContext.Connection.RemoteIpAddress?.ToString(),
-                        ToolId = $"{controllerName}_{actionName}",
-                        UserName = string.IsNullOrEmpty(userInfo.UserName) ? "Unknown" : userInfo.UserName,
-                        SessionId = context.HttpContext.Session.Id
-                    };
+                        loggingModel = new LoggingModel
+                        {
+                            UserId = userInfo.UserId,
+                            RoleId = roleId,
+                            IpAddress = request.HttpContext.Connection.RemoteIpAddress?.ToString(),
+                            ToolId = $"{controllerName}_{actionName}",
+                            UserName = string.IsNullOrEmpty(userInfo.UserName) ? "Unknown" : userInfo.UserName,
+                            SessionId = context.
+                            HttpContext.Session.Id
+                        };
+                    }
                 }
 
                 if (loggingModel != null)
