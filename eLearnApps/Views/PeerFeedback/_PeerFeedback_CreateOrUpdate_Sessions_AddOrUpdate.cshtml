@@ -196,15 +196,15 @@
         const selectedCourseCode = cboParticipatingCourse.value();
         if (isValid()) {
             kendo.ui.progress($('#formAddSession'), true);
-            var data = {
-                Id: '@Model.Session.Id',
-                Label: txtLabel,
-                Strm: $('#strm').data('kendoDropDownList').value(),
-                PeerFeedbackId: '@Model.Session.PeerFeedbackId',
-                EntryStartTime: moment(txtStart).tz(window.TimeZone).utc().format("DD MMM YYYY HH:mm:ss"),
-                EntryCloseTime: moment(txtEnd).tz(window.TimeZone).utc().format("DD MMM YYYY HH:mm:ss"),
-                PeerFeedbackSessionId: '@Model.Session.Id',
-                CourseOfferingCode: selectedCourseCode
+            const data = {
+                id: '@Model.Session.Id',
+                label: txtLabel,
+                strm: $('#strm').data('kendoDropDownList').value(),
+                peerFeedbackId: '@Model.Session.PeerFeedbackId',
+                entryStartTime: moment(txtStart).tz(window.TimeZone).utc().format("DD MMM YYYY HH:mm:ss"),
+                entryCloseTime: moment(txtEnd).tz(window.TimeZone).utc().format("DD MMM YYYY HH:mm:ss"),
+                peerFeedbackSessionId: '@Model.Session.Id',
+                courseOfferingCode: selectedCourseCode
             };
             const saveEvalSessionUrl = '@Url.Action("PeerFeedbackSessionSave", "PeerFeedback")';
             createPostRequest(saveEvalSessionUrl, data).then(function (response) {
@@ -344,16 +344,16 @@
                     return response.total;
                 },
                 fields: {
-                    Text: { type: "string" },
-                    Value: { type: "string" }
+                    text: { type: "string" },
+                    value: { type: "string" }
                 }
             }
         });
         cboStrm = $("#strm").kendoDropDownList({
             value: "",
             filter: "contains",
-            dataTextField: "Text",
-            dataValueField: "Value",
+            dataTextField: "text",
+            dataValueField: "value",
             change: function (e) {
                 getParticipatingDatasource();
             },
@@ -406,10 +406,10 @@
         }
 
         cboParticipatingCourse = $("#cboParticipatingCourse").kendoMultiSelect({
-            itemTemplate: "<input type='checkbox' class='k-checkbox'/> #:data.Text#",
+            itemTemplate: "<input type='checkbox' class='k-checkbox'/> #:data.text#",
             autoClose: false,
-            dataTextField: "Text",
-            dataValueField: "Value",
+            dataTextField: "text",
+            dataValueField: "value",
             dataSource: [],
             downArrow: true,
             dataBound: function () {
@@ -490,7 +490,7 @@
         const url = `@Url.Action("GetCourseOfferingCodeByStrm", "PeerFeedback")`;
         createPostRequest(url, { strm: term }).then(function (response) {
             const data = response.map(function (item) {
-                return { Text: item, Value: item };
+                return { text: item, value: item };
             });
             var ds = new kendo.data.DataSource({
                 data: data

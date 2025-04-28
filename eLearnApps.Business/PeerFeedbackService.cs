@@ -1396,12 +1396,12 @@ namespace eLearnApps.Business
             }
             return result;
         }
-        public List<string> PeerFeedBackSessionGetCourseOfferingCodeBySessionIds(List<int> sessionIds)
+        public List<string>? PeerFeedBackSessionGetCourseOfferingCodeBySessionIds(List<int> sessionIds)
         {
             if (sessionIds == null || !sessionIds.Any())
                 return null;
             var codes = _repositoryPeerFeedbackSessions.TableNoTracking.Where(x => sessionIds.Contains(x.Id) && x.IsDeleted == false).Select(x => x.CourseOfferingCode).ToList();
-            return codes.SelectMany(c => c.Split(',')).Distinct().ToList();
+            return codes.SelectMany(c => string.IsNullOrEmpty(c) ? new string[0] : c.Split(',')).Distinct().ToList();
         }
         public async Task<(int TotalCount, IList<CourseOfferingDto> Terms)> PeerFeedbackGetWhitelistedTermPagingAsync(int page = 1,
             int pageSize = 100, string filter = default, bool useFullDbName = false, AcadCareer acadCareer = AcadCareer.UG)
@@ -1418,10 +1418,11 @@ namespace eLearnApps.Business
         {
             if (string.IsNullOrEmpty(strm)) return new List<string>();
 
-            var results = await _repositoryTlCourseOfferings.TableNoTracking
-                .Where(x => x.STRM == strm)
-                .Select(x => x.CourseOfferingCode)
-                .Distinct().ToListAsync();
+            var results = _repositoryTlCourseOfferings.TableNoTracking
+                              .Where(x => x.STRM == strm)
+                              .Select(x => x.CourseOfferingCode)
+                              .Distinct()
+                              .ToList();
             return results;
         }
         public async Task<TextValue> PeerFeedbackGetDefaultSelectedStrm(string strm)
@@ -1446,14 +1447,14 @@ namespace eLearnApps.Business
         {
             if (strms == null || !strms.Any()) return new List<TextValue>();
 
-            var results = await _repositoryTlCourseOfferings.TableNoTracking
+            var results = _repositoryTlCourseOfferings.TableNoTracking
                 .Where(x => strms.Contains(x.STRM) && x.MERGE_SECTION == false)
                 .Select(x => new CourseOfferingDto
                 {
                     STRM = x.STRM,
                     ACADEMIC_YEAR = x.ACADEMIC_YEAR,
                     ACADEMIC_TERM = x.ACADEMIC_TERM
-                }).ToListAsync();
+                }).ToList();
             return results.Select(result => new TextValue
             {
                 Value = result.STRM,

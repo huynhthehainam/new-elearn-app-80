@@ -9,8 +9,8 @@
         $("#dialogModal").data("kendoDialog").open();
         const url = `@Url.Action("GetGroupReadiness", "PeerFeedback")`;
         createPostRequest(url, param).then(function (response) {
-            setDataSource(response.Data);
-            selectedCourseId = response.Data.map(x => x.CourseId);
+            setDataSource(response.data);
+            selectedCourseId = response.data.map(x => x.courseId);
         });
     }
     function onOkClick(e) {
@@ -63,26 +63,26 @@
             scrollable: true,
             columns: [
                 {
-                    field: "OfferingSchool",
+                    field: "offeringSchool",
                     title: "Offering School",
                     width: 100
                 },
                 {
-                    field: "CourseCode",
+                    field: "courseCode",
                     title: "Course Code",
                     width: 200
                 },
                 {
                     title: 'Course Title',
-                    field: 'CourseTitle',
+                    field: 'courseTitle',
                     width: 300
                 },
                 {
                     title: 'Instructor Name',
-                    field: 'InstructorName',
+                    field: 'instructorName',
                     width: 300,
                     template: function (dataItem) {
-                        return dataItem.InstructorName;
+                        return dataItem.instructorName;
                     }
                 }
             ]
@@ -93,18 +93,18 @@
         $("#gridPreview").show();
         var grid = $("#gridPreview").data("kendoGrid");
         dataSource.forEach(dataItem => {
-            if (dataItem.InstructorName !== null && dataItem.InstructorName !== undefined && dataItem.InstructorName.length > 0) {
-                let msg = `<li>${dataItem.InstructorName}</li>`;
-                if (dataItem.InstructorName.indexOf(',') > -1) {
+            if (dataItem.instructorName !== null && dataItem.instructorName !== undefined && dataItem.instructorName.length > 0) {
+                let msg = `<li>${dataItem.instructorName}</li>`;
+                if (dataItem.instructorName.indexOf(',') > -1) {
                     msg = '';
-                    const instructors = dataItem.InstructorName.split(',');
+                    const instructors = dataItem.instructorName.split(',');
                     instructors.forEach(name => {
                         msg += `<li>${kendo.htmlEncode(name.trim())}</li>`;
                     });
                 }
-                dataItem.InstructorName = `<ul>${msg}</ul>`;
+                dataItem.instructorName = `<ul>${msg}</ul>`;
             } else {
-                dataItem.InstructorName = 'N.A';
+                dataItem.instructorName = 'N.A';
             }
             return dataItem;
         });

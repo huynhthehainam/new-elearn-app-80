@@ -29,25 +29,25 @@
 <div id="divAddSession">
 </div>
 <script type="text/x-kendo-template" id="sessionItemTemplate">
-    <div class="k-card m-3" data-SessionId="#: Id #">
+    <div class="k-card m-3" data-SessionId="#: id #">
         <div class="k-card-header" style="background-color:white;padding:0;">
             <h5 class="mr-auto"></h5>
                 <span class="k-card-action float-right">
-                    <button class="btn" type="button" data-SessionId="#: Id #" onclick="deletePeerFeedbackSession(this)" style="background-color:inherit;" >
+                    <button class="btn" type="button" data-SessionId="#: id #" onclick="deletePeerFeedbackSession(this)" style="background-color:inherit;" >
                         <span class="k-icon k-i-delete" style="font-size:20px;"></span>
                     </button>
-                    <button class="btn" type="button" data-SessionId="#: Id #" onclick="EditPeerFeedbackSession(this);"  style="background-color:inherit;" >
+                    <button class="btn" type="button" data-SessionId="#: id #" onclick="EditPeerFeedbackSession(this);"  style="background-color:inherit;" >
                         <span class="k-icon k-i-hyperlink-open" style="font-size:20px;"></span>
                     </button>
                 </span>
         </div>
         <div class="k-card-body">
-            <span class="card-text"><strong>#: Label #</strong></span><br />
-            <span class="card-text"><strong>Term:</strong> #: Term #</span><br />
-            <span class="card-text"><strong>Start Date: </strong>#: GetLocalTime(kendo.parseFloat(StartTotalMilliseconds), window.TimeZone, DateFormat.FormatAm) #</span><br />
-            <span class="card-text"><strong>End Date: </strong>#: GetLocalTime(kendo.parseFloat(EndTotalMilliseconds), window.TimeZone, DateFormat.FormatAm) #</span><br />
+            <span class="card-text"><strong>#: label #</strong></span><br />
+            <span class="card-text"><strong>Term:</strong> #: term #</span><br />
+            <span class="card-text"><strong>Start Date: </strong>#: GetLocalTime(kendo.parseFloat(startTotalMilliseconds), window.TimeZone, DateFormat.FormatAm) #</span><br />
+            <span class="card-text"><strong>End Date: </strong>#: GetLocalTime(kendo.parseFloat(endTotalMilliseconds), window.TimeZone, DateFormat.FormatAm) #</span><br />
         </div>
-        <input type="hidden" value="#: PeerFeedbackId #" Name="PeerFeedbackId" />
+        <input type="hidden" value="#: peerFeedbackId #" Name="PeerFeedbackId" />
     </div>
 </script>
 

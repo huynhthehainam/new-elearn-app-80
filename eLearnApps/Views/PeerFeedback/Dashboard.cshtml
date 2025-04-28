@@ -188,10 +188,10 @@
         const url = `@Url.Action("GetReportFilterSession", "PeerFeedback")`;
         createPostRequest(url).then(function (response) {
             let result = response.map(item => {
-                const startTime = moment.utc(item.EntryStartTime).local().format("DD MMM YYYY");
-                const closeTime = moment.utc(item.EntryCloseTime).local().format("DD MMM YYYY");
+                const startTime = moment.utc(item.entryStartTime).local().format("DD MMM YYYY");
+                const closeTime = moment.utc(item.entryCloseTime).local().format("DD MMM YYYY");
                 const displayText = `(${item.peerFeedBackName}) ${item.label} (${startTime} to ${closeTime})`;
-                return { displayText: displayText, sessionId: item.Id, peerFeedBackId: item.PeerFeedBackId }
+                return { displayText: displayText, sessionId: item.id, peerFeedBackId: item.peerFeedBackId }
             });
             var ds = new kendo.data.DataSource({
                 data: result
