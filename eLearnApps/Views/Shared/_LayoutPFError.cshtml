@@ -50,25 +50,21 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js" integrity="sha512-gtcrasYnyeB27+IejClswFlb/eggt+khRr+lLAeNcgg5x2ijlWaiBOPXZkwivNj15LaE6s9CzV57hsoTPrQ5xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="module" src="https://unpkg.com/@Html.Raw("@github")/g-emoji-element@latest?module"></script>
-    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@microsoft/signalr@8.0.7/dist/browser/signalr.js\"></script>")
-
-
-    @* <script src="~/signalr/hubs"></script> *@
 
     @Html.Partial("_AppJs")
     <script>
-        var CourseId;
-        var detect = jstz.determine();
-        var TimeZone = detect.name();
+    var CourseId;
+    var detect = jstz.determine();
+    var TimeZone = detect.name();
 
-        kendo.pdf.defineFont({
-            "DejaVu Sans"             : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans.ttf")",
-            "DejaVu Sans|Bold"        : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Bold.ttf")",
-            "DejaVu Sans|Bold|Italic" : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Oblique.ttf")",
-            "DejaVu Sans|Italic"      : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Oblique.ttf")",
-            "WebComponentsIcons"      : "@Url.Content("~/Content/kendo/fonts/glyphs/WebComponentsIcons.ttf")",
-            "SimSun"      : "@Url.Content("~/Content/kendo/fonts/glyphs/simsun.ttc")"
-        });
+    kendo.pdf.defineFont({
+        "DejaVu Sans"             : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans.ttf")",
+        "DejaVu Sans|Bold"        : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Bold.ttf")",
+        "DejaVu Sans|Bold|Italic" : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Oblique.ttf")",
+        "DejaVu Sans|Italic"      : "@Url.Content("~/Content/kendo/fonts/DejaVu/DejaVuSans-Oblique.ttf")",
+        "WebComponentsIcons"      : "@Url.Content("~/Content/kendo/fonts/glyphs/WebComponentsIcons.ttf")",
+        "SimSun"      : "@Url.Content("~/Content/kendo/fonts/glyphs/simsun.ttc")"
+    });
     </script>
     <style>
         .page-loading {
@@ -122,19 +118,18 @@
         });
     </script>
     @Html.Partial("_Header_PF")
-    <div class="app-body">
-        @Html.Partial("_LeftMenuPF")
-        @Html.Partial("~/Views/Account/_LoggedinUserInfo.cshtml")
-        <main class="main">
-            <br />
-            <div class="container-fluid" id="main">
-                @RenderBody()
-            </div>
+<div class="app-body">
+    @Html.Partial("~/Views/Account/_LoggedinUserInfo.cshtml")
+    <main class="main">
+        <br />
+        <div class="container-fluid" id="main">
+            @RenderBody()
+        </div>
 
-            <div id="dialog">
-            </div>
-        </main>
-    </div>
+        <div id="dialog">
+        </div>
+    </main>
+</div>
     <script src="~/Scripts/CoreUI/vendors/popper.js/js/popper.min.js"></script>
     <script src="~/Scripts/CoreUI/vendors/bootstrap/js/bootstrap.min.js"></script>
     <script src="~/Scripts/CoreUI/vendors/perfect-scrollbar/js/perfect-scrollbar.min.js"></script>

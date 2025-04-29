@@ -1,0 +1,145 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutPFError.cshtml";
+    ViewBag.PageIcon = Url.Content("~/Content/appsicon/psfs_logo_bg_blue.png");
+}
+
+<style>
+    .g-emoji {
+        display: inline-block;
+        min-width: 1ch;
+        font-family: "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+        font-size: 1em;
+        font-style: normal !important;
+        font-weight: 400;
+        line-height: 1;
+        vertical-align: -0.075em;
+    }
+
+    .my-custom-icon-class:before {
+        content: "https://github.githubassets.com/images/icons/emoji/unicode/1f3c6.png"; /* Adds a glyph using the Unicode character number */
+    }
+
+    h3, h5, p {
+        padding-left:1rem;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+    }
+
+    th.title {
+        text-align: center;
+        color: #ffffff;
+        border: 1px solid #ffffff;
+    }
+
+    th {
+        background-color: #bdd6ee;
+        text-align: left;
+        padding: 8px;
+        border: 1px solid #ffffff;
+    }
+
+    td {
+        background-color: #deeaf6;
+        border-right: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        padding: 8px;
+    }
+
+    .blue th.title {
+        background-color: #5996cc;
+    }
+    .blue th {
+        background-color: #bdd6ee;
+    }
+    .blue td {
+        background-color: #deeaf6;
+    }
+
+    .orange th.title {
+        background-color: #f69546;
+    }
+
+    .orange th {
+        background-color: #fde6d2;
+    }
+
+    .orange td {
+        background-color: #fcefe9;
+    }
+
+    .purple th.title {
+        background-color: #792a79;
+    }
+
+    .purple th {
+        background-color: #aa7aaa;
+    }
+
+    .purple td {
+        background-color: #eae8eb;
+    }
+
+    li .question-info {
+        display: none;
+        top: 50%;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 50rem;
+        /* Position the tooltip */
+        position: absolute;
+        z-index: 2;
+        background-color: transparent;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    }
+
+    li {
+        cursor: pointer;
+    }
+
+    #overlay {
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: black;
+        opacity: 0.5;
+        display: none;
+    }
+    #dvPeerFeedback{
+        padding-bottom: 2rem;
+    }
+</style>
+<div class="container" id="dvPeerFeedback">
+    <div class="row justify-content-center">
+        <div class="col-sm-7">
+            <div class="card bg-white">
+                <div class="card-body">
+                    <div class="row">
+                        <h3>Notice</h3>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div>
+                            <p>Thank you for your interest in <b>Peer & Self Feedback System</b>.</p>
+                        </div>
+                        <div >
+                            <p>Currently, there are no surveys applicable for you.</p>
+                        </div>
+                        <div >
+                            <p>If you have any questions or need further assistance, please feel free to contact <a href="mailto:elearn@smu.edu.sg">eLearn Team</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="overlay"></div>

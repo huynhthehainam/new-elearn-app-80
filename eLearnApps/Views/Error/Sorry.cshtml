@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "Sorry";
+    Layout = "~/Views/Shared/_LayoutError.cshtml";
+}
+
+<div class="clearfix">
+    <h1 class="float-left display-3 mr-4"><i class="fa fa-warning"></i></h1>
+    <h4 class="pt-4">eLearnApps encountered problem!</h4>
+    <p class="text-muted">The page you are looking for is temporarily unavailable.</p>
+</div>
+<div class="alert alert-danger" role="alert">
+    You may contact eLearn support (<a href="mailto:eLearn@smu.edu.sg">elearn@smu.edu.sg</a>) with following Log Number: @ViewBag.ErrorLogId
+</div>
+
+<p>
+    <a href="javascript:history.go(-2)">back to previous page</a><br />
+    <a href="https://www.smu.edu.sg/" target="_self"> back to smu home page</a>
+</p>
+
+@if (!string.IsNullOrWhiteSpace(ViewBag.Messages))
+{
+<div class="alert alert-danger" role="alert">
+    @ViewBag.Messages
+</div>
+}
+
