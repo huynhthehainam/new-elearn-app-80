@@ -1429,14 +1429,14 @@ namespace eLearnApps.Business
         {
             if (string.IsNullOrEmpty(strm)) return new TextValue();
 
-            var result = await _repositoryTlCourseOfferings.TableNoTracking
+            var result = _repositoryTlCourseOfferings.TableNoTracking
                 .Where(x => x.STRM == strm && x.MERGE_SECTION == false)
                 .Select(x => new CourseOfferingDto
                 {
                     STRM = x.STRM,
                     ACADEMIC_YEAR = x.ACADEMIC_YEAR,
                     ACADEMIC_TERM = x.ACADEMIC_TERM
-                }).FirstOrDefaultAsync();
+                }).FirstOrDefault();
             return new TextValue
             {
                 Value = result.STRM,

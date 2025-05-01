@@ -105,8 +105,20 @@
                 window.kendo.ui.progress($('#main'), true);
                 const response = await getBlobAsync(url, params);
                 if (response !== null && response !== undefined) {
-                    var fileName = response.headers["content-disposition"];
-                    fileName = fileName.replace('attachment; filename=', '');
+                   const contentDisposition = response.headers["content-disposition"] || "";
+                    let fileName = "download.csv"; // fallback
+
+                    // Try to extract filename*= (UTF-8)
+                    const utf8FileNameMatch = contentDisposition.match(/filename\*\=UTF-8''(.+?)(;|$)/);
+                    if (utf8FileNameMatch) {
+                        fileName = decodeURIComponent(utf8FileNameMatch[1]);
+                    } else {
+                        // Fallback to filename=
+                        const asciiFileNameMatch = contentDisposition.match(/filename="?([^\";]+)"?/);
+                        if (asciiFileNameMatch) {
+                            fileName = asciiFileNameMatch[1];
+                        }
+                    }
                     const data = await response.data;
                     if (data !== null && data !== undefined) {
                         var blob = new Blob([data], { type: "text/csv" });
